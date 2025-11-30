@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Thêm css global nếu cần */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+}
+
+/* --- CUSTOM MENU ĐẢNG (Red Background - White Text) --- */
+
+/* 1. Trạng thái bình thường */
+.custom-party-menu .ant-menu-item {
+    color: #ffffff !important; /* Chữ trắng */
+    text-transform: uppercase;
+    transition: all 0.3s;
+    margin: 0 4px !important; /* Khoảng cách giữa các mục */
+    padding: 0 16px !important;
+    border-radius: 4px; /* Bo góc nhẹ */
+}
+
+/* 2. Trạng thái Hover (Di chuột vào) */
+.custom-party-menu .ant-menu-item:hover {
+    color: #fff1aa !important; /* Chữ chuyển vàng nhạt */
+    background-color: rgba(255, 255, 255, 0.15) !important; /* Nền sáng lên xíu */
+}
+
+/* 3. Trạng thái Selected (Đang chọn) */
+.custom-party-menu .ant-menu-item-selected {
+    color: #fff1aa !important; /* Chữ vàng kem */
+    background-color: #851216 !important; /* Nền đỏ đậm hơn (tối hơn #a91f23 một chút) */
+    font-weight: normal !important; /* Không in đậm để tránh vỡ font */
+}
+
+/* 4. Xóa gạch chân mặc định của Antd */
+.custom-party-menu.ant-menu-horizontal > .ant-menu-item::after {
+    border-bottom: none !important;
+}

@@ -1,0 +1,24 @@
+# === QUAN TRỌNG: THƯ MỤC CỦA DỰ ÁN MONOREPO ===
+node_modules/
+*/node_modules/
+
+# === BẢO MẬT ===
+.env
+*/.env
+*.env
+*.pem
+*.key
+service-account.json
+
+# === FILES PHÁT SINH TỪ BUILD (React/Vite) ===
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-error.log
+/coverage/
+
+# === HỆ THỐNG & EDITOR ===
+.DS_Store
+Thumbs.db
+.vscode
