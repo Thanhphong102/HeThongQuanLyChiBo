@@ -9,6 +9,7 @@ node_modules/
 *.pem
 *.key
 service-account.json
+*/service-account-key.json
 
 # === FILES PHÁT SINH TỪ BUILD (React/Vite) ===
 dist/
@@ -22,3 +23,7 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 .vscode
+
+# === BỔ SUNG FILE LOCK VÀ KHÓA ===
+package-lock.json
+yarn.lock
