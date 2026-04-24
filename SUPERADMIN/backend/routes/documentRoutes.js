@@ -11,6 +11,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/', verifyToken, isSuperAdmin, documentController.getDocuments);
 router.post('/', verifyToken, isSuperAdmin, upload.single('file'), documentController.uploadDocument);
+router.put('/:id', verifyToken, isSuperAdmin, documentController.updateDocument);
 router.delete('/:id', verifyToken, isSuperAdmin, documentController.deleteDocument);
 
 module.exports = router;

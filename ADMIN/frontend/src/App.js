@@ -15,7 +15,9 @@ import MemberAccountManager from './pages/MemberAccountManager'; // Quản lý T
 import ActivityManager from './pages/ActivityManager'; 
 import FeeManager from './pages/FeeManager';           
 import FormManager from './pages/FormManager';     
-import MediaManager from './pages/MediaManager';    
+import MediaManager from './pages/MediaManager';
+import EventsManager from './pages/EventsManager';   // Task 8: Quản lý Hoạt động
+import TargetReceiver from './pages/TargetReceiver'; // Task 9: Nhận chỉ tiêu
 
 function App() {
   return (
@@ -40,6 +42,8 @@ function App() {
             <Route path="/dang-phi" element={<FeeManager />} />
             <Route path="/bieu-mau" element={<FormManager />} />
             <Route path="/thu-vien" element={<MediaManager />} />
+            <Route path="/hoat-dong" element={<EventsManager />} /> {/* Task 8 */}
+            <Route path="/nhan-chi-tieu" element={<TargetReceiver />} /> {/* Task 9 */}
           </Route>
         </Route>
 

@@ -9,5 +9,6 @@ router.post('/register', verifyToken, isSuperAdmin, authController.register);
 // API Mới: Đổi mật khẩu & Khóa tài khoản
 router.put('/reset-password/:id', verifyToken, isSuperAdmin, authController.resetPassword);
 router.put('/toggle-status/:id', verifyToken, isSuperAdmin, authController.toggleStatus);
+router.put('/update-role/:id', verifyToken, isSuperAdmin, authController.updateRole);
 
 module.exports = router;

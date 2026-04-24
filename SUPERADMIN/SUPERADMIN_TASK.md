@@ -1,0 +1,3 @@
+1. Ở trang quản lý tài khoản, tôi mong muốn dữ liệu trong cột chi bộ nếu là những dữ liệu cùng tên chi bộ sẽ giống màu nhau, còn khác thì là màu khác để dễ phân biệt giữa tên các chi bộ.
+2. Chỗ trạng thái thì vẫn còn gặp lại lỗi hiển thị khi tôi khóa/ẩn 1 tài khoản phía bên admin mà bên superadmin không cập nhật thay đổi trạng thái trên giao diện, nó có cập nhật về mặt dữ liệu backend nhưng nó chưa thay đổi về phía render giao diện. Bạn hãy khắc phục giúp tôi.
+Lưu ý là khi thay đổi code từ các yêu cầu trên bạn không cần tự động mở và chạy sever đâu tôi sẽ tự động kiểm tra.

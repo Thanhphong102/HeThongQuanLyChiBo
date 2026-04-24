@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Card, message } from 'antd';
+import { Form, Input, Button, Card, message, Divider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import authApi from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
@@ -85,13 +85,28 @@ const LoginPage = () => {
             <Button 
               type="primary" 
               htmlType="submit" 
-              className="w-full bg-red-dang hover:!bg-red-dam" 
+              className="w-full bg-red-dang hover:!bg-red-dam border-none shadow-md h-12" 
               size="large"
             >
-              <span className="font-bold text-yellow-sao">ĐĂNG NHẬP</span>
+              <span className="font-bold text-yellow-sao tracking-wider uppercase">Đăng nhập</span>
             </Button>
           </Form.Item>
         </Form>
+        <Divider className="my-6 border-gray-300"><span className="text-gray-400 text-sm">Cổng Điều Hướng</span></Divider>
+        <div className="flex justify-between gap-4 w-full">
+          <Button 
+            className="w-1/2 h-12 rounded-xl text-red-dang font-semibold border-red-dang/30 hover:bg-red-50 hover:border-red-dang transition-all" 
+            onClick={() => window.location.href = import.meta.env.VITE_SUPERADMIN_URL || 'http://localhost:5174'}
+          >
+            Quản lý Đảng bộ
+          </Button>
+          <Button 
+            className="w-1/2 h-12 rounded-xl text-yellow-600 font-semibold border-yellow-sao/50 hover:bg-yellow-50 hover:border-yellow-600 transition-all" 
+            onClick={() => window.location.href = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5175'}
+          >
+            Quản lý Chi bộ
+          </Button>
+        </div>
       </Card>
     </div>
   );

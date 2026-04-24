@@ -4,7 +4,22 @@ const { uploadFileToDrive, deleteFileFromDrive } = require('../services/driveSer
 // 1. GET: Lấy danh sách tin tức
 exports.getNews = async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM "news" ORDER BY created_at DESC');
+        const { search, startDate, endDate } = req.query;
+        let sql = 'SELECT * FROM "tintuc" WHERE 1=1';
+        let params = [];
+        let paramIndex = 1;
+
+        if (search) {
+            sql += ` AND tieu_de ILIKE $${paramIndex++}`;
+            params.push(`%${search}%`);
+        }
+        if (startDate && endDate) {
+            sql += ` AND ngay_tao >= $${paramIndex++}::timestamp AND ngay_tao <= $${paramIndex++}::timestamp`;
+            params.push(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+        }
+
+        sql += ' ORDER BY ngay_tao DESC';
+        const result = await db.query(sql, params);
         res.json(result.rows);
     } catch (error) {
         console.error(error);
@@ -14,10 +29,10 @@ exports.getNews = async (req, res) => {
 
 // 2. POST: Thêm tin tức mới (Upload ảnh)
 exports.createNews = async (req, res) => {
-    const { title, content } = req.body;
+    const { tieu_de, noi_dung } = req.body;
     const file = req.file;
 
-    if (!title) return res.status(400).json({ message: 'Tiêu đề không được để trống' });
+    if (!tieu_de) return res.status(400).json({ message: 'Tiêu đề không được để trống' });
 
     try {
         let imageUrl = null;
@@ -31,11 +46,11 @@ exports.createNews = async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO "news" (title, content, image_url, drive_file_id)
+            INSERT INTO "tintuc" (tieu_de, noi_dung, duong_dan_anh, ma_file_drive)
             VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
-        const result = await db.query(sql, [title, content, imageUrl, driveFileId]);
+        const result = await db.query(sql, [tieu_de, noi_dung, imageUrl, driveFileId]);
 
         res.status(201).json({ message: 'Đăng tin thành công', news: result.rows[0] });
     } catch (error) {
@@ -47,16 +62,16 @@ exports.createNews = async (req, res) => {
 // 3. PUT: Cập nhật tin tức
 exports.updateNews = async (req, res) => {
     const { id } = req.params;
-    const { title, content } = req.body;
+    const { tieu_de, noi_dung } = req.body;
     const file = req.file; // File ảnh mới (nếu có)
 
     try {
         // Lấy thông tin cũ để xử lý ảnh cũ
-        const oldNews = await db.query('SELECT * FROM "news" WHERE id = $1', [id]);
+        const oldNews = await db.query('SELECT * FROM "tintuc" WHERE ma_tin_tuc = $1', [id]);
         if (oldNews.rows.length === 0) return res.status(404).json({ message: 'Tin tức không tồn tại' });
 
-        let imageUrl = oldNews.rows[0].image_url;
-        let driveFileId = oldNews.rows[0].drive_file_id;
+        let imageUrl = oldNews.rows[0].duong_dan_anh;
+        let driveFileId = oldNews.rows[0].ma_file_drive;
 
         // Nếu người dùng upload ảnh mới
         if (file) {
@@ -71,12 +86,12 @@ exports.updateNews = async (req, res) => {
         }
 
         const sql = `
-            UPDATE "news" 
-            SET title = $1, content = $2, image_url = $3, drive_file_id = $4
-            WHERE id = $5
+            UPDATE "tintuc" 
+            SET tieu_de = $1, noi_dung = $2, duong_dan_anh = $3, ma_file_drive = $4
+            WHERE ma_tin_tuc = $5
             RETURNING *
         `;
-        const result = await db.query(sql, [title, content, imageUrl, driveFileId, id]);
+        const result = await db.query(sql, [tieu_de, noi_dung, imageUrl, driveFileId, id]);
 
         res.json({ message: 'Cập nhật thành công', news: result.rows[0] });
     } catch (error) {
@@ -90,13 +105,13 @@ exports.deleteNews = async (req, res) => {
     const { id } = req.params;
     try {
         // Lấy ID ảnh để xóa trên Drive trước
-        const oldNews = await db.query('SELECT drive_file_id FROM "news" WHERE id = $1', [id]);
+        const oldNews = await db.query('SELECT ma_file_drive FROM "tintuc" WHERE ma_tin_tuc = $1', [id]);
         
-        if (oldNews.rows.length > 0 && oldNews.rows[0].drive_file_id) {
-            await deleteFileFromDrive(oldNews.rows[0].drive_file_id);
+        if (oldNews.rows.length > 0 && oldNews.rows[0].ma_file_drive) {
+            await deleteFileFromDrive(oldNews.rows[0].ma_file_drive);
         }
 
-        await db.query('DELETE FROM "news" WHERE id = $1', [id]);
+        await db.query('DELETE FROM "tintuc" WHERE ma_tin_tuc = $1', [id]);
         res.json({ message: 'Đã xóa tin tức' });
     } catch (error) {
         console.error(error);

@@ -10,6 +10,29 @@
       content="Hệ thống quản lý chi bộ"
     />
     <title>Hệ Thống Chi Bộ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      /* ── FIX SIDEBAR LUÔN FULL HEIGHT khi chụp full-page screenshot ── */
+
+      /* Sidebar kéo dài theo toàn bộ Layout thay vì chỉ 100vh */
+      .ant-layout-sider {
+        min-height: 100% !important;
+        align-self: stretch !important;
+      }
+
+      /* Inner wrapper của Sider */
+      .ant-layout-sider-children {
+        height: auto !important;
+        min-height: 100% !important;
+      }
+
+      /* Font toàn hệ thống */
+      body, * {
+        font-family: 'Be Vietnam Pro', sans-serif;
+      }
+    </style>
   </head>
   <body>
     <noscript>Bạn cần bật JavaScript để chạy ứng dụng này.</noscript>

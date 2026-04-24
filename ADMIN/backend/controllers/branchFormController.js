@@ -8,10 +8,10 @@ exports.getForms = async (req, res) => {
     try {
         const sql = `
             SELECT f.*, d.ho_ten as nguoi_dang
-            FROM "forms" f
-            LEFT JOIN "dangvien" d ON f.uploaded_by = d.ma_dang_vien
-            WHERE f.party_cell_id = $1
-            ORDER BY f.created_at DESC
+            FROM "bieumau" f
+            LEFT JOIN "dangvien" d ON f.nguoi_tai_len = d.ma_dang_vien
+            WHERE f.ma_chi_bo = $1
+            ORDER BY f.ngay_tao DESC
         `;
         const result = await db.query(sql, [branchId]);
         res.json(result.rows);
@@ -25,10 +25,10 @@ exports.getForms = async (req, res) => {
 exports.uploadForm = async (req, res) => {
     const branchId = req.user.branchId;
     const userId = req.user.id;
-    const { title } = req.body;
+    const { tieu_de } = req.body;
     const file = req.file;
 
-    if (!title || !file) {
+    if (!tieu_de || !file) {
         return res.status(400).json({ message: 'Vui lòng nhập tên và chọn file' });
     }
 
@@ -37,13 +37,13 @@ exports.uploadForm = async (req, res) => {
         const driveData = await uploadFileToDrive(file);
         
         const sql = `
-            INSERT INTO "forms" (title, file_url, drive_file_id, party_cell_id, uploaded_by)
+            INSERT INTO "bieumau" (tieu_de, duong_dan_file, ma_file_drive, ma_chi_bo, nguoi_tai_len)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
         
         const result = await db.query(sql, [
-            title, 
+            tieu_de, 
             driveData.webViewLink, 
             driveData.id, 
             branchId, 
@@ -63,12 +63,12 @@ exports.uploadForm = async (req, res) => {
 
 // 3. DELETE: Xóa biểu mẫu
 exports.deleteForm = async (req, res) => {
-    const { id } = req.params;
+    const { id: ma_bieu_mau } = req.params;
     const branchId = req.user.branchId;
 
     try {
         // Kiểm tra quyền sở hữu (Chỉ xóa nếu thuộc chi bộ mình)
-        const check = await db.query('SELECT * FROM "forms" WHERE id = $1 AND party_cell_id = $2', [id, branchId]);
+        const check = await db.query('SELECT * FROM "bieumau" WHERE ma_bieu_mau = $1 AND ma_chi_bo = $2', [id, branchId]);
         
         if (check.rows.length === 0) {
             return res.status(404).json({ message: 'Biểu mẫu không tồn tại hoặc không có quyền xóa' });
@@ -77,12 +77,12 @@ exports.deleteForm = async (req, res) => {
         const file = check.rows[0];
 
         // Xóa trên Drive trước
-        if (file.drive_file_id) {
-            await deleteFileFromDrive(file.drive_file_id);
+        if (file.ma_file_drive) {
+            await deleteFileFromDrive(file.ma_file_drive);
         }
 
         // Xóa trong DB
-        await db.query('DELETE FROM "forms" WHERE id = $1', [id]);
+        await db.query('DELETE FROM "bieumau" WHERE ma_bieu_mau = $1', [id]);
 
         res.json({ message: 'Đã xóa biểu mẫu' });
 

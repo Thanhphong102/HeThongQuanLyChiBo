@@ -3,8 +3,22 @@ const db = require('../config/db');
 // 1. API: GET /api/branches - Lấy danh sách chi bộ
 exports.getBranches = async (req, res) => {
     try {
-        // Lấy tất cả, sắp xếp chi bộ đang hoạt động lên trên, giải thể xuống dưới, sau đó theo ID
-        const result = await db.query('SELECT * FROM "chibo" ORDER BY trang_thai DESC, ma_chi_bo ASC');
+        const { search, status } = req.query;
+        let sql = 'SELECT * FROM "chibo" WHERE 1=1';
+        let params = [];
+        let paramIndex = 1;
+
+        if (search) {
+            sql += ` AND ten_chi_bo ILIKE $${paramIndex++}`;
+            params.push(`%${search}%`);
+        }
+        if (status !== undefined && status !== '') {
+            sql += ` AND trang_thai = $${paramIndex++}`;
+            params.push(status === 'true');
+        }
+
+        sql += ' ORDER BY trang_thai DESC, ma_chi_bo ASC';
+        const result = await db.query(sql, params);
         res.json(result.rows);
     } catch (error) {
         console.error(error);
@@ -14,9 +28,8 @@ exports.getBranches = async (req, res) => {
 
 // 2. API: POST /api/branches - Thêm chi bộ mới
 exports.createBranch = async (req, res) => {
-    const { ten_chi_bo, mo_ta } = req.body;
+    const { ten_chi_bo, mo_ta, ngay_thanh_lap } = req.body;
     
-    // Validate dữ liệu đầu vào cơ bản
     if (!ten_chi_bo) {
         return res.status(400).json({ message: 'Tên chi bộ là bắt buộc' });
     }
@@ -24,10 +37,10 @@ exports.createBranch = async (req, res) => {
     try {
         const sql = `
             INSERT INTO "chibo" (ten_chi_bo, mo_ta, ngay_thanh_lap, trang_thai)
-            VALUES ($1, $2, CURRENT_DATE, true)
+            VALUES ($1, $2, COALESCE($3, CURRENT_DATE), true)
             RETURNING *
         `;
-        const newBranch = await db.query(sql, [ten_chi_bo, mo_ta]);
+        const newBranch = await db.query(sql, [ten_chi_bo, mo_ta, ngay_thanh_lap || null]);
         
         res.status(201).json({ 
             message: 'Tạo chi bộ thành công', 

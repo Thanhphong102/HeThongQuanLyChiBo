@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
+const { uploadFileToDrive } = require('../services/driveService');
 const bcrypt = require('bcrypt'); // <--- IMPORT BCRYPT
 
 // 1. Login
@@ -30,9 +31,13 @@ exports.login = async (req, res) => {
             return res.status(403).json({ message: 'Tài khoản này đã bị khóa/ẩn!' });
         }
 
-        // --- [SỬA ĐỔI QUAN TRỌNG] SO SÁNH MẬT KHẨU MÃ HÓA ---
-        // bcrypt.compare(mật_khau_nhập, mật_khau_trong_db_đã_mã_hóa)
-        const isMatch = await bcrypt.compare(mat_khau, user.mat_khau);
+        // --- [SỬA ĐỔI QUAN TRỌNG] TƯƠNG THÍCH MẬT KHẨU CŨ & MỚI ---
+        let isMatch = false;
+        if (user.mat_khau.startsWith('$2b$') || user.mat_khau.startsWith('$2a$')) {
+            isMatch = await bcrypt.compare(mat_khau, user.mat_khau);
+        } else {
+            isMatch = (mat_khau === user.mat_khau); // Fallback mật khẩu cũ (text thường)
+        }
         
         if (!isMatch) {
             return res.status(401).json({ message: 'Mật khẩu sai' });
@@ -144,6 +149,119 @@ exports.toggleStatus = async (req, res) => {
     }
 };
 
+// 5. Lấy hồ sơ cá nhân
+exports.getProfile = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const result = await db.query(`
+            SELECT d.*, c.ten_chi_bo 
+            FROM "dangvien" d
+            LEFT JOIN "chibo" c ON d.ma_chi_bo = c.ma_chi_bo
+            WHERE d.ma_dang_vien = $1
+        `, [userId]);
+        
+        if (result.rows.length === 0) return res.status(404).json({ message: 'User không tồn tại' });
+        
+        const user = result.rows[0];
+        delete user.mat_khau; // Ẩn mật khẩu khi trả về
+        
+        res.json({
+            ...user,
+            ten_chi_bo: user.ten_chi_bo || 'Chưa xác định'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi lấy hồ sơ' });
+    }
+};
+
+// 6. Cập nhật hồ sơ cá nhân
+exports.updateProfile = async (req, res) => {
+    const userId = req.user.id;
+    const { 
+        ngay_sinh, gioi_tinh, que_quan, dia_chi_hien_tai, so_dien_thoai, email,
+        ngay_vao_dang, ngay_chinh_thuc, lop, nganh_hoc, ma_so_sinh_vien,
+        so_dinh_danh, so_the_dang_vien, anh_the
+    } = req.body;
+
+    try {
+        const sql = `
+            UPDATE "dangvien" 
+            SET ngay_sinh = $1, gioi_tinh = $2, que_quan = $3, dia_chi_hien_tai = $4, so_dien_thoai = $5, email = $6,
+                ngay_vao_dang = $7, ngay_chinh_thuc = $8, lop = $9, nganh_hoc = $10, ma_so_sinh_vien = $11,
+                so_dinh_danh = $12, so_the_dang_vien = $13, anh_the = $14
+            WHERE ma_dang_vien = $15
+            RETURNING *
+        `;
+        const result = await db.query(sql, [
+            ngay_sinh || null, 
+            gioi_tinh || null, 
+            que_quan || null, 
+            dia_chi_hien_tai || null, 
+            so_dien_thoai || null, 
+            email || null, 
+            ngay_vao_dang || null,
+            ngay_chinh_thuc || null,
+            lop || null,
+            nganh_hoc || null,
+            ma_so_sinh_vien || null,
+            so_dinh_danh || null,
+            so_the_dang_vien || null,
+            anh_the || null,
+            userId
+        ]);
+
+        if (result.rows.length === 0) return res.status(404).json({ message: 'Không thể cập nhật hồ sơ' });
+        
+        const updatedUser = result.rows[0];
+        delete updatedUser.mat_khau;
+
+        const branchResult = await db.query('SELECT ten_chi_bo FROM "chibo" WHERE ma_chi_bo = $1', [updatedUser.ma_chi_bo]);
+        
+        res.json({
+            message: 'Cập nhật thành công',
+            user: {
+                ...updatedUser,
+                ten_chi_bo: branchResult.rows[0]?.ten_chi_bo || 'Chưa xác định'
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi cập nhật hồ sơ' });
+    }
+};
+
+
+// 7. Cập nhật ảnh đại diện (Avatar)
+exports.uploadAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Không tìm thấy file ảnh' });
+        }
+        
+        // Upload lên Google Drive
+        const driveData = await uploadFileToDrive(req.file);
+        const fileUrl = `https://drive.google.com/uc?export=view&id=${driveData.id}`;
+        
+        // Cập nhật URL ảnh thẻ vào database
+        const result = await db.query(
+            'UPDATE "dangvien" SET anh_the = $1 WHERE ma_dang_vien = $2 RETURNING *',
+            [fileUrl, req.user.id]
+        );
+        
+        const updatedUser = result.rows[0];
+        delete updatedUser.mat_khau;
+        
+        res.json({ 
+            message: 'Cập nhật ảnh thẻ thành công',
+            url: fileUrl, 
+            user: updatedUser 
+        });
+    } catch (error) {
+        console.error('[uploadAvatar]', error);
+        res.status(500).json({ message: 'Lỗi tải ảnh thẻ' });
+    }
+};
 
 // const db = require('../config/db');
 // const jwt = require('jsonwebtoken');

@@ -1,0 +1,11 @@
+{
+  "name": "nckhsv-root",
+  "version": "1.0.0",
+  "description": "Thư mục gốc quản lý dự án NCKHSV Đa Cổng",
+  "scripts": {
+    "dev": "powershell.exe -ExecutionPolicy Bypass -File .\\start-all.ps1",
+    "superadmin": "powershell.exe -ExecutionPolicy Bypass -Command \"Start-Process powershell -ArgumentList '-NoExit', '-Command', 'title SUPERADMIN BACKEND; cd SUPERADMIN\\backend; node server.js'; Start-Process powershell -ArgumentList '-NoExit', '-Command', 'title SUPERADMIN FRONTEND; cd SUPERADMIN\\frontend; $env:PORT=5174; npm start'\"",
+    "admin": "powershell.exe -ExecutionPolicy Bypass -Command \"Start-Process powershell -ArgumentList '-NoExit', '-Command', 'title ADMIN BACKEND; cd ADMIN\\backend; node server.js'; Start-Process powershell -ArgumentList '-NoExit', '-Command', 'title ADMIN FRONTEND; cd ADMIN\\frontend; $env:PORT=5175; npm start'\"",
+    "user": "powershell.exe -ExecutionPolicy Bypass -Command \"Start-Process powershell -ArgumentList '-NoExit', '-Command', 'title USER FRONTEND; cd USER; npm run dev'\""
+  }
+}

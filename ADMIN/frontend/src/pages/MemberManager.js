@@ -230,52 +230,75 @@ const MemberManager = () => {
     }
   ];
 
-  return (
-    <div style={{ padding: 0 }}>
-        <Card bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16 }}>
-            <Row gutter={16} align="middle" justify="space-between">
-                <Col span={12} style={{ display: 'flex', gap: 10 }}>
-                    <Input 
-                        placeholder="Tìm tên, username, MSSV..." 
-                        prefix={<SearchOutlined />} 
-                        onChange={e => setSearchText(e.target.value)} 
-                        style={{ flex: 2 }} 
-                    />
-                    <Select 
-                        placeholder="Lọc trạng thái" 
-                        allowClear 
-                        style={{ flex: 1 }} 
-                        onChange={setFilterStatus}
-                    >
-                        <Select.Option value="Chinh thuc">Chính thức</Select.Option>
-                        <Select.Option value="Du bi">Dự bị</Select.Option>
-                    </Select>
-                </Col>
-                
-                <Col>
-                    <Space>
-                        <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} style={{ color: 'green', borderColor: 'green' }}>Xuất Excel</Button>
-                        <Button type="primary" icon={<UserAddOutlined />} onClick={() => { setIsAddOpen(true); formAdd.resetFields(); }}>Thêm Hồ sơ</Button>
-                    </Space>
-                </Col>
-            </Row>
-        </Card>
+  const COLOR_RED   = '#CE1126';
+  const COLOR_GREEN = '#22c55e';
 
-        <Card>
-            <Table 
-                columns={columns} 
-                dataSource={members} 
-                rowKey="ma_dang_vien" 
-                loading={loading}
-                pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: pagination.total,
-                    onChange: (p) => fetchMembers(p),
-                    showSizeChanger: false
-                }}
-            />
-        </Card>
+  return (
+    <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
+      {/* Tiêu đề trang */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', fontFamily: 'Be Vietnam Pro, sans-serif' }}>
+          Hồ sơ Đảng viên
+        </div>
+        <div style={{ color: '#6b7280', fontSize: 14, marginTop: 2 }}>Quản lý hồ sơ và thông tin toàn bộ Đảng viên Chi bộ</div>
+      </div>
+
+      {/* Toolbar */}
+      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: '16px 24px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <Space wrap>
+          <Input
+            placeholder="Tìm tên, username, MSSV..."
+            prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+            onChange={e => setSearchText(e.target.value)}
+            style={{ width: 260, borderRadius: 8 }}
+            allowClear
+          />
+          <Select
+            placeholder="Lọc trạng thái"
+            allowClear
+            style={{ width: 160, borderRadius: 8 }}
+            onChange={setFilterStatus}
+          >
+            <Select.Option value="Chinh thuc">✅ Chính thức</Select.Option>
+            <Select.Option value="Du bi">🔵 Dự bị</Select.Option>
+          </Select>
+        </Space>
+        <Space>
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={handleExportExcel}
+            style={{ color: COLOR_GREEN, borderColor: COLOR_GREEN, borderRadius: 8, fontFamily: 'Be Vietnam Pro, sans-serif' }}
+          >
+            Xuất Excel
+          </Button>
+          <Button
+            type="primary"
+            icon={<UserAddOutlined />}
+            onClick={() => { setIsAddOpen(true); formAdd.resetFields(); }}
+            style={{ background: COLOR_RED, borderColor: COLOR_RED, borderRadius: 8, fontWeight: 600, fontFamily: 'Be Vietnam Pro, sans-serif' }}
+          >
+            Thêm Hồ sơ
+          </Button>
+        </Space>
+      </div>
+
+      {/* Bảng dữ liệu */}
+      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+        <Table
+          columns={columns}
+          dataSource={members}
+          rowKey="ma_dang_vien"
+          loading={loading}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            onChange: (p) => fetchMembers(p),
+            showSizeChanger: false
+          }}
+          style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
+        />
+      </div>
 
         {/* CÁC MODAL GIỮ NGUYÊN NHƯ CŨ */}
         <Modal title="Hồ sơ chi tiết Đảng viên" open={isViewOpen} onCancel={() => setIsViewOpen(false)} footer={null} width={750}>
@@ -292,7 +315,9 @@ const MemberManager = () => {
                     <Descriptions.Item label="Địa chỉ hiện tại" span={2}>{selectedMember.dia_chi_hien_tai}</Descriptions.Item>
                     <Descriptions.Item label="Ngày vào Đảng" labelStyle={{color:'#cf1322'}}>{selectedMember.ngay_vao_dang ? dayjs(selectedMember.ngay_vao_dang).format('DD/MM/YYYY') : '-'}</Descriptions.Item>
                     <Descriptions.Item label="Ngày chính thức" labelStyle={{color:'#cf1322'}}>{selectedMember.ngay_chinh_thuc ? dayjs(selectedMember.ngay_chinh_thuc).format('DD/MM/YYYY') : 'Chưa'}</Descriptions.Item>
-                    <Descriptions.Item label="Trạng thái Đảng"><Tag color={selectedMember.trang_thai_dang_vien === 'Chinh thuc' ? 'green' : 'orange'}>{selectedMember.trang_thai_dang_vien}</Tag></Descriptions.Item>
+                    <Descriptions.Item label="Trạng thái Đảng"><Tag color={selectedMember.trang_thai_dang_vien === 'Chinh thuc' ? 'green' : selectedMember.trang_thai_dang_vien === 'Chuyen di' ? 'purple' : 'orange'}>{
+                        ({ 'Chinh thuc': 'Chính thức', 'Du bi': 'Dự bị', 'Chuyen di': 'Đã chuyển đi' })[selectedMember.trang_thai_dang_vien] || selectedMember.trang_thai_dang_vien
+                    }</Tag></Descriptions.Item>
                     <Descriptions.Item label="Chức vụ">{selectedMember.chuc_vu_dang}</Descriptions.Item>
                     <Descriptions.Item label="Đối tượng" span={2} style={{ background: '#fafafa' }}><b>{selectedMember.doi_tuong}</b></Descriptions.Item>
                     {selectedMember.doi_tuong === 'Sinh vien' ? (
@@ -312,7 +337,7 @@ const MemberManager = () => {
                 </Descriptions>
             )}
             <div style={{ textAlign: 'right', marginTop: 20 }}>
-                <Button onClick={() => setIsViewOpen(false)}>Đóng</Button>
+                <Button onClick={() => setIsViewOpen(false)} style={{ borderRadius: 8 }}>Đóng</Button>
             </div>
         </Modal>
 
@@ -343,7 +368,10 @@ const MemberManager = () => {
                     <Col span={12}><Form.Item name="mat_khau" label="Password" rules={[{ required: true }]}><Input.Password autoComplete="new-password"/></Form.Item></Col>
                 </Row> */}
                 <Form.Item name="ngay_vao_dang" label="Ngày vào Đảng (Dự bị)"><DatePicker format="DD/MM/YYYY" /></Form.Item>
-                <Button type="primary" htmlType="submit" block size="large">Lưu hồ sơ</Button>
+                <Button type="primary" htmlType="submit" block size="large"
+                  style={{ background: '#CE1126', borderColor: '#CE1126', borderRadius: 8, fontWeight: 600, fontFamily: 'Be Vietnam Pro, sans-serif' }}>
+                  Lưu hồ sơ
+                </Button>
             </Form>
         </Modal>
 
@@ -374,7 +402,10 @@ const MemberManager = () => {
                          <Col span={12}><Form.Item name="ngay_chinh_thuc" label="Ngày chính thức"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
                     </Row>
                 </div>
-                <Button type="primary" htmlType="submit" block>Lưu thay đổi</Button>
+                <Button type="primary" htmlType="submit" block
+                  style={{ background: '#CE1126', borderColor: '#CE1126', borderRadius: 8, fontWeight: 600, fontFamily: 'Be Vietnam Pro, sans-serif' }}>
+                  Lưu thay đổi
+                </Button>
             </Form>
         </Modal>
     </div>

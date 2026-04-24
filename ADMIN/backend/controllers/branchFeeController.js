@@ -1,16 +1,19 @@
 const db = require('../config/db');
 
-// 1. GET: Lấy dữ liệu tài chính (Tự động phân quyền Admin/User)
+// 1. GET: Lấy dữ liệu tài chính
 exports.getFeeData = async (req, res) => {
     const branchId = req.user.branchId;
-    const userId = req.user.id;   // ID của người đang đăng nhập
-    const userRole = req.user.role; // Quyền hạn (2: Admin, 3: User)
+    const userId = req.user.id;   
+    const userRole = req.user.role; 
     const year = req.query.year || new Date().getFullYear();
+    
+    // Thêm tham số 'mode' để ép kiểu lấy dữ liệu nếu cần
+    const { mode } = req.query; 
 
     try {
-        // --- TRƯỜNG HỢP 1: LÀ USER (Đảng viên - Cấp 3) ---
-        // Chỉ lấy lịch sử đóng tiền/chi tiêu của CHÍNH MÌNH
-        if (userRole === 3) {
+        // --- LOGIC QUAN TRỌNG ĐÃ SỬA ---
+        // Nếu là User (Cấp 3) HOẶC có tham số mode='personal' (dành cho Admin muốn xem của mình)
+        if (userRole === 3 || mode === 'personal') {
             const sql = `
                 SELECT * FROM "taichinh" 
                 WHERE ma_dang_vien = $1 
@@ -18,14 +21,13 @@ exports.getFeeData = async (req, res) => {
             `;
             const result = await db.query(sql, [userId]);
             
-            // Trả về mảng danh sách giao dịch ngay lập tức
+            // QUAN TRỌNG: Trả về Mảng [] ngay lập tức
             return res.json(result.rows);
         }
 
-        // --- TRƯỜNG HỢP 2: LÀ ADMIN (Bí thư - Cấp 2) ---
-        // Giữ nguyên logic cũ để vẽ bảng Matrix quản lý
+        // --- TRƯỜNG HỢP ADMIN (Cấp 2) - Trả về thống kê ---
+        // (Giữ nguyên logic thống kê cũ của bạn ở dưới)
         
-        // 1. Lấy danh sách đảng viên
         const members = await db.query(
             `SELECT ma_dang_vien, ho_ten, muc_dong_phi FROM "dangvien" 
              WHERE ma_chi_bo = $1 AND hoat_dong = true 
@@ -33,7 +35,6 @@ exports.getFeeData = async (req, res) => {
             [branchId]
         );
 
-        // 2. Lấy giao dịch Thu
         const incomeTrans = await db.query(
             `SELECT ma_dang_vien, EXTRACT(MONTH FROM ngay_giao_dich) as thang, so_tien 
              FROM "taichinh" 
@@ -41,7 +42,6 @@ exports.getFeeData = async (req, res) => {
             [branchId, year]
         );
 
-        // Xử lý Matrix (Logic cũ của bạn)
         const monthlyTotal = Array(13).fill(0);
         const paidMap = {};
         let totalIncomeYear = 0;
@@ -61,7 +61,6 @@ exports.getFeeData = async (req, res) => {
             return { ...m, months: monthsStatus };
         });
 
-        // 3. Lấy giao dịch Chi
         const expenseTrans = await db.query(
             `SELECT * FROM "taichinh" 
              WHERE ma_chi_bo = $1 AND loai_giao_dich = 'Chi' AND EXTRACT(YEAR FROM ngay_giao_dich) = $2

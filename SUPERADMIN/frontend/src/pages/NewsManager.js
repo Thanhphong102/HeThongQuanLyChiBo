@@ -1,161 +1,118 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Card, Table, Button, Modal, Form, Input, Upload, message, Space, Popconfirm, Image 
+  Card, Table, Button, Modal, Form, Input, Upload, message, Space, Popconfirm, Image, DatePicker, Row, Col
 } from 'antd';
 import { 
-  PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, FileImageOutlined 
+  PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, FileImageOutlined, SearchOutlined 
 } from '@ant-design/icons';
+import { motion } from 'framer-motion';
 import axios from '../services/axiosConfig';
+
+const { RangePicker } = DatePicker;
 
 const NewsManager = () => {
   const [newsList, setNewsList] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // State cho Modal
+  const [searchText, setSearchText] = useState('');
+  const [dateRange, setDateRange] = useState([]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
-  const [fileList, setFileList] = useState([]); // Lưu file ảnh upload
+  const [fileList, setFileList] = useState([]); 
   
   const [form] = Form.useForm();
 
-  // 1. Lấy danh sách tin tức
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/news');
-      setNewsList(res.data);
+        let url = '/news?';
+        if (searchText) url += `search=${encodeURIComponent(searchText)}&`;
+        if (dateRange && dateRange.length === 2 && dateRange[0] && dateRange[1]) {
+            url += `startDate=${dateRange[0].format('YYYY-MM-DD')}&endDate=${dateRange[1].format('YYYY-MM-DD')}`;
+        }
+        const res = await axios.get(url);
+        setNewsList(res.data);
     } catch (error) {
-      message.error('Lỗi tải tin tức');
+        message.error('Lỗi tải tin tức');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
-  useEffect(() => { fetchNews(); }, []);
+  useEffect(() => { 
+      const delayDebounceFn = setTimeout(() => {
+          fetchNews();
+      }, 500);
+      return () => clearTimeout(delayDebounceFn);
+  }, [searchText, dateRange]);
 
-  // 2. Mở Modal (Thêm hoặc Sửa)
   const openModal = (record = null) => {
     setEditingNews(record);
-    setFileList([]); // Reset file upload
+    setFileList([]); 
     if (record) {
-      form.setFieldsValue({
-        title: record.title,
-        content: record.content
-      });
+      form.setFieldsValue({ tieu_de: record.tieu_de, content: record.noi_dung });
     } else {
       form.resetFields();
     }
     setIsModalOpen(true);
   };
 
-  // 3. Xử lý Lưu (Create / Update)
   const handleSave = async (values) => {
     const formData = new FormData();
-    formData.append('title', values.title);
-    formData.append('content', values.content || '');
-    
-    // Nếu có file mới thì gửi kèm
-    if (fileList.length > 0) {
-      formData.append('image', fileList[0]);
-    }
+    formData.append('tieu_de', values.tieu_de);
+    formData.append('content', values.noi_dung || '');
+    if (fileList.length > 0) formData.append('image', fileList[0]);
 
     try {
       if (editingNews) {
-        // UPDATE
-        await axios.put(`/news/${editingNews.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.put(`/news/${editingNews.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
         message.success('Cập nhật tin tức thành công');
       } else {
-        // CREATE
-        await axios.post('/news/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.post('/news/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
         message.success('Đăng tin thành công');
       }
-      
       setIsModalOpen(false);
-      fetchNews(); // Load lại bảng
+      fetchNews(); 
     } catch (error) {
       message.error('Thao tác thất bại: ' + (error.response?.data?.message || 'Lỗi server'));
     }
   };
 
-  // 4. Xử lý Xóa
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/news/${id}`);
       message.success('Đã xóa tin tức');
       fetchNews();
-    } catch (error) {
-      message.error('Xóa thất bại');
-    }
+    } catch (error) { message.error('Xóa thất bại'); }
   };
 
-  // Cấu hình Upload (Chặn auto upload)
   const uploadProps = {
     onRemove: () => setFileList([]),
-    beforeUpload: (file) => {
-      setFileList([file]); // Chỉ giữ 1 file
-      return false;
-    },
+    beforeUpload: (file) => { setFileList([file]); return false; },
     fileList,
     maxCount: 1,
     listType: "picture"
   };
 
-  // Hàm tạo link ảnh trực tiếp từ Google Drive ID
-  const getDriveImage = (fileId) => {
-    // sz=w500: Lấy ảnh kích thước chiều rộng 500px (đủ nét cho bảng và modal)
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`; 
-  };
+  const getDriveImage = (fileId) => `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`; 
 
   const columns = [
     {
-      title: 'Hình ảnh',
-      key: 'image',
-      width: 100,
-      align: 'center',
-      render: (_, record) => {
-        // Ưu tiên dùng ID để tạo link chuẩn
-        if (record.drive_file_id) {
-           return (
-             <Image 
-               width={100} 
-               height={60}
-               src={getDriveImage(record.drive_file_id)} 
-               style={{ borderRadius: 8, objectFit: 'cover' }} 
-               // Fallback nếu lỗi (ví dụ ảnh bị xóa trên Drive nhưng DB còn)
-               fallback="https://via.placeholder.com/100x60?text=No+Image"
-             />
-           );
-        }
-        
-        // Trường hợp cũ hoặc lỗi không có ID
-        return <FileImageOutlined style={{ fontSize: 24, color: '#ccc' }} />;
-      }
+      tieu_de: 'Hình ảnh', key: 'image', width: 120, align: 'center',
+      render: (_, record) => record.ma_file_drive 
+           ? <Image width={100} height={60} src={getDriveImage(record.ma_file_drive)} style={{ borderRadius: 8, objectFit: 'cover' }} fallback="https://via.placeholder.com/100x60?text=No+Image" />
+           : <FileImageOutlined style={{ fontSize: 24, color: '#ccc' }} />
     },
-    { 
-      title: 'Tiêu đề', 
-      dataIndex: 'title', 
-      render: (t) => <b style={{ fontSize: 15 }}>{t}</b> 
-    },
-    { 
-      title: 'Ngày đăng', 
-      dataIndex: 'created_at', 
-      width: 150,
-      render: (date) => new Date(date).toLocaleDateString('vi-VN') 
-    },
+    { tieu_de: 'Tiêu đề', dataIndex: 'tieu_de', render: (t) => <span className="font-semibold text-gray-800 text-base">{t}</span> },
+    { tieu_de: 'Ngày đăng', dataIndex: 'ngay_tao', width: 150, render: (date) => new Date(date).toLocaleDateString('vi-VN') },
     {
-      title: 'Hành động',
-      key: 'action',
-      width: 120,
-      align: 'center',
+      tieu_de: 'Hành động', key: 'action', width: 120, align: 'center',
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />} onClick={() => openModal(record)} />
-          <Popconfirm title="Xóa tin này?" onConfirm={() => handleDelete(record.id)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
-            <Button danger icon={<DeleteOutlined />} />
+          <Button icon={<EditOutlined />} onClick={() => openModal(record)} className="text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100" />
+          <Popconfirm tieu_de="Xóa tin này?" onConfirm={() => handleDelete(record.ma_tin_tuc)} okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
+            <Button danger icon={<DeleteOutlined />} className="bg-red-50" />
           </Popconfirm>
         </Space>
       ),
@@ -163,48 +120,88 @@ const NewsManager = () => {
   ];
 
   return (
-    <div style={{ padding: 0 }}>
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="font-['Be_Vietnam_Pro'] pb-8">
       <Card 
-        title="Quản lý Tin tức & Sự kiện" 
-        extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => openModal(null)}>Đăng tin mới</Button>}
+        className="rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+        variant="borderless"
+        tieu_de={<span className="text-xl font-bold text-gray-800">Quản lý Tin tức & Sự kiện</span>}
+        extra={
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal(null)} className="h-10 px-4 rounded-xl font-medium bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200">
+                Đăng tin mới
+            </Button>
+        }
       >
-        <Table columns={columns} dataSource={newsList} rowKey="id" loading={loading} pagination={{ pageSize: 5 }} />
+        {/* ===== KHU VỰC BỘ LỌC - Dùng Row/Col để tránh chồng lấp ===== */}
+        <div style={{ marginBottom: 24, padding: '16px 16px', backgroundColor: '#f9fafb', borderRadius: 12, border: '1px solid #f3f4f6' }}>
+          <Row gutter={[16, 12]} align="middle">
+            <Col xs={24} md={14} lg={16}>
+              <Input 
+                prefix={<SearchOutlined style={{ color: '#9ca3af' }} />} 
+                placeholder="Tìm kiếm tiêu đề tin tức..." 
+                style={{ height: 40, borderRadius: 8 }}
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+                allowClear
+              />
+            </Col>
+            <Col xs={24} md={10} lg={8}>
+              <RangePicker 
+                style={{ height: 40, borderRadius: 8, width: '100%' }}
+                onChange={(dates) => setDateRange(dates)}
+                placeholder={['Từ ngày', 'Đến ngày']}
+                format="DD/MM/YYYY"
+                allowClear
+              />
+            </Col>
+          </Row>
+        </div>
+
+        <Table 
+            columns={columns} 
+            dataSource={newsList} 
+            rowKey="id" 
+            loading={loading} 
+            pagination={{ pageSize: 5, className: "custom-pagination" }} 
+            className="border-t border-gray-100 mt-2"
+            rowClassName="hover:bg-gray-50 transition-colors"
+        />
       </Card>
 
       <Modal
-        title={editingNews ? "Chỉnh sửa tin tức" : "Đăng tin mới"}
+        tieu_de={<span className="text-lg font-bold">{editingNews ? "Chỉnh sửa tin tức" : "Đăng tin mới"}</span>}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        destroyOnClose={true}
+        destroyOnHidden={true}
         width={700}
+        className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']"
       >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="title" label="Tiêu đề tin" rules={[{ required: true, message: 'Nhập tiêu đề!' }]}>
-            <Input size="large" placeholder="Ví dụ: Lễ kết nạp Đảng viên mới..." />
+        <Form form={form} layout="vertical" onFinish={handleSave} className="mt-4">
+          <Form.Item name="tieu_de" label={<span className="font-semibold">Tiêu đề tin</span>} rules={[{ required: true, message: 'Nhập tiêu đề!' }]}>
+            <Input size="large" placeholder="Ví dụ: Lễ kết nạp Đảng viên mới..." className="rounded-lg" />
+          </Form.Item>
+          
+          <Form.Item name="content" label={<span className="font-semibold">Nội dung chi tiết</span>}>
+            <Input.TextArea rows={6} placeholder="Nhập nội dung bài viết..." className="rounded-lg" />
           </Form.Item>
 
-          <Form.Item name="content" label="Nội dung chi tiết">
-            <Input.TextArea rows={6} placeholder="Nhập nội dung bài viết..." />
-          </Form.Item>
-
-          <Form.Item label="Ảnh bìa (Thumbnail)">
+          <Form.Item label={<span className="font-semibold">Ảnh bìa (Thumbnail)</span>}>
             <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>Chọn ảnh (JPG/PNG)</Button>
+              <Button icon={<UploadOutlined />} className="rounded-lg h-10 px-4">Chọn ảnh (JPG/PNG)</Button>
             </Upload>
-            {editingNews?.image_url && fileList.length === 0 && (
-                <div style={{ marginTop: 8, color: '#888' }}>
+            {editingNews?.duong_dan_anh && fileList.length === 0 && (
+                <div className="mt-2 text-gray-500 text-sm">
                     * Hiện tại đang dùng ảnh cũ. Chọn ảnh mới để thay thế.
                 </div>
             )}
           </Form.Item>
 
-          <Button type="primary" htmlType="submit" block size="large">
-            {editingNews ? "Lưu thay đổi" : "Đăng ngay"}
+          <Button type="primary" htmlType="submit" block size="large" className="rounded-xl h-12 font-bold text-base bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200 mt-4">
+            {editingNews ? "Lưu thay đổi" : "Đăng xuất bản"}
           </Button>
         </Form>
       </Modal>
-    </div>
+    </motion.div>
   );
 };
 

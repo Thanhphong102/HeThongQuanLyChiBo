@@ -48,7 +48,7 @@ const HomePage = () => {
         setUser(userInfo || {});
 
         const res = await userApi.getNews();
-        const sortedNews = (res.data || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const sortedNews = (res.data || []).sort((a, b) => new Date(b.ngay_tao) - new Date(a.ngay_tao));
         setNews(sortedNews);
       } catch (error) {
         console.error("Lỗi lấy dữ liệu trang chủ:", error);
@@ -86,23 +86,18 @@ const HomePage = () => {
             <Carousel autoplay effect="fade" autoplaySpeed={5000}>
                 {carouselNews.map((item) => (
                     <div key={item.id} className="relative h-[300px] md:h-[500px] cursor-pointer" onClick={() => handleViewDetail(item)}>
-                        {/* FIX 1: Sửa object-cover thành object-contain để hiển thị FULL ảnh 
-                           Thêm bg-black để khoảng trống (nếu có) màu đen cho đẹp
-                        */}
                         <img 
-                            src={getImageUrl(item.image_url)} 
-                            alt={item.title} 
+                            src={getImageUrl(item.duong_dan_anh)} 
+                            alt={item.tieu_de} 
                             className="w-full h-full object-contain bg-black"
                         />
-                        {/* Lớp phủ gradient để chữ dễ đọc hơn */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-6">
                             <h3 className="text-white text-xl md:text-3xl font-bold mb-2 line-clamp-2 hover:text-yellow-sao transition-colors">
-                                {item.title}
+                                {item.tieu_de}
                             </h3>
                             <div className="text-gray-300 text-sm flex items-center">
                                 <CalendarOutlined className="mr-2"/> 
-                                {/* FIX 2: Sửa format ngày tháng bằng cách thêm ngoặc vuông [] */}
-                                {dayjs(item.created_at).format('HH:mm - [Ngày] DD [tháng] MM [năm] YYYY')}
+                                {dayjs(item.ngay_tao).format('HH:mm - [Ngày] DD [tháng] MM [năm] YYYY')}
                             </div>
                         </div>
                     </div>
@@ -131,18 +126,16 @@ const HomePage = () => {
                 className="hover:bg-gray-50 transition-colors rounded-lg px-4"
                 actions={[
                     <span className="text-gray-500">
-                        {/* FIX 2: Format ngày tháng ở List */}
-                        <CalendarOutlined /> {dayjs(item.created_at).format('DD/MM/YYYY HH:mm')}
+                        <CalendarOutlined /> {dayjs(item.ngay_tao).format('DD/MM/YYYY HH:mm')}
                     </span>,
                     <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(item)}>Xem chi tiết</Button>
                 ]}
                 extra={
-                  item.image_url && (
+                  item.duong_dan_anh && (
                     <div className="w-48 h-32 overflow-hidden rounded-md border border-gray-200 hidden md:block bg-gray-100">
-                        {/* Ảnh thumbnail ở list giữ object-cover cho đều đẹp */}
                         <img 
-                            alt="news" 
-                            src={getImageUrl(item.image_url)} 
+                            alt="tintuc" 
+                            src={getImageUrl(item.duong_dan_anh)} 
                             className="w-full h-full object-cover transition-transform hover:scale-110 duration-500" 
                         />
                     </div>
@@ -152,10 +145,10 @@ const HomePage = () => {
                 <List.Item.Meta
                   title={
                     <a onClick={() => handleViewDetail(item)} className="text-lg font-bold text-gray-800 hover:text-red-dang">
-                        {item.title}
+                        {item.tieu_de}
                     </a>
                   }
-                  description={<div className="line-clamp-2 text-gray-500">{item.content}</div>}
+                  description={<div className="line-clamp-2 text-gray-500">{item.noi_dung}</div>}
                 />
               </List.Item>
             )}
@@ -174,18 +167,18 @@ const HomePage = () => {
         ]}
         width={900}
         centered
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         {selectedNews && (
             <div>
                 {/* Header ảnh của Modal */}
-                {selectedNews.image_url && (
+                {selectedNews.duong_dan_anh && (
                     // FIX 3: Bỏ fixed height (h-64), dùng w-full và h-auto để ảnh hiển thị 100% kích thước
                     // Thêm max-h để không quá dài nếu ảnh dọc
                     <div className="w-full bg-gray-100 flex justify-center">
                         <img 
-                            src={getImageUrl(selectedNews.image_url)} 
-                            alt={selectedNews.title} 
+                            src={getImageUrl(selectedNews.duong_dan_anh)} 
+                            alt={selectedNews.tieu_de} 
                             className="w-full h-auto max-h-[600px] object-contain" 
                         />
                     </div>
@@ -193,15 +186,15 @@ const HomePage = () => {
                 
                 {/* Nội dung chi tiết */}
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold text-red-dang mb-2">{selectedNews.title}</h2>
+                    <h2 className="text-2xl font-bold text-red-dang mb-2">{selectedNews.tieu_de}</h2>
                     <div className="flex items-center text-gray-500 text-sm mb-6 border-b pb-4">
                         <CalendarOutlined className="mr-2"/> 
                         {/* FIX 2: Format ngày tháng trong Modal */}
-                        {dayjs(selectedNews.created_at).format('HH:mm - [Ngày] DD [tháng] MM [năm] YYYY')}
+                        {dayjs(selectedNews.ngay_tao).format('HH:mm - [Ngày] DD [tháng] MM [năm] YYYY')}
                     </div>
                     
                     <div className="text-gray-800 text-base leading-relaxed whitespace-pre-line text-justify">
-                        {selectedNews.content}
+                        {selectedNews.noi_dung}
                     </div>
 
                     {selectedNews.drive_file_id && (

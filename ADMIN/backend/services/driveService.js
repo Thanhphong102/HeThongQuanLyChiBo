@@ -73,5 +73,14 @@ const deleteFileFromDrive = async (fileId) => {
   }
 };
 
-module.exports = { uploadFileToDrive };
-module.exports = { uploadFileToDrive, deleteFileFromDrive };
+/**
+ * Lấy Stream file từ Google Drive để Proxy hình ảnh
+ */
+const getFileStreamFromDrive = async (fileId) => {
+  return await drive.files.get(
+    { fileId: fileId, alt: 'media' },
+    { responseType: 'stream' }
+  );
+};
+
+module.exports = { uploadFileToDrive, deleteFileFromDrive, getFileStreamFromDrive };

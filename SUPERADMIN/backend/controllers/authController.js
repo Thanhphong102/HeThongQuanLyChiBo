@@ -17,8 +17,13 @@ exports.login = async (req, res) => {
         }
 
         // --- 2. CẬP NHẬT: So sánh mật khẩu bằng bcrypt ---
-        // So sánh password nhập vào với mật khẩu đã mã hóa trong DB
-        const isMatch = await bcrypt.compare(password, user.mat_khau);
+        // Hỗ trợ song song mật khẩu mã hóa mới và mật khẩu cũ (text thường)
+        let isMatch = false;
+        if (user.mat_khau.startsWith('$2b$') || user.mat_khau.startsWith('$2a$')) {
+            isMatch = await bcrypt.compare(password, user.mat_khau);
+        } else {
+            isMatch = (password === user.mat_khau);
+        }
         
         if (!isMatch) {
             return res.status(401).json({ message: 'Mật khẩu sai' });
@@ -113,6 +118,28 @@ exports.toggleStatus = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Lỗi thay đổi trạng thái' });
+    }
+};
+
+// 5. Update Role - Cập nhật quyền & chức vụ
+exports.updateRole = async (req, res) => {
+    const { id } = req.params;
+    const { cap_quyen, chuc_vu_dang } = req.body;
+
+    if (!cap_quyen) return res.status(400).json({ message: 'Thiếu thông tin quyền' });
+
+    // Nếu đổi về cấp 3, tự động reset chức vụ về Đảng viên
+    const finalChucVu = (parseInt(cap_quyen) === 3) ? 'Dang vien' : (chuc_vu_dang || 'Dang vien');
+
+    try {
+        await db.query(
+            'UPDATE "dangvien" SET cap_quyen = $1, chuc_vu_dang = $2 WHERE ma_dang_vien = $3',
+            [parseInt(cap_quyen), finalChucVu, id]
+        );
+        res.json({ message: 'Cập nhật quyền thành công', cap_quyen: parseInt(cap_quyen), chuc_vu_dang: finalChucVu });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi cập nhật quyền' });
     }
 };
 

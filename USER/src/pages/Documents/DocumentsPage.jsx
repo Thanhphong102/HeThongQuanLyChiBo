@@ -84,16 +84,16 @@ const DocumentsPage = () => {
   const formColumns = [
     { 
         title: 'Tên Biểu mẫu', 
-        dataIndex: 'title', 
+        dataIndex: 'tieu_de', 
         key: 'title', 
         render: text => <span className="font-semibold text-blue-800">{text}</span> 
     },
-    { title: 'Ngày đăng', dataIndex: 'created_at', key: 'date', render: d => dayjs(d).format('DD/MM/YYYY') },
+    { title: 'Ngày đăng', dataIndex: 'ngay_tao', key: 'date', render: d => dayjs(d).format('DD/MM/YYYY') },
     { 
       title: 'Tải về', 
       key: 'action', 
       render: (_, record) => (
-        <Button type="link" href={record.file_url} target="_blank" icon={<DownloadOutlined />}>
+        <Button type="link" href={record.duong_dan_file} target="_blank" icon={<DownloadOutlined />}>
           Tải về
         </Button>
       ) 
@@ -104,7 +104,7 @@ const DocumentsPage = () => {
     {
       key: '1',
       label: 'BIỂU MẪU CHI BỘ',
-      children: <Table dataSource={branchForms} columns={formColumns} rowKey="id" loading={loading} pagination={{ pageSize: 5 }} />,
+      children: <Table dataSource={branchForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5 }} />,
     },
     {
       key: '2',

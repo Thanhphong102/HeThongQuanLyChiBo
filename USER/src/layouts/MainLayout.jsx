@@ -1,7 +1,8 @@
 // src/layouts/MainLayout.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Dropdown, Avatar, Button, Drawer, Row, Col, Divider } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Button, Drawer, Row, Col, Divider } from 'antd'; 
+
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { 
   HomeOutlined, 
@@ -14,8 +15,12 @@ import {
   DownOutlined,
   MenuOutlined,
   EnvironmentOutlined,
-  MailOutlined
+  MailOutlined,
+  ThunderboltOutlined 
 } from '@ant-design/icons';
+
+import userApi from '../api/userApi'; // [NEW] Import API
+import dayjs from 'dayjs'; // [NEW] DayJS format
 
 // 👇 THAY THẾ LINK NGOÀI BẰNG IMPORT FILE LOCAL (Vite sẽ xử lý)
 // ❗ Đảm bảo 2 file này nằm trong thư mục src/assets
@@ -23,12 +28,15 @@ import QuocKyImg from '../assets/co-to-quoc.png';
 import DangKyImg from '../assets/co-dang.png'; 
 
 
+import NotificationPopover from '../components/Header/NotificationPopover';
+
 const { Header, Content, Footer } = Layout;
 
 // Định nghĩa Menu
 const menuItems = [
   { key: '/home', icon: <HomeOutlined />, label: 'TRANG CHỦ' },
-  { key: '/dashboard', icon: <DashboardOutlined />, label: 'DASHBOARD' },
+  { key: '/dashboard', icon: <DashboardOutlined />, label: 'TỔNG QUAN' },
+  { key: '/activities', icon: <ThunderboltOutlined />, label: 'HOẠT ĐỘNG' }, // [NEW] Hoạt động
   { key: '/documents', icon: <FileTextOutlined />, label: 'KHO TÀI LIỆU' },
   { key: '/media', icon: <PictureOutlined />, label: 'THƯ VIỆN ẢNH' },
   { key: '/lookup', icon: <DollarOutlined />, label: 'TRA CỨU' },
@@ -50,6 +58,7 @@ const MainLayout = () => {
     setVisibleMobileMenu(false);
   };
 
+
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_info');
@@ -58,6 +67,15 @@ const MainLayout = () => {
 
   const userMenu = {
     items: [
+      {
+        key: 'profile',
+        icon: <UserOutlined />,
+        label: 'Hồ sơ cá nhân',
+        onClick: () => navigate('/profile'),
+      },
+      {
+        type: 'divider',
+      },
       {
         key: 'logout',
         icon: <LogoutOutlined />,
@@ -72,8 +90,12 @@ const MainLayout = () => {
     <Layout className="min-h-screen font-sans">
       {/* --- PHẦN 1: HEADER TRÊN (MÀU VÀNG KEM #fff1aa) --- */}
       <Header 
-        className="px-4 md:px-8 h-auto flex justify-between items-center py-2 shadow-sm"
-        style={{ backgroundColor: '#fff1aa', borderBottom: '1px solid #e5e5e5' }}
+        className="px-4 md:px-8 h-auto flex justify-between items-center py-2"
+        style={{ 
+            backgroundColor: '#fff1aa', 
+            borderBottom: '2px solid rgba(169,31,35,0.12)',
+            boxShadow: '0 2px 20px rgba(0,0,0,0.06)'
+        }}
       >
         <div className="flex items-center space-x-4">
           <div className="flex space-x-2">
@@ -90,7 +112,7 @@ const MainLayout = () => {
             />
           </div>
           
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <h1 className="font-bold text-lg leading-tight uppercase m-0" style={{ color: '#a91f23' }}>
               ĐẢNG CỘNG SẢN VIỆT NAM
             </h1>
@@ -104,13 +126,16 @@ const MainLayout = () => {
             <Button 
                 type="text" 
                 icon={<MenuOutlined style={{ color: '#a91f23', fontSize: '20px' }} />} 
-                className="md:hidden mr-2"
+                className="lg:hidden mr-2"
                 onClick={() => setVisibleMobileMenu(true)}
             />
 
+            {/* [NEW] CHUÔNG THÔNG BÁO TẠI ĐÂY */}
+            <NotificationPopover />
+
             <Dropdown menu={userMenu} trigger={['click']} placement="bottomRight">
                 <div className="flex items-center cursor-pointer hover:bg-yellow-200/50 p-2 rounded transition-colors">
-                    <div className="text-right mr-3 hidden md:block">
+                    <div className="text-right mr-3 hidden lg:block">
                         <div className="font-bold text-sm" style={{ color: '#a91f23' }}>{user.ho_ten}</div>
                     </div>
                     <Avatar 
@@ -118,14 +143,17 @@ const MainLayout = () => {
                         icon={<UserOutlined />} 
                         style={{ backgroundColor: '#a91f23', color: '#fff1aa' }}
                     />
-                    <DownOutlined className="ml-2 text-xs hidden md:block" style={{ color: '#a91f23' }} />
+                    <DownOutlined className="ml-2 text-xs hidden lg:block" style={{ color: '#a91f23' }} />
                 </div>
             </Dropdown>
         </div>
       </Header>
 
       {/* --- PHẦN 2: MENU BAR (MÀU ĐỎ ĐẬM #a91f23) --- */}
-      <div className="hidden md:block shadow-md sticky top-0 z-50" style={{ backgroundColor: '#a91f23' }}>
+      <div className="hidden lg:block sticky top-0 z-50" style={{ 
+          background: 'linear-gradient(135deg, #a91f23 0%, #8b1517 100%)',
+          boxShadow: '0 4px 20px rgba(169, 31, 35, 0.4)'
+      }}>
         <div className="px-8">
             <Menu
                 mode="horizontal"
@@ -139,25 +167,47 @@ const MainLayout = () => {
       </div>
 
       <Drawer
-        title={<span style={{ color: '#a91f23', fontWeight: 'bold' }}>MENU ĐIỀU HƯỚNG</span>}
+        title={<span style={{ color: '#fff', fontWeight: 'bold' }}>MENU ĐIỀU HƯỚNG</span>}
         placement="left"
         onClose={() => setVisibleMobileMenu(false)}
         open={visibleMobileMenu}
-        bodyStyle={{ padding: 0 }}
-        headerStyle={{ backgroundColor: '#fff1aa' }}
+        styles={{
+            body: { padding: 0, backgroundColor: '#a91f23' },
+            header: { backgroundColor: '#8b1517', borderBottom: '1px solid rgba(255,255,255,0.1)' }
+        }}
       >
+        <style>{`
+          .custom-mobile-menu.ant-menu-dark {
+            background: transparent;
+          }
+          .custom-mobile-menu.ant-menu-dark .ant-menu-item {
+            color: rgba(255,255,255,0.85);
+            margin-top: 8px;
+          }
+          .custom-mobile-menu.ant-menu-dark .ant-menu-item-selected {
+            background-color: rgba(0,0,0,0.2) !important;
+            color: #fff1aa !important;
+            font-weight: bold;
+            border-right: 4px solid #fff1aa;
+          }
+          .custom-mobile-menu.ant-menu-dark .ant-menu-item:hover {
+            background-color: rgba(0,0,0,0.1) !important;
+            color: #fff;
+          }
+        `}</style>
         <Menu
             mode="inline"
+            theme="dark"
             selectedKeys={[location.pathname]}
             items={menuItems}
             onClick={handleMenuClick}
-            className="text-base"
-            style={{ color: '#a91f23' }}
+            className="text-base custom-mobile-menu"
+            style={{ borderRight: 'none' }}
         />
       </Drawer>
 
       {/* --- PHẦN 3: CONTENT --- */}
-      <Content className="p-4 md:p-8 bg-gray-50">
+      <Content className="p-4 md:p-8" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%)' }}>
         <div className="max-w-7xl mx-auto min-h-[80vh]">
             <Outlet /> 
         </div>

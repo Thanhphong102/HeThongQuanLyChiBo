@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/Auth/LoginPage';
+import LandingPage from './pages/Landing/LandingPage';
 
 // --- IMPORT CÁC TRANG THẬT ---
 import HomePage from './pages/Home/HomePage';
@@ -10,6 +11,8 @@ import DashboardPage from './pages/Dashboard/DashboardPage';
 import DocumentsPage from './pages/Documents/DocumentsPage';
 import MediaPage from './pages/Media/MediaPage';
 import LookupPage from './pages/Lookup/LookupPage';
+import ProfilePage from './pages/Profile/ProfilePage';
+import ActivitiesPage from './pages/Activities/ActivitiesPage'; // [NEW] Import ActivitiesPage
 
 // Component bảo vệ tuyến đường (Private Route)
 const PrivateRoute = () => {
@@ -22,6 +25,7 @@ function App() {
   return (
     <Routes>
       {/* 1. Tuyến đường công khai */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       
       {/* 2. Tuyến đường bảo mật (Đã đăng nhập) */}
@@ -40,9 +44,12 @@ function App() {
         
         {/* Tra cứu (Đóng phí / Điểm danh) */}
         <Route path="/lookup" element={<LookupPage />} />
+        
+        {/* Hồ sơ cá nhân */}
+        <Route path="/profile" element={<ProfilePage />} />
 
-        {/* Mặc định vào Home */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        {/* Hoạt động Ngoại khóa */}
+        <Route path="/activities" element={<ActivitiesPage />} />
       </Route>
       
       {/* Các đường dẫn lạ thì đẩy về Home */}

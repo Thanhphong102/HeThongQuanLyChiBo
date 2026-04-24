@@ -27,3 +27,7 @@ Thumbs.db
 # === BỔ SUNG FILE LOCK VÀ KHÓA ===
 package-lock.json
 yarn.lock
+# === BACKUP ===
+BACKUP_SOURCE/
+scratch_*.txt
+*.png

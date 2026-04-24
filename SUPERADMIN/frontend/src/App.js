@@ -9,6 +9,7 @@ import BranchManager from './pages/BranchManager';
 import AccountManager from './pages/AccountManager';
 import TargetManager from './pages/TargetManager';
 import NewsManager from './pages/NewsManager'; // <--- Import trang Mới
+import LandingManager from './pages/LandingManager';
 
 // Import Layout & Auth
 import MainLayout from './layouts/MainLayout';
@@ -16,7 +17,7 @@ import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
@@ -35,6 +36,7 @@ function App() {
             <Route path="/quan-ly-tai-khoan" element={<AccountManager />} />
             <Route path="/chi-tieu" element={<TargetManager />} />
             <Route path="/tai-lieu" element={<DocumentManager />} />
+            <Route path="/quan-ly-landing" element={<LandingManager />} />
             
           </Route>
         </Route>

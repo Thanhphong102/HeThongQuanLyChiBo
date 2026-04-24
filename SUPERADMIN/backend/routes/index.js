@@ -8,14 +8,16 @@ const documentRoutes = require('./documentRoutes');
 const targetRoutes = require('./targetRoutes');
 const memberRoutes = require('./memberRoutes');
 const newsRoutes = require('./newsRoutes');
+const landingRoutes = require('./landingRoutes');
 
 // Gắn prefix cho từng nhóm route
-router.use('/auth', authRoutes);       // -> /api/auth/login
-router.use('/dashboard', dashboardRoutes); // -> /api/dashboard/stats
-router.use('/branches', branchRoutes);     // -> /api/branches
-router.use('/documents', documentRoutes);  // -> /api/documents
+router.use('/auth', authRoutes);       
+router.use('/dashboard', dashboardRoutes); 
+router.use('/branches', branchRoutes);     
+router.use('/documents', documentRoutes);  
 router.use('/targets', targetRoutes);
 router.use('/members', memberRoutes);
 router.use('/news', newsRoutes);
+router.use('/landing', landingRoutes);
 
 module.exports = router;

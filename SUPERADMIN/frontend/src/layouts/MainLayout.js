@@ -11,7 +11,8 @@ import {
   ReadOutlined,
   MenuFoldOutlined, 
   MenuUnfoldOutlined,
-  DownOutlined // Import thêm icon mũi tên
+  DownOutlined,
+  AppstoreOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -47,6 +48,7 @@ const MainLayout = () => {
     { key: '/quan-ly-tai-khoan', icon: <UsergroupAddOutlined />, label: <Link to="/quan-ly-tai-khoan">Quản lý Tài khoản</Link> },
     { key: '/chi-tieu', icon: <AimOutlined />, label: <Link to="/chi-tieu">Quản lý Chỉ tiêu</Link> },
     { key: '/tai-lieu', icon: <FileTextOutlined />, label: <Link to="/tai-lieu">Quản lý Tài liệu</Link> },
+    { key: '/quan-ly-landing', icon: <AppstoreOutlined />, label: <Link to="/quan-ly-landing">Quản lý Landing Page</Link> },
   ];
 
   // Menu Dropdown được thiết kế lại chút cho đẹp hơn
@@ -91,19 +93,25 @@ const MainLayout = () => {
             </Title>
           )}
           
-          <div style={{ marginTop: collapsed ? 0 : 12, transition: 'all 0.3s' }}>
+          <div style={{ 
+              marginTop: collapsed ? 0 : 12, 
+              display: 'flex',
+              justifyContent: 'center',
+              transition: 'all 0.3s' 
+          }}>
             <img 
                 src="/logo.png" 
                 alt="Logo" 
                 style={{ 
-                    width: collapsed ? '40px' : '80px', 
-                    height: collapsed ? '40px' : '80px', 
+                    width: collapsed ? '44px' : '84px', 
+                    height: collapsed ? '44px' : '84px', 
                     borderRadius: '50%', 
                     border: `3px solid ${secondaryColor}`,
                     padding: '2px',
                     backgroundColor: '#fff',
                     objectFit: 'contain',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.3s',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
                 }} 
             />
           </div>

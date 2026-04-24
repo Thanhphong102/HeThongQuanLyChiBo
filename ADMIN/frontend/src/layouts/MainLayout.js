@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, message, theme, Button, Typography } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, message, theme, Button } from 'antd';
 import { 
   DashboardOutlined, 
   TeamOutlined, 
@@ -11,27 +11,27 @@ import {
   DollarCircleOutlined,
   UserOutlined,
   AimOutlined,
-  UserSwitchOutlined, // <--- Icon mới cho trang Tài khoản
-  PictureOutlined 
+  UserSwitchOutlined,
+  PictureOutlined,
+  StarOutlined    // Task 8: Icon cho Hoạt động
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import NotificationPopover from '../components/NotificationPopover';
 
 // Import ảnh trực tiếp từ src/assets (Đảm bảo file tồn tại)
 import imgCoToQuoc from '../assets/co-to-quoc.png'; 
 import imgCoDang from '../assets/co-dang.jpg';      
 
 const { Header, Sider, Content } = Layout;
-const { Title } = Typography;
 
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  
   const user = JSON.parse(localStorage.getItem('user'));
   const { token: { colorBgContainer } } = theme.useToken();
-  const primaryColor = '#003a8c'; 
+  const primaryColor = '#CE1126'; 
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -78,8 +78,18 @@ const MainLayout = () => {
     },
     { 
       key: '/thu-vien', 
-      icon: <PictureOutlined />, // Nhớ import PictureOutlined từ antd
+      icon: <PictureOutlined />,
       label: <Link to="/thu-vien">Thư viện Ảnh/Video</Link> 
+    },
+    { 
+      key: '/hoat-dong', 
+      icon: <StarOutlined />,
+      label: <Link to="/hoat-dong">Quản lý Hoạt động</Link>  // Task 8
+    },
+    { 
+      key: '/nhan-chi-tieu', 
+      icon: <AimOutlined />,
+      label: <Link to="/nhan-chi-tieu">Nhận chỉ tiêu</Link> // Task 9
     },
   ];
 
@@ -90,8 +100,16 @@ const MainLayout = () => {
         collapsedWidth="80" onBreakpoint={(broken) => setCollapsed(broken)} width={260}
         style={{ 
           background: `linear-gradient(180deg, #001529 0%, #003a8c 100%)`,
-          boxShadow: '4px 0 10px rgba(0,0,0,0.1)',
-          position: 'sticky', top: 0, height: '100vh', left: 0, zIndex: 100
+          boxShadow: '4px 0 10px rgba(0,0,0,0.15)',
+          // Dùng sticky để menu luôn hiện khi scroll, minHeight 100vh để đủ chiều cao khi chụp ảnh
+          position: 'sticky',
+          top: 0,
+          alignSelf: 'flex-start',          // cho phép sidebar bám theo scroll
+          height: '100vh',
+          overflowY: 'auto',
+          left: 0,
+          zIndex: 100,
+          fontFamily: 'Be Vietnam Pro, sans-serif',
         }}
       >
         <div style={{ 
@@ -101,9 +119,12 @@ const MainLayout = () => {
           {!collapsed ? (
             <>
               <div style={{ 
-                  color: '#fff', fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', 
-                  marginBottom: 12, lineHeight: '1.5', minHeight: '42px', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  color: '#fff', fontSize: '16px', fontWeight: '800', textTransform: 'uppercase', 
+                  marginBottom: 12, lineHeight: '1.4', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'Inter, "Be Vietnam Pro", sans-serif',
+                  letterSpacing: '0.5px',
+                  padding: '0 8px'
               }}>
                 {user?.ten_chi_bo || 'CHI BỘ ĐIỆN TỬ'}
               </div>
@@ -121,7 +142,7 @@ const MainLayout = () => {
                  />
               </div>
               
-              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px' }}>
+              <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontFamily: 'Be Vietnam Pro, sans-serif', letterSpacing: '0.5px' }}>
                 Hệ thống Quản lý Đảng viên
               </div>
             </>
@@ -135,14 +156,29 @@ const MainLayout = () => {
           )}
         </div>
 
-        <Menu theme="dark" mode="inline" selectedKeys={[location.pathname]} items={menuItems} style={{ background: 'transparent', fontSize: '15px' }} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          style={{
+            background: 'transparent',
+            fontSize: '14px',
+            fontFamily: 'Be Vietnam Pro, sans-serif',
+            fontWeight: 500,
+          }}
+        />
       </Sider>
 
-      <Layout style={{ background: '#f0f2f5' }}>
+      <Layout style={{ background: '#f5f6fa', fontFamily: 'Be Vietnam Pro, sans-serif' }}>
         <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', position: 'sticky', top: 0, zIndex: 99, width: '100%' }}>
           <Button type="text" icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} style={{ fontSize: '16px', width: 64, height: 64 }} />
           {/* User Profile (Phải) */}
-          <div style={{ paddingRight: 24, display: 'flex', alignItems: 'center', height: '100%' }}> {/* Thêm flex để căn giữa dọc */}
+          <div style={{ paddingRight: 24, display: 'flex', alignItems: 'center', height: '100%', gap: '16px' }}> 
+            
+            {/* TASK 9 & 10: CHUÔNG THÔNG BÁO (Đã Component hóa) */}
+            <NotificationPopover />
+
             <Dropdown menu={{ items: menuItemsUser }} placement="bottomRight" arrow>
               <div style={{ 
                   cursor: 'pointer', 
@@ -175,7 +211,18 @@ const MainLayout = () => {
         </Header>
 
         <Content style={{ margin: '24px', overflow: 'initial' }}>
-          <motion.div key={location.pathname} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} style={{ padding: 24, minHeight: 360, background: colorBgContainer, borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28 }}
+            style={{
+              padding: 28,
+              minHeight: 360,
+              background: 'transparent',
+              fontFamily: 'Be Vietnam Pro, sans-serif',
+            }}
+          >
             <Outlet />
           </motion.div>
         </Content>
