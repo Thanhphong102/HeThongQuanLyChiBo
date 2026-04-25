@@ -22,7 +22,8 @@ yarn-error.log
 # === HỆ THỐNG & EDITOR ===
 .DS_Store
 Thumbs.db
-.vscode
+.vscode/*
+!.vscode/tasks.json
 
 # === BỔ SUNG FILE LOCK VÀ KHÓA ===
 package-lock.json

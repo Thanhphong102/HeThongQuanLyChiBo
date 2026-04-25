@@ -1,0 +1,84 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "1. USER Frontend",
+            "type": "shell",
+            "command": "npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/USER"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "2. ADMIN Backend",
+            "type": "shell",
+            "command": "npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/ADMIN/backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "3. ADMIN Frontend",
+            "type": "shell",
+            "command": "$env:PORT=5175; npm start",
+            "options": {
+                "cwd": "${workspaceFolder}/ADMIN/frontend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "4. SUPERADMIN Backend",
+            "type": "shell",
+            "command": "npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/SUPERADMIN/backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "5. SUPERADMIN Frontend",
+            "type": "shell",
+            "command": "$env:PORT=5174; npm start",
+            "options": {
+                "cwd": "${workspaceFolder}/SUPERADMIN/frontend"
+            },
+            "presentation": {
+                "group": "nckhsv-group",
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "🚀 START ALL SERVICES (NCKHSV)",
+            "dependsOn": [
+                "1. USER Frontend",
+                "2. ADMIN Backend",
+                "3. ADMIN Frontend",
+                "4. SUPERADMIN Backend",
+                "5. SUPERADMIN Frontend"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
