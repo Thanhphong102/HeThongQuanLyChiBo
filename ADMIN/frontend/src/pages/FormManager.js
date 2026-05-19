@@ -6,12 +6,14 @@ import {
 import {
   FileTextOutlined, UploadOutlined, DeleteOutlined,
   FilePdfOutlined, FileWordOutlined, FileExcelOutlined,
-  CloudDownloadOutlined, SearchOutlined, FilterOutlined
+  CloudDownloadOutlined, SearchOutlined
 } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
+import { fuzzySearch } from '../utils/stringUtils';
+import PageHeader from '../components/PageHeader';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const COLOR_RED = '#CE1126';
 
 const FormManager = () => {
@@ -51,7 +53,7 @@ const FormManager = () => {
     let result = forms;
     if (searchText.trim()) {
       result = result.filter(f =>
-        f.tieu_de.toLowerCase().includes(searchText.toLowerCase())
+        fuzzySearch(f.tieu_de, searchText)
       );
     }
     if (filterUploader !== 'all') {
@@ -154,12 +156,11 @@ const FormManager = () => {
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 700, color: '#111827' }}>
-          Kho Biểu mẫu & Tài liệu Nội bộ
-        </Title>
-        <Text style={{ color: '#6b7280' }}>Quản lý biểu mẫu và tài liệu nội bộ của Chi bộ</Text>
-      </div>
+      <PageHeader
+        icon={<FileTextOutlined />}
+        title="Biểu mẫu & Tài liệu Nội bộ"
+        subtitle="Quản lý biểu mẫu và tài liệu nội bộ của Chi bộ"
+      />
 
       <Card
         variant="borderless"

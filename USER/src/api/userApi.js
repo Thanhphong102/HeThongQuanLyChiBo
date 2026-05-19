@@ -144,6 +144,11 @@ const userApi = {
   // Backend route: /api/branch-members (GET)
   getBranchMembers: () => {
     return axiosClient.get('/branch-members');
+  },
+
+  // --- 8. CHATBOT AI ---
+  chatWithBot: (message) => {
+    return axiosClient.post('/ai/chat', { message });
   }
 };
 

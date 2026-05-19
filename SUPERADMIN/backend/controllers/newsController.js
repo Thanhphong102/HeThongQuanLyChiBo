@@ -10,8 +10,9 @@ exports.getNews = async (req, res) => {
         let paramIndex = 1;
 
         if (search) {
-            sql += ` AND tieu_de ILIKE $${paramIndex++}`;
-            params.push(`%${search}%`);
+            sql += ` AND (f_unaccent(tieu_de) ILIKE f_unaccent($${paramIndex}) OR f_unaccent(tieu_de) % f_unaccent($${paramIndex + 1}))`;
+            params.push(`%${search}%`, search);
+            paramIndex += 2;
         }
         if (startDate && endDate) {
             sql += ` AND ngay_tao >= $${paramIndex++}::timestamp AND ngay_tao <= $${paramIndex++}::timestamp`;

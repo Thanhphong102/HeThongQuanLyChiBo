@@ -9,8 +9,8 @@ exports.getDocuments = async (req, res) => {
         const params = [];
 
         if (search) {
-            params.push(`%${search}%`);
-            sql += ` AND ten_tai_lieu ILIKE $${params.length}`;
+            sql += ` AND (f_unaccent(ten_tai_lieu) ILIKE f_unaccent($${params.length + 1}) OR f_unaccent(ten_tai_lieu) % f_unaccent($${params.length + 2}))`;
+            params.push(`%${search}%`, search);
         }
         if (type) {
             params.push(`%${type}%`);

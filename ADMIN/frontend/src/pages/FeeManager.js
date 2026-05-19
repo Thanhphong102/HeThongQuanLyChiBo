@@ -5,7 +5,7 @@ import {
   DatePicker, Popconfirm, Tooltip
 } from 'antd';
 import {
-  DollarCircleOutlined, CalendarOutlined, FileExcelOutlined, PlusOutlined,
+  DollarCircleOutlined, FileExcelOutlined, PlusOutlined,
   DeleteOutlined, EditOutlined, WalletOutlined, ArrowUpOutlined,
   ArrowDownOutlined, SearchOutlined, FilterOutlined
 } from '@ant-design/icons';
@@ -13,8 +13,10 @@ import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { fuzzySearch } from '../utils/stringUtils';
+import PageHeader from '../components/PageHeader';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const COLOR_RED   = '#CE1126';
 const COLOR_GREEN = '#22c55e';
@@ -68,7 +70,7 @@ const FeeManager = () => {
     // 1. Lọc theo tên search
     if (searchFee.trim()) {
       result = result.filter(m =>
-        m.ho_ten.toLowerCase().includes(searchFee.toLowerCase())
+        fuzzySearch(m.ho_ten, searchFee)
       );
     }
 
@@ -249,12 +251,11 @@ const FeeManager = () => {
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 700, color: '#111827' }}>
-          Quản lý Đảng phí & Tài chính
-        </Title>
-        <Text style={{ color: '#6b7280' }}>Theo dõi thu chi và quản lý quỹ Chi bộ</Text>
-      </div>
+      <PageHeader
+        icon={<DollarCircleOutlined />}
+        title="Đảng phí & Tài chính"
+        subtitle="Theo dõi thu chi và quản lý quỹ Chi bộ"
+      />
 
       {/* Summary Cards */}
       <Card variant="borderless" style={{ borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', marginBottom: 16 }}>

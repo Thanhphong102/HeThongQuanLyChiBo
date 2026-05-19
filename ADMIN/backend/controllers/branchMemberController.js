@@ -30,10 +30,10 @@ exports.getBranchMembers = async (req, res) => {
             params.push(gioi_tinh); paramIndex++;
         }
         if (search) {
-            const clause = ` AND (LOWER(ho_ten) LIKE $${paramIndex} OR LOWER(ten_dang_nhap) LIKE $${paramIndex} OR LOWER(ma_so_sinh_vien) LIKE $${paramIndex})`;
+            const clause = ` AND (f_unaccent(ho_ten) ILIKE f_unaccent($${paramIndex}) OR f_unaccent(ho_ten) % f_unaccent($${paramIndex + 1}) OR LOWER(ten_dang_nhap) LIKE $${paramIndex} OR LOWER(ma_so_sinh_vien) LIKE $${paramIndex})`;
             query += clause; countQuery += clause;
-            params.push(`%${search.toLowerCase()}%`);
-            paramIndex++;
+            params.push(`%${search.toLowerCase()}%`, search);
+            paramIndex += 2;
         }
 
         query += ` ORDER BY ma_dang_vien DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
@@ -57,7 +57,20 @@ exports.getBranchMembers = async (req, res) => {
     }
 };
 
-// 2. POST: Thêm Hồ sơ Đảng viên (KHÔNG TẠO TK - Username/Pass để NULL)
+const emailService = require('../services/emailService');
+
+// Helper function: Tạo viết tắt từ tên chi bộ (VD: "Chi bộ Khoa Công nghệ thông tin" -> "cbkcntt")
+const getBranchAbbreviation = (branchName) => {
+    return branchName
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('');
+};
+
+// 2. POST: Thêm Hồ sơ Đảng viên (ĐỒNG THỜI TẠO TÀI KHOẢN & GỬI EMAIL)
 exports.createMember = async (req, res) => {
     const branchId = req.user.branchId;
     const { 
@@ -66,24 +79,43 @@ exports.createMember = async (req, res) => {
         lop, khoa_hoc, nganh_hoc, ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon
     } = req.body;
 
-    if (!ho_ten) {
-        return res.status(400).json({ message: 'Họ và tên là bắt buộc' });
+    if (!ho_ten || !email) {
+        return res.status(400).json({ message: 'Họ tên và Email là bắt buộc' });
     }
 
     try {
+        // Kiểm tra xem email đã được dùng làm tên đăng nhập chưa
+        const check = await db.query('SELECT * FROM "dangvien" WHERE ten_dang_nhap = $1', [email]);
+        if (check.rows.length > 0) return res.status(400).json({ message: 'Email này đã được sử dụng!' });
+
+        // Lấy tên chi bộ để sinh mật khẩu
+        const branchRes = await db.query('SELECT ten_chi_bo FROM "chibo" WHERE ma_chi_bo = $1', [branchId]);
+        if (branchRes.rows.length === 0) return res.status(404).json({ message: 'Chi bộ không tồn tại' });
+        const branchName = branchRes.rows[0].ten_chi_bo;
+
+        // Sinh mật khẩu tự động: viet_tat_chi_bo + @ctut
+        const abbreviation = getBranchAbbreviation(branchName);
+        const autoPassword = `${abbreviation}@ctut`;
+
+        // Mã hóa mật khẩu
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(autoPassword, salt);
+
         const sql = `
             INSERT INTO "dangvien" 
             (
                 ho_ten, ma_chi_bo, cap_quyen, trang_thai_dang_vien, hoat_dong,
                 so_dien_thoai, email, ngay_sinh, gioi_tinh, que_quan, dia_chi_hien_tai, ngay_vao_dang,
                 doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
-                ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, chuc_vu_dang
+                ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, chuc_vu_dang, nguoi_tao,
+                ten_dang_nhap, mat_khau
             )
             VALUES (
                 $1, $2, 3, 'Du bi', true,
                 $3, $4, $5, $6, $7, $8, $9,
                 $10, $11, $12, $13, $14,
-                $15, $16, $17, 'Dang vien'
+                $15, $16, $17, 'Dang vien', $18,
+                $19, $20
             )
             RETURNING *
         `;
@@ -92,10 +124,14 @@ exports.createMember = async (req, res) => {
             ho_ten, branchId, 
             so_dien_thoai, email, ngay_sinh || null, gioi_tinh, que_quan, dia_chi_hien_tai, ngay_vao_dang || null,
             doi_tuong || 'Sinh vien', ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
-            ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon
+            ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, req.user.id,
+            email, hashedPassword
         ]);
 
-        res.status(201).json({ message: 'Thêm hồ sơ thành công' });
+        // Gửi email thông báo
+        await emailService.sendAccountCreationEmail(email, ho_ten, email, autoPassword);
+
+        res.status(201).json({ message: 'Thêm hồ sơ và cấp tài khoản thành công! Đã gửi email.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Lỗi thêm hồ sơ' });
@@ -108,7 +144,7 @@ exports.updateMember = async (req, res) => {
     const branchId = req.user.branchId;
     const { 
         ho_ten, so_dien_thoai, email, dia_chi_hien_tai, que_quan, 
-        ngay_sinh, gioi_tinh, trang_thai_dang_vien, ngay_chinh_thuc,
+        ngay_sinh, gioi_tinh, trang_thai_dang_vien, ngay_chinh_thuc, ngay_vao_dang,
         doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
         ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon
     } = req.body;
@@ -121,19 +157,20 @@ exports.updateMember = async (req, res) => {
             UPDATE "dangvien" 
             SET ho_ten = $1, so_dien_thoai = $2, email = $3, dia_chi_hien_tai = $4, 
                 que_quan = $5, ngay_sinh = $6, gioi_tinh = $7, 
-                trang_thai_dang_vien = $8, ngay_chinh_thuc = $9,
-                doi_tuong = $10, ma_so_sinh_vien = $11, lop = $12, khoa_hoc = $13, nganh_hoc = $14,
-                ma_can_bo = $15, don_vi_cong_tac = $16, chuc_vu_chuyen_mon = $17
-            WHERE ma_dang_vien = $18
+                trang_thai_dang_vien = $8, ngay_chinh_thuc = $9, ngay_vao_dang = $10,
+                doi_tuong = $11, ma_so_sinh_vien = $12, lop = $13, khoa_hoc = $14, nganh_hoc = $15,
+                ma_can_bo = $16, don_vi_cong_tac = $17, chuc_vu_chuyen_mon = $18,
+                nguoi_cap_nhat = $19
+            WHERE ma_dang_vien = $20
         `;
         
         await db.query(sql, [
             ho_ten, so_dien_thoai, email, dia_chi_hien_tai, 
             que_quan, ngay_sinh || null, gioi_tinh, 
-            trang_thai_dang_vien, ngay_chinh_thuc || null,
+            trang_thai_dang_vien, ngay_chinh_thuc || null, ngay_vao_dang || null,
             doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
             ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon,
-            id
+            req.user.id, id
         ]);
 
         res.json({ message: 'Cập nhật hồ sơ thành công' });
@@ -158,7 +195,7 @@ exports.grantAccount = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(mat_khau, salt);
 
-        await db.query('UPDATE "dangvien" SET ten_dang_nhap = $1, mat_khau = $2, hoat_dong = true WHERE ma_dang_vien = $3', [ten_dang_nhap, hashedPassword, id]);
+        await db.query('UPDATE "dangvien" SET ten_dang_nhap = $1, mat_khau = $2, hoat_dong = true, nguoi_cap_nhat = $3 WHERE ma_dang_vien = $4', [ten_dang_nhap, hashedPassword, req.user.id, id]);
 
         res.json({ message: 'Cấp tài khoản thành công' });
     } catch (error) {
@@ -177,7 +214,7 @@ exports.toggleStatus = async (req, res) => {
         const currentStatus = user.rows[0].hoat_dong === false ? false : true;
         const newStatus = !currentStatus;
         
-        await db.query('UPDATE "dangvien" SET hoat_dong = $1 WHERE ma_dang_vien = $2', [newStatus, id]);
+        await db.query('UPDATE "dangvien" SET hoat_dong = $1, nguoi_cap_nhat = $2 WHERE ma_dang_vien = $3', [newStatus, req.user.id, id]);
         
         res.json({ message: newStatus ? 'Đã mở khóa' : 'Đã khóa', status: newStatus });
     } catch (error) {
@@ -185,20 +222,72 @@ exports.toggleStatus = async (req, res) => {
     }
 };
 
-// 6. PUT: Cấp lại mật khẩu (CÓ MÃ HÓA)
+// 6. PUT: Cấp lại mật khẩu — TỰ SINH + GỬI EMAIL + ĐẶT CỜ ĐỔI MẬT KHẨU
 exports.resetPassword = async (req, res) => {
     const { id } = req.params;
-    const { new_password } = req.body;
     try {
-        // Mã hóa mật khẩu mới
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(new_password, salt);
+        // 1. Lấy thông tin Đảng viên (email, tên, tên đăng nhập)
+        const memberRes = await db.query(
+            'SELECT ho_ten, email, ten_dang_nhap FROM "dangvien" WHERE ma_dang_vien = $1',
+            [id]
+        );
+        if (memberRes.rows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy Đảng viên' });
+        }
+        const member = memberRes.rows[0];
 
-        await db.query('UPDATE "dangvien" SET mat_khau = $1 WHERE ma_dang_vien = $2', [hashedPassword, id]);
-        res.json({ message: 'Đã cấp lại mật khẩu' });
+        if (!member.ten_dang_nhap) {
+            return res.status(400).json({ message: 'Đảng viên này chưa được cấp tài khoản' });
+        }
+
+        // 2. Tự sinh mật khẩu ngẫu nhiên 10 ký tự (chữ + số + ký tự đặc biệt)
+        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+        let matKhauTam = '';
+        for (let i = 0; i < 10; i++) {
+            matKhauTam += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        // 3. Băm mật khẩu và cập nhật DB, bật cờ buoc_doi_mat_khau
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(matKhauTam, salt);
+
+        await db.query(
+            `UPDATE "dangvien" 
+             SET mat_khau = $1, buoc_doi_mat_khau = true, nguoi_cap_nhat = $2 
+             WHERE ma_dang_vien = $3`,
+            [hashedPassword, req.user.id, id]
+        );
+
+        // 4. Gửi email nếu Đảng viên có địa chỉ email
+        let emailSent = false;
+        if (member.email) {
+            try {
+                const { sendPasswordResetEmail } = require('../services/emailService');
+                await sendPasswordResetEmail(member.email, member.ho_ten, member.ten_dang_nhap, matKhauTam);
+                emailSent = true;
+            } catch (emailErr) {
+                console.error('[resetPassword] Lỗi gửi email:', emailErr.message);
+                // Không ném lỗi — vẫn trả về thành công kèm cảnh báo
+            }
+        }
+
+        res.json({
+            message: 'Đã cấp lại mật khẩu thành công',
+            matKhauTam,
+            emailSent,
+            emailAddress: member.email || null,
+            note: emailSent
+                ? `Mật khẩu tạm đã được gửi tới ${member.email}`
+                : member.email 
+                    ? 'Lỗi hệ thống khi gửi email (Kiểm tra lại cấu hình App Password) — vui lòng thông báo mật khẩu thủ công'
+                    : 'Đảng viên chưa có email — vui lòng thông báo mật khẩu thủ công',
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Lỗi cấp lại mật khẩu' });
+        try {
+            require('fs').writeFileSync('d:/NCKHSV/ADMIN/backend/error_log.txt', error.stack || error.message);
+        } catch (e) {}
+        res.status(500).json({ message: 'Lỗi cấp lại mật khẩu: ' + error.message });
     }
 };
 

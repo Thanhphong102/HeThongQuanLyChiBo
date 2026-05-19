@@ -137,7 +137,7 @@ exports.submitHybridAttendance = async (req, res) => {
   try {
     // 1. Kiểm tra QR token có tồn tại và cuộc họp có đang mở không
     const meetingRes = await db.query(
-      `SELECT ma_lich, lat, lng, qr_token, diem_danh_open 
+      `SELECT ma_lich, lat, lng, qr_token, diem_danh_open, hinh_thuc_diem_danh 
        FROM "lichsinhhoat" 
        WHERE ma_lich = $1 AND diem_danh_open = true`,
       [ma_lich]
@@ -154,8 +154,8 @@ exports.submitHybridAttendance = async (req, res) => {
       return res.status(400).json({ message: 'Mã QR không hợp lệ hoặc đã hết hạn' });
     }
 
-    // 3. So sánh khoảng cách nếu Admin có cấp tọa độ
-    if (meeting.lat && meeting.lng && lat && lng) {
+    // 3. So sánh khoảng cách nếu là sinh hoạt Offline và Admin có cấp tọa độ
+    if (meeting.hinh_thuc_diem_danh !== 'Online' && meeting.lat && meeting.lng && lat && lng) {
       const distance = getDistanceFromLatLonInM(lat, lng, meeting.lat, meeting.lng);
       console.log(`Khoảng cách user đến điểm cầu: ${distance.toFixed(2)} m`);
       
@@ -168,16 +168,16 @@ exports.submitHybridAttendance = async (req, res) => {
     // Cập nhật trạng thái "Co mat"
     const updateRes = await db.query(
       `UPDATE "diemdanh" 
-       SET trang_thai_tham_gia = 'Co mat' 
+       SET trang_thai_tham_gia = 'Co mat', nguon_diem_danh = 'QR'
        WHERE ma_lich = $1 AND ma_dang_vien = $2 RETURNING *`,
       [ma_lich, userId]
     );
 
     if (updateRes.rows.length === 0) {
-       // Nếu chưa có record điểm danh trong bảng, có thể insert mới tùy cơ chế của bài
+       // Nếu chưa có record điểm danh trong bảng, insert mới
        await db.query(
-          `INSERT INTO "diemdanh" (ma_lich, ma_dang_vien, trang_thai_tham_gia)
-           VALUES ($1, $2, 'Co mat')`,
+          `INSERT INTO "diemdanh" (ma_lich, ma_dang_vien, trang_thai_tham_gia, nguon_diem_danh)
+           VALUES ($1, $2, 'Co mat', 'QR')`,
           [ma_lich, userId]
        );
     }

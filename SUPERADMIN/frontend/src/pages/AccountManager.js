@@ -48,7 +48,6 @@ const AccountManager = () => {
   const [selectedRole, setSelectedRole] = useState(null); // giá trị cap_quyen đang chọn trong modal
 
   const [form] = Form.useForm();
-  const [passForm] = Form.useForm();
   const [roleForm] = Form.useForm();
 
   // Lấy màu cố định cho chi bộ dựa theo hash của Tên chi bộ (deterministic)
@@ -87,9 +86,12 @@ const AccountManager = () => {
     return () => clearTimeout(delay);
   }, [searchText, branchFilter, roleFilter, statusFilter]);
 
-  // Auto sync ngầm mỗi 5 giây (Silent polling) để cập nhật dữ liệu từ Admin
-  // (Vì không dùng setLoading(true) phía trong nên UI KHÔNG bị nháy/flash loading, rất mượt)
+  // Auto sync ngầm để cập nhật dữ liệu từ Admin
+  // Sử dụng recursive setTimeout thay vì setInterval để tránh tình trạng request đè lên nhau gây ERR_INSUFFICIENT_RESOURCES
   useEffect(() => {
+    let timerId;
+    let isMounted = true;
+
     const silentFetch = async () => {
       try {
         let url = '/members?';
@@ -102,20 +104,31 @@ const AccountManager = () => {
           axios.get(url),
           axios.get('/branches')
         ]);
-        setUsers(resUsers.data.data || []);
-        if (resBranches.data) setBranches(resBranches.data);
-      } catch (error) {}
+        if (isMounted) {
+            setUsers(resUsers.data.data || []);
+            if (resBranches.data) setBranches(resBranches.data);
+        }
+      } catch (error) {
+          // Bỏ qua lỗi mạng ngầm
+      } finally {
+        if (isMounted) {
+            timerId = setTimeout(silentFetch, 10000); // Tăng lên 10 giây một lần để giảm tải
+        }
+      }
     };
 
-    const interval = setInterval(silentFetch, 5000);
-    return () => clearInterval(interval);
+    timerId = setTimeout(silentFetch, 10000);
+
+    return () => {
+        isMounted = false;
+        clearTimeout(timerId);
+    };
   }, [searchText, branchFilter, roleFilter, statusFilter]);
 
   const showModal = () => { form.resetFields(); setIsModalOpen(true); };
   
   const showPassModal = (user) => {
     setSelectedUser(user);
-    passForm.resetFields();
     setIsPassModalOpen(true);
   };
 
@@ -139,15 +152,18 @@ const AccountManager = () => {
     } catch (error) { message.error(error.response?.data?.message || 'Tạo thất bại'); }
   };
 
-  const handleResetPassword = async (values) => {
+  const handleResetPassword = async () => {
     try {
-      await axios.put(`/auth/reset-password/${selectedUser.ma_dang_vien}`, {
-        new_password: values.new_password
-      });
-      message.success(`Đã đổi mật khẩu cho ${selectedUser.ho_ten}`);
-      passForm.resetFields();
+      const res = await axios.put(`/auth/reset-password/${selectedUser.ma_dang_vien}`);
+      if (res.data.emailSent) {
+          message.success(`Đã cấp lại mật khẩu cho ${selectedUser.ho_ten} và gửi email thành công!`);
+      } else {
+          message.success(`Đã cấp lại mật khẩu cho ${selectedUser.ho_ten}. Mật khẩu mới là: ${res.data.matKhauTam}`);
+      }
       setIsPassModalOpen(false);
-    } catch (error) { message.error('Đổi mật khẩu thất bại'); }
+    } catch (error) { 
+        message.error(error.response?.data?.message || 'Cấp lại mật khẩu thất bại'); 
+    }
   };
 
   const handleUpdateRole = async (values) => {
@@ -387,23 +403,44 @@ const AccountManager = () => {
           <Form.Item name="ho_ten" label={<span className="font-semibold">Họ tên</span>} rules={[{ required: true, message: 'Nhập họ tên!' }]}>
             <Input size="large" className="rounded-lg" placeholder="Nguyễn Văn A" autoComplete="off" />
           </Form.Item>
-          <Form.Item name="ten_dang_nhap" label={<span className="font-semibold">Tên đăng nhập</span>} rules={[{ required: true, message: 'Nhập username!' }]}>
-            <Input size="large" className="rounded-lg" placeholder="username" autoComplete="new-username" />
-          </Form.Item>
-          <Form.Item name="mat_khau" label={<span className="font-semibold">Mật khẩu</span>} rules={[{ required: true, message: 'Nhập mật khẩu!' }]}>
-            <Input.Password size="large" className="rounded-lg" placeholder="******" autoComplete="new-password" />
+          <Form.Item name="email" label={<span className="font-semibold">Địa chỉ Email</span>} rules={[{ required: true, message: 'Nhập email!' }, { type: 'email', message: 'Email không hợp lệ!' }]}>
+            <Input size="large" className="rounded-lg" placeholder="nguyenvana@gmail.com" autoComplete="email" />
           </Form.Item>
           <Form.Item name="ma_chi_bo" label={<span className="font-semibold">Chi bộ</span>} rules={[{ required: true, message: 'Chọn chi bộ!' }]}>
             <Select size="large" className="rounded-lg" placeholder="Chọn chi bộ" popupMatchSelectWidth={false} styles={{ popup: { root: { minWidth: 280 } } }}>
-              {branches.map(b => <Select.Option key={b.ma_chi_bo} value={b.ma_chi_bo}>{b.ten_chi_bo}</Select.Option>)}
+              {branches.filter(b => b.trang_thai).map(b => <Select.Option key={b.ma_chi_bo} value={b.ma_chi_bo}>{b.ten_chi_bo}</Select.Option>)}
             </Select>
           </Form.Item>
           <Form.Item name="cap_quyen" label={<span className="font-semibold">Quyền hạn</span>} initialValue={3}>
-            <Select size="large" className="rounded-lg">
+            <Select 
+              size="large" 
+              className="rounded-lg"
+              onChange={(val) => {
+                if (val !== 2) form.setFieldsValue({ chuc_vu_dang: undefined });
+              }}
+            >
               <Select.Option value={3}>Đảng viên (Cấp 3)</Select.Option>
               <Select.Option value={2}>Bí thư / Chi ủy (Cấp 2)</Select.Option>
               <Select.Option value={1}>Admin (Cấp 1)</Select.Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item noStyle shouldUpdate={(prevValues, currentValues) => prevValues.cap_quyen !== currentValues.cap_quyen}>
+            {({ getFieldValue }) =>
+              getFieldValue('cap_quyen') === 2 ? (
+                <Form.Item 
+                  name="chuc_vu_dang" 
+                  label={<span className="font-semibold">Chức vụ trong Chi ủy</span>}
+                  rules={[{ required: true, message: 'Vui lòng chọn chức vụ!' }]}
+                >
+                  <Select size="large" className="rounded-lg" placeholder="Chọn chức vụ">
+                    {CHUC_VU_OPTIONS.map(opt => (
+                      <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              ) : null
+            }
           </Form.Item>
           <Button type="primary" htmlType="submit" block size="large" className="rounded-xl h-12 font-bold text-base bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200 mt-4">Xác nhận tạo</Button>
         </Form>
@@ -411,19 +448,26 @@ const AccountManager = () => {
 
       {/* ===== MODAL: ĐỔI MẬT KHẨU ===== */}
       <Modal 
-        title={<span className="text-lg font-bold">Đổi mật khẩu: <span className="text-red-600">{selectedUser?.ho_ten}</span></span>} 
+        title={<span className="text-lg font-bold">Cấp lại mật khẩu</span>} 
         open={isPassModalOpen} 
         onCancel={() => setIsPassModalOpen(false)} 
         footer={null} 
         destroyOnHidden={true} 
         className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']"
       >
-        <Form form={passForm} layout="vertical" onFinish={handleResetPassword} className="mt-4">
-          <Form.Item name="new_password" label={<span className="font-semibold">Mật khẩu mới</span>} rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới!' }]}>
-            <Input.Password size="large" className="rounded-lg" placeholder="Nhập mật khẩu mới" />
-          </Form.Item>
-          <Button type="primary" htmlType="submit" block danger size="large" className="rounded-xl h-12 font-bold text-base mt-2">Cập nhật mật khẩu</Button>
-        </Form>
+        <div className="mt-4 text-center">
+            <p className="text-base text-gray-600 mb-6">
+                Bạn có chắc chắn muốn cấp lại mật khẩu tự động cho tài khoản <strong className="text-red-600">{selectedUser?.ho_ten}</strong> không?<br/>
+                Mật khẩu mới sẽ được sinh ngẫu nhiên và gửi vào email:<br/>
+                <strong className="text-blue-600 text-lg">{selectedUser?.email || selectedUser?.ten_dang_nhap}</strong>
+            </p>
+            <div className="flex gap-3">
+                <Button block size="large" onClick={() => setIsPassModalOpen(false)} className="rounded-xl h-12 font-bold text-base bg-gray-100 hover:bg-gray-200 border-0">Hủy bỏ</Button>
+                <Button type="primary" onClick={handleResetPassword} block danger size="large" className="rounded-xl h-12 font-bold text-base shadow-lg shadow-red-200">
+                    Xác nhận cấp lại
+                </Button>
+            </div>
+        </div>
       </Modal>
 
       {/* ===== MODAL: CẬP NHẬT QUYỀN ===== */}

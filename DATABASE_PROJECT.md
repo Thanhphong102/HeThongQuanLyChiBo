@@ -1,16 +1,28 @@
-## 🗄️ Database Schema (PostgreSQL/Supabase)
-> [!IMPORTANT]
-> Đây là cấu trúc bảng dữ liệu thực tế. Hãy dựa vào đây để viết các câu lệnh Query/API.
-
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.bieumau (
+  ma_bieu_mau integer NOT NULL DEFAULT nextval('forms_id_seq'::regclass),
+  tieu_de character varying NOT NULL,
+  duong_dan_file text NOT NULL,
+  ma_file_drive character varying,
+  ma_chi_bo integer NOT NULL,
+  nguoi_tai_len integer,
+  ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT bieumau_pkey PRIMARY KEY (ma_bieu_mau),
+  CONSTRAINT fk_forms_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo),
+  CONSTRAINT fk_forms_user FOREIGN KEY (nguoi_tai_len) REFERENCES public.dangvien(ma_dang_vien)
+);
 CREATE TABLE public.chibo (
   ma_chi_bo integer NOT NULL DEFAULT nextval('chibo_ma_chi_bo_seq'::regclass),
   ten_chi_bo character varying NOT NULL,
   ngay_thanh_lap date,
   mo_ta text,
   trang_thai boolean DEFAULT true,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  nguoi_tao integer,
+  nguoi_cap_nhat integer,
   CONSTRAINT chibo_pkey PRIMARY KEY (ma_chi_bo)
 );
 CREATE TABLE public.chitieu (
@@ -21,20 +33,21 @@ CREATE TABLE public.chitieu (
   so_luong_muc_tieu integer DEFAULT 0,
   so_luong_dat_duoc integer DEFAULT 0,
   trang_thai character varying,
+  minh_chung_url text,
   CONSTRAINT chitieu_pkey PRIMARY KEY (ma_chi_tieu),
   CONSTRAINT fk_chitieu_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
 );
-CREATE TABLE public.dang_ky_hoat_dong (
-  id integer NOT NULL DEFAULT nextval('dang_ky_hoat_dong_id_seq'::regclass),
-  hoat_dong_id integer,
-  user_id integer,
+CREATE TABLE public.dangkyhoatdong (
+  ma_dang_ky integer NOT NULL DEFAULT nextval('dang_ky_hoat_dong_id_seq'::regclass),
+  ma_hoat_dong integer,
+  ma_dang_vien integer,
   thoi_gian_dang_ky timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
   trang_thai_tham_gia boolean DEFAULT false,
   minh_chung_url text,
   xac_nhan_admin boolean DEFAULT false,
   ghi_chu text,
-  CONSTRAINT dang_ky_hoat_dong_pkey PRIMARY KEY (id),
-  CONSTRAINT dang_ky_hoat_dong_hoat_dong_id_fkey FOREIGN KEY (hoat_dong_id) REFERENCES public.hoat_dong(id)
+  CONSTRAINT dangkyhoatdong_pkey PRIMARY KEY (ma_dang_ky),
+  CONSTRAINT dang_ky_hoat_dong_hoat_dong_id_fkey FOREIGN KEY (ma_hoat_dong) REFERENCES public.hoatdong(id)
 );
 CREATE TABLE public.dangvien (
   ma_dang_vien integer NOT NULL DEFAULT nextval('dangvien_ma_dang_vien_seq'::regclass),
@@ -63,6 +76,14 @@ CREATE TABLE public.dangvien (
   khoa_hoc character varying,
   nganh_hoc character varying,
   muc_dong_phi numeric DEFAULT 50000,
+  so_dinh_danh character varying,
+  so_the_dang_vien character varying,
+  anh_the text,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  nguoi_tao integer,
+  nguoi_cap_nhat integer,
+  buoc_doi_mat_khau boolean DEFAULT false,
   CONSTRAINT dangvien_pkey PRIMARY KEY (ma_dang_vien),
   CONSTRAINT fk_dangvien_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
 );
@@ -71,23 +92,12 @@ CREATE TABLE public.diemdanh (
   ma_dang_vien integer NOT NULL,
   trang_thai_tham_gia character varying DEFAULT 'Co mat'::character varying,
   ghi_chu text,
+  nguon_diem_danh character varying DEFAULT 'Thu cong'::character varying,
   CONSTRAINT diemdanh_pkey PRIMARY KEY (ma_lich, ma_dang_vien),
   CONSTRAINT fk_diemdanh_lich FOREIGN KEY (ma_lich) REFERENCES public.lichsinhhoat(ma_lich),
   CONSTRAINT fk_diemdanh_dangvien FOREIGN KEY (ma_dang_vien) REFERENCES public.dangvien(ma_dang_vien)
 );
-CREATE TABLE public.forms (
-  id integer NOT NULL DEFAULT nextval('forms_id_seq'::regclass),
-  title character varying NOT NULL,
-  file_url text NOT NULL,
-  drive_file_id character varying,
-  party_cell_id integer NOT NULL,
-  uploaded_by integer,
-  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT forms_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_forms_chibo FOREIGN KEY (party_cell_id) REFERENCES public.chibo(ma_chi_bo),
-  CONSTRAINT fk_forms_user FOREIGN KEY (uploaded_by) REFERENCES public.dangvien(ma_dang_vien)
-);
-CREATE TABLE public.hoat_dong (
+CREATE TABLE public.hoatdong (
   id integer NOT NULL DEFAULT nextval('hoat_dong_id_seq'::regclass),
   ten_hoat_dong character varying NOT NULL,
   mo_ta text,
@@ -96,7 +106,13 @@ CREATE TABLE public.hoat_dong (
   dia_diem character varying,
   so_luong_toi_da integer,
   trang_thai character varying DEFAULT 'Dang mo'::character varying,
-  CONSTRAINT hoat_dong_pkey PRIMARY KEY (id)
+  ma_chi_bo integer,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  nguoi_tao integer,
+  nguoi_cap_nhat integer,
+  CONSTRAINT hoatdong_pkey PRIMARY KEY (id),
+  CONSTRAINT hoat_dong_ma_chi_bo_fkey FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
 );
 CREATE TABLE public.hoatdongdacbiet (
   ma_hoat_dong integer NOT NULL DEFAULT nextval('hoatdongdacbiet_ma_hoat_dong_seq'::regclass),
@@ -121,49 +137,39 @@ CREATE TABLE public.lichsinhhoat (
   danh_gia_chat_luong character varying,
   file_dinh_kem character varying,
   trang_thai_buoi_hop character varying DEFAULT 'Sap dien ra'::character varying,
+  lat double precision,
+  lng double precision,
+  qr_token uuid,
+  diem_danh_open boolean DEFAULT false,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  nguoi_tao integer,
+  nguoi_cap_nhat integer,
+  hinh_thuc_diem_danh character varying DEFAULT 'Offline'::character varying,
+  thoi_gian_ket_thuc timestamp without time zone,
   CONSTRAINT lichsinhhoat_pkey PRIMARY KEY (ma_lich),
   CONSTRAINT fk_lich_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
 );
-CREATE TABLE public.media_library (
-  id integer NOT NULL DEFAULT nextval('media_library_id_seq'::regclass),
-  party_cell_id integer NOT NULL,
-  media_type USER-DEFINED NOT NULL,
-  title character varying,
-  url text NOT NULL,
-  drive_file_id character varying,
-  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT media_library_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_media_chibo FOREIGN KEY (party_cell_id) REFERENCES public.chibo(ma_chi_bo)
-);
-CREATE TABLE public.news (
-  id integer NOT NULL DEFAULT nextval('news_id_seq'::regclass),
-  title text NOT NULL,
-  content text,
-  image_url text,
-  drive_file_id text,
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT news_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.quytrinh_dang (
-  id integer NOT NULL DEFAULT nextval('quytrinh_dang_id_seq'::regclass),
+CREATE TABLE public.quytrinhdang (
+  ma_quy_trinh integer NOT NULL DEFAULT nextval('quytrinh_dang_id_seq'::regclass),
   tieu_de character varying NOT NULL,
   mo_ta text,
-  file_url text NOT NULL,
+  duong_dan_file text NOT NULL,
   thu_tu integer DEFAULT 0,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT quytrinh_dang_pkey PRIMARY KEY (id)
+  CONSTRAINT quytrinhdang_pkey PRIMARY KEY (ma_quy_trinh)
 );
-CREATE TABLE public.sodo_tochuc (
-  id integer NOT NULL DEFAULT nextval('sodo_tochuc_id_seq'::regclass),
+CREATE TABLE public.sodotochuc (
+  ma_so_do integer NOT NULL DEFAULT nextval('sodo_tochuc_id_seq'::regclass),
   ho_ten character varying NOT NULL,
   chuc_vu character varying NOT NULL,
   anh_the text,
-  parent_id integer,
+  ma_so_do_cha integer,
   thu_tu integer DEFAULT 0,
   trang_thai boolean DEFAULT true,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT sodo_tochuc_pkey PRIMARY KEY (id),
-  CONSTRAINT sodo_tochuc_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.sodo_tochuc(id)
+  CONSTRAINT sodotochuc_pkey PRIMARY KEY (ma_so_do),
+  CONSTRAINT sodo_tochuc_parent_id_fkey FOREIGN KEY (ma_so_do_cha) REFERENCES public.sodotochuc(ma_so_do)
 );
 CREATE TABLE public.taichinh (
   ma_giao_dich integer NOT NULL DEFAULT nextval('taichinh_ma_giao_dich_seq'::regclass),
@@ -174,6 +180,9 @@ CREATE TABLE public.taichinh (
   noi_dung_giao_dich text,
   ngay_giao_dich date DEFAULT CURRENT_DATE,
   nguoi_tao integer,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  nguoi_cap_nhat integer,
   CONSTRAINT taichinh_pkey PRIMARY KEY (ma_giao_dich),
   CONSTRAINT fk_taichinh_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo),
   CONSTRAINT fk_taichinh_dangvien FOREIGN KEY (ma_dang_vien) REFERENCES public.dangvien(ma_dang_vien)
@@ -188,4 +197,36 @@ CREATE TABLE public.tailieu (
   nguoi_tai_len integer,
   CONSTRAINT tailieu_pkey PRIMARY KEY (ma_tai_lieu),
   CONSTRAINT fk_tailieu_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
+);
+CREATE TABLE public.thongbao (
+  ma_thong_bao integer NOT NULL DEFAULT nextval('thong_bao_id_seq'::regclass),
+  ma_nguoi_nhan integer,
+  quyen_nguoi_nhan character varying NOT NULL,
+  tieu_de character varying NOT NULL,
+  noi_dung text,
+  loai_thong_bao character varying,
+  da_doc boolean DEFAULT false,
+  da_xoa boolean DEFAULT false,
+  ngay_tao timestamp without time zone DEFAULT now(),
+  CONSTRAINT thongbao_pkey PRIMARY KEY (ma_thong_bao)
+);
+CREATE TABLE public.thuvienanh (
+  ma_hinh_anh integer NOT NULL DEFAULT nextval('media_library_id_seq'::regclass),
+  ma_chi_bo integer NOT NULL,
+  loai_hinh_anh USER-DEFINED NOT NULL,
+  tieu_de character varying,
+  duong_dan text NOT NULL,
+  ma_file_drive character varying,
+  ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT thuvienanh_pkey PRIMARY KEY (ma_hinh_anh),
+  CONSTRAINT fk_media_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
+);
+CREATE TABLE public.tintuc (
+  ma_tin_tuc integer NOT NULL DEFAULT nextval('news_id_seq'::regclass),
+  tieu_de text NOT NULL,
+  noi_dung text,
+  duong_dan_anh text,
+  ma_file_drive text,
+  ngay_tao timestamp with time zone DEFAULT now(),
+  CONSTRAINT tintuc_pkey PRIMARY KEY (ma_tin_tuc)
 );

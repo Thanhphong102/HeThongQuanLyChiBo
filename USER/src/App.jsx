@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/Auth/LoginPage';
+import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage'; // [NEW] Quên mật khẩu
 import LandingPage from './pages/Landing/LandingPage';
 
 // --- IMPORT CÁC TRANG THẬT ---
@@ -12,7 +13,8 @@ import DocumentsPage from './pages/Documents/DocumentsPage';
 import MediaPage from './pages/Media/MediaPage';
 import LookupPage from './pages/Lookup/LookupPage';
 import ProfilePage from './pages/Profile/ProfilePage';
-import ActivitiesPage from './pages/Activities/ActivitiesPage'; // [NEW] Import ActivitiesPage
+import ActivitiesPage from './pages/Activities/ActivitiesPage';
+import ForceChangePasswordPage from './pages/Auth/ForceChangePasswordPage'; // [NEW] Đổi MK bắt buộc
 
 // Component bảo vệ tuyến đường (Private Route)
 const PrivateRoute = () => {
@@ -27,6 +29,9 @@ function App() {
       {/* 1. Tuyến đường công khai */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
+      {/* Route đặc biệt: đổi mật khẩu bắt buộc — chỉ cần có token, không cần vào MainLayout */}
+      <Route path="/doi-mat-khau-bat-buoc" element={<ForceChangePasswordPage />} />
       
       {/* 2. Tuyến đường bảo mật (Đã đăng nhập) */}
       <Route element={<PrivateRoute />}>

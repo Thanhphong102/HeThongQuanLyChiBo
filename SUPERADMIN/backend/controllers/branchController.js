@@ -9,8 +9,9 @@ exports.getBranches = async (req, res) => {
         let paramIndex = 1;
 
         if (search) {
-            sql += ` AND ten_chi_bo ILIKE $${paramIndex++}`;
-            params.push(`%${search}%`);
+            sql += ` AND (f_unaccent(ten_chi_bo) ILIKE f_unaccent($${paramIndex}) OR f_unaccent(ten_chi_bo) % f_unaccent($${paramIndex + 1}))`;
+            params.push(`%${search}%`, search);
+            paramIndex += 2;
         }
         if (status !== undefined && status !== '') {
             sql += ` AND trang_thai = $${paramIndex++}`;

@@ -22,8 +22,9 @@ exports.getAllMembers = async (req, res) => {
         let paramIndex = 1;
 
         if (search) {
-            sql += ` AND d.ho_ten ILIKE $${paramIndex++}`;
-            params.push(`%${search}%`);
+            sql += ` AND (f_unaccent(d.ho_ten) ILIKE f_unaccent($${paramIndex}) OR f_unaccent(d.ho_ten) % f_unaccent($${paramIndex + 1}))`;
+            params.push(`%${search}%`, search);
+            paramIndex += 2;
         }
         if (branch) {
             sql += ` AND d.ma_chi_bo = $${paramIndex++}`;
