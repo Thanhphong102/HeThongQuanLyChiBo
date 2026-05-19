@@ -48,50 +48,113 @@ exports.login = async (req, res) => {
     }
 };
 
-// 2. Register (Cấp tài khoản mới - Cần mã hóa mật khẩu)
+// Helper function: Tạo viết tắt từ tên chi bộ (VD: "Chi bộ Khoa Công nghệ thông tin" -> "cbkcntt")
+const getBranchAbbreviation = (branchName) => {
+    return branchName
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Xóa dấu
+        .replace(/đ/g, "d")
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('');
+};
+
+const emailService = require('../services/emailService');
+
+// 2. Register (Cấp tài khoản mới - Tự động tạo mật khẩu & Gửi email)
 exports.register = async (req, res) => {
-    const { ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen } = req.body;
-    if (!ho_ten || !ten_dang_nhap || !mat_khau || !ma_chi_bo) {
+    const { ho_ten, email, ma_chi_bo, cap_quyen, chuc_vu_dang } = req.body;
+    if (!ho_ten || !email || !ma_chi_bo) {
         return res.status(400).json({ message: 'Vui lòng điền đủ thông tin!' });
     }
+    
+    // Tên đăng nhập là email
+    const ten_dang_nhap = email;
+
+    // Xác định chức vụ Đảng
+    const finalChucVu = (parseInt(cap_quyen) === 3) ? 'Dang vien' : (chuc_vu_dang || 'Dang vien');
+
     try {
         const check = await db.query('SELECT * FROM "dangvien" WHERE ten_dang_nhap = $1', [ten_dang_nhap]);
-        if (check.rows.length > 0) return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
+        if (check.rows.length > 0) return res.status(400).json({ message: 'Email này đã được cấp tài khoản!' });
 
-        // --- 3. CẬP NHẬT: Mã hóa mật khẩu trước khi lưu ---
+        // Lấy tên chi bộ để sinh mật khẩu
+        const branchRes = await db.query('SELECT ten_chi_bo FROM "chibo" WHERE ma_chi_bo = $1', [ma_chi_bo]);
+        if (branchRes.rows.length === 0) return res.status(404).json({ message: 'Chi bộ không tồn tại' });
+        const branchName = branchRes.rows[0].ten_chi_bo;
+
+        // Sinh mật khẩu tự động: viet_tat_chi_bo + @ctut
+        const abbreviation = getBranchAbbreviation(branchName);
+        const autoPassword = `${abbreviation}@ctut`;
+
+        // Mã hóa mật khẩu
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(mat_khau, salt);
+        const hashedPassword = await bcrypt.hash(autoPassword, salt);
 
+        // Lưu vào DB
         const sql = `
-            INSERT INTO "dangvien" (ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, ngay_vao_dang, hoat_dong)
-            VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, true)
+            INSERT INTO "dangvien" (ho_ten, email, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, chuc_vu_dang, ngay_vao_dang, hoat_dong)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_DATE, true)
         `;
-        // Lưu hashedPassword thay vì mat_khau gốc
-        await db.query(sql, [ho_ten, ten_dang_nhap, hashedPassword, ma_chi_bo, cap_quyen || 3]);
+        await db.query(sql, [ho_ten, email, ten_dang_nhap, hashedPassword, ma_chi_bo, cap_quyen || 3, finalChucVu]);
         
-        res.status(201).json({ message: 'Cấp tài khoản thành công!' });
+        // Gọi service gửi email
+        await emailService.sendAccountCreationEmail(email, ho_ten, ten_dang_nhap, autoPassword);
+
+        res.status(201).json({ message: 'Cấp tài khoản thành công! Đã gửi thông tin qua email.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Lỗi tạo tài khoản' });
     }
 };
 
-// 3. Reset Password (Cần mã hóa mật khẩu mới)
+// 3. Reset Password (Cấp lại mật khẩu - Tự sinh & Gửi email)
 exports.resetPassword = async (req, res) => {
     const { id } = req.params;
-    const { new_password } = req.body;
-
-    if (!new_password) return res.status(400).json({ message: 'Mật khẩu mới không được để trống' });
 
     try {
-        // --- 4. CẬP NHẬT: Mã hóa mật khẩu mới ---
+        // Lấy thông tin user để gửi mail
+        const userRes = await db.query('SELECT ho_ten, email, ten_dang_nhap FROM "dangvien" WHERE ma_dang_vien = $1', [id]);
+        if (userRes.rows.length === 0) return res.status(404).json({ message: 'Tài khoản không tồn tại' });
+        
+        const { ho_ten, email, ten_dang_nhap } = userRes.rows[0];
+
+        if (!ten_dang_nhap) {
+            return res.status(400).json({ message: 'Người dùng này chưa có tài khoản' });
+        }
+
+        // Tự sinh mật khẩu ngẫu nhiên 10 ký tự
+        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+        let matKhauTam = '';
+        for (let i = 0; i < 10; i++) {
+            matKhauTam += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        // Mã hóa mật khẩu mới
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(new_password, salt);
+        const hashedPassword = await bcrypt.hash(matKhauTam, salt);
 
         await db.query('UPDATE "dangvien" SET mat_khau = $1 WHERE ma_dang_vien = $2', [hashedPassword, id]);
-        res.json({ message: 'Đã cập nhật mật khẩu thành công' });
+        
+        // Gửi email
+        let emailSent = false;
+        if (email) {
+            try {
+                await emailService.sendPasswordResetEmail(email, ho_ten, ten_dang_nhap, matKhauTam);
+                emailSent = true;
+            } catch (err) {
+                console.error('[resetPassword] Lỗi gửi email:', err.message);
+            }
+        }
+
+        res.json({ 
+            message: 'Đã cấp lại mật khẩu thành công',
+            matKhauTam,
+            emailSent
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi cập nhật mật khẩu' });
+        console.error('CRASH IN RESET PASSWORD:', error);
+        res.status(500).json({ message: 'Lỗi server: ' + (error.message || error), stack: error.stack });
     }
 };
 

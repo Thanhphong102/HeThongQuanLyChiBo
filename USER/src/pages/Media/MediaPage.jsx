@@ -9,38 +9,38 @@ const { Title } = Typography;
 
 // --- HÀM XỬ LÝ LINK GOOGLE DRIVE ---
 const getMediaSrc = (duong_dan) => {
-    if (!duong_dan) return '';
-    
-    // Kiểm tra nếu là link Google Drive
-    if (duong_dan.includes('drive.google.com') || duong_dan.includes('docs.google.com')) {
-        // Tách lấy ID file
-        const idMatch = duong_dan.match(/[-\w]{25,}/);
-        if (idMatch) {
-            const fileId = idMatch[0];
-            // Link này dùng cho thẻ <img> cực nhanh
-            return `https://lh3.googleusercontent.com/d/${fileId}`; 
-        }
-    }
-    
-    // Nếu là file upload localhost (có prefix uploads/)
-    if (duong_dan.includes('uploads/')) {
-        return `http://localhost:5001/${duong_dan}`; // Đảm bảo đúng port backend
-    }
+  if (!duong_dan) return '';
 
-    return duong_dan;
+  // Kiểm tra nếu là link Google Drive
+  if (duong_dan.includes('drive.google.com') || duong_dan.includes('docs.google.com')) {
+    // Tách lấy ID file
+    const idMatch = duong_dan.match(/[-\w]{25,}/);
+    if (idMatch) {
+      const fileId = idMatch[0];
+      // Link này dùng cho thẻ <img> cực nhanh
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+  }
+
+  // Nếu là file upload localhost (có prefix uploads/)
+  if (duong_dan.includes('uploads/')) {
+    return `http://localhost:5001/${duong_dan}`; // Đảm bảo đúng port backend
+  }
+
+  return duong_dan;
 };
 
 // Hàm lấy link embed cho Video (Dùng iframe ổn định hơn thẻ video cho Drive)
 const getVideoEmbedSrc = (duong_dan) => {
-    if (!duong_dan) return '';
-    if (duong_dan.includes('drive.google.com')) {
-         const idMatch = duong_dan.match(/[-\w]{25,}/);
-         if (idMatch) return `https://drive.google.com/file/d/${idMatch[0]}/preview`;
-    }
-    if (duong_dan.includes('uploads/')) {
-        return `http://localhost:5001/${duong_dan}`;
-    }
-    return duong_dan;
+  if (!duong_dan) return '';
+  if (duong_dan.includes('drive.google.com')) {
+    const idMatch = duong_dan.match(/[-\w]{25,}/);
+    if (idMatch) return `https://drive.google.com/file/d/${idMatch[0]}/preview`;
+  }
+  if (duong_dan.includes('uploads/')) {
+    return `http://localhost:5001/${duong_dan}`;
+  }
+  return duong_dan;
 };
 
 const MediaPage = () => {
@@ -52,8 +52,8 @@ const MediaPage = () => {
       try {
         const user = JSON.parse(localStorage.getItem('user_info'));
         if (user?.ma_chi_bo) {
-            const res = await userApi.getMedia(user.ma_chi_bo);
-            setMediaList(res.data || []);
+          const res = await userApi.getMedia(user.ma_chi_bo);
+          setMediaList(res.data || []);
         }
       } catch (e) {
         console.log("Lỗi tải thư viện:", e);
@@ -74,22 +74,22 @@ const MediaPage = () => {
         <Row gutter={[16, 16]}>
           {images.map((item) => (
             <Col xs={24} sm={12} md={8} lg={6} key={item.ma_hinh_anh}>
-              <Card hoverable className="overflow-hidden h-full shadow-sm" bodyStyle={{padding: 0}} variant="borderless">
-                  <div className="aspect-video w-full overflow-hidden flex items-center bg-gray-100">
-                    <Image 
-                        width="100%"
-                        height={200}
-                        // Dùng hàm xử lý link ở đây
-                        src={getMediaSrc(item.duong_dan)} 
-                        className="object-cover transition-transform duration-300 hover:scale-110"
-                        alt={item.tieu_de}
-                        fallback="https://via.placeholder.com/300x200?text=Lỗi+Ảnh"
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="font-semibold text-gray-800 truncate" tieu_de={item.tieu_de}>{item.tieu_de}</div>
-                    <div className="text-xs text-gray-500 mt-1">{dayjs(item.ngay_tao).format('DD/MM/YYYY')}</div>
-                  </div>
+              <Card hoverable className="overflow-hidden h-full shadow-sm" bodyStyle={{ padding: 0 }} variant="borderless">
+                <div className="aspect-video w-full overflow-hidden flex items-center bg-gray-100">
+                  <Image
+                    width="100%"
+                    height={200}
+                    // Dùng hàm xử lý link ở đây
+                    src={getMediaSrc(item.duong_dan)}
+                    className="object-cover transition-transform duration-300 hover:scale-110"
+                    alt={item.tieu_de}
+                    fallback="https://via.placeholder.com/300x200?text=Lỗi+Ảnh"
+                  />
+                </div>
+                <div className="p-3">
+                  <div className="font-semibold text-gray-800 truncate" tieu_de={item.tieu_de}>{item.tieu_de}</div>
+                  <div className="text-xs text-gray-500 mt-1">{dayjs(item.ngay_tao).format('DD/MM/YYYY')}</div>
+                </div>
               </Card>
             </Col>
           ))}
@@ -103,35 +103,35 @@ const MediaPage = () => {
     videos.length > 0 ? (
       <Row gutter={[16, 16]}>
         {videos.map((item) => {
-            const isDrive = item.duong_dan.includes('drive.google.com');
-            return (
-              <Col xs={24} sm={12} md={8} key={item.ma_hinh_anh}>
-                <Card hoverable className="h-full shadow-sm" bodyStyle={{padding: 0}} variant="borderless">
-                    <div className="aspect-video w-full bg-black relative flex items-center justify-center">
-                        {isDrive ? (
-                            // Nếu là Drive thì dùng Iframe để play ổn định
-                            <iframe 
-                                src={getVideoEmbedSrc(item.duong_dan)} 
-                                className="w-full h-full" 
-                                allow="autoplay"
-                                tieu_de={item.tieu_de}
-                            ></iframe>
-                        ) : (
-                            // Nếu là file thường thì dùng thẻ video
-                            <video controls className="w-full h-full object-contain">
-                                <source src={getVideoEmbedSrc(item.duong_dan)} type="video/mp4" />
-                            </video>
-                        )}
-                    </div>
-                    <div className="p-3">
-                      <div className="font-semibold text-red-dang truncate" tieu_de={item.tieu_de}>
-                          <PlayCircleOutlined className="mr-2"/>{item.tieu_de}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">{dayjs(item.ngay_tao).format('DD/MM/YYYY')}</div>
-                    </div>
-                </Card>
-              </Col>
-            );
+          const isDrive = item.duong_dan.includes('drive.google.com');
+          return (
+            <Col xs={24} sm={12} md={8} key={item.ma_hinh_anh}>
+              <Card hoverable className="h-full shadow-sm" bodyStyle={{ padding: 0 }} variant="borderless">
+                <div className="aspect-video w-full bg-black relative flex items-center justify-center">
+                  {isDrive ? (
+                    // Nếu là Drive thì dùng Iframe để play ổn định
+                    <iframe
+                      src={getVideoEmbedSrc(item.duong_dan)}
+                      className="w-full h-full"
+                      allow="autoplay"
+                      tieu_de={item.tieu_de}
+                    ></iframe>
+                  ) : (
+                    // Nếu là file thường thì dùng thẻ video
+                    <video controls className="w-full h-full object-contain">
+                      <source src={getVideoEmbedSrc(item.duong_dan)} type="video/mp4" />
+                    </video>
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="font-semibold text-red-dang truncate" tieu_de={item.tieu_de}>
+                    <PlayCircleOutlined className="mr-2" />{item.tieu_de}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{dayjs(item.ngay_tao).format('DD/MM/YYYY')}</div>
+                </div>
+              </Card>
+            </Col>
+          );
         })}
       </Row>
     ) : <Empty description="Chưa có video nào" />

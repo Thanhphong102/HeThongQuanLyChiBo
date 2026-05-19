@@ -2,8 +2,8 @@ import axios from './axiosConfig';
 
 const targetService = {
   // 1. Lấy danh sách chỉ tiêu được giao
-  getAssignedTargets: async () => {
-    const response = await axios.get('/targets');
+  getAssignedTargets: async (search = '', status = '') => {
+    const response = await axios.get('/targets', { params: { search, status } });
     return response.data;
   },
 

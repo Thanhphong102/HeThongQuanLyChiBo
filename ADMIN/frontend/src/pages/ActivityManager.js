@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  Card, Table, Button, Modal, Form, Input, DatePicker, Select,
-  message, Tag, Space, Radio, Upload, Row, Col, Statistic, Popconfirm,
+  Card, Table, Button, Modal, Form, Input, DatePicker, Select, TimePicker,
+  message, Tag, Space, Upload, Row, Col, Statistic, Popconfirm,
   Typography, Switch, Divider, Alert, Tooltip
 } from 'antd';
 import {
   CalendarOutlined, PlusOutlined, CheckSquareOutlined, UploadOutlined,
   FilePdfOutlined, ClockCircleOutlined, FileExcelOutlined,
-  EditOutlined, DeleteOutlined, SearchOutlined, SyncOutlined,
+  EditOutlined, DeleteOutlined, SyncOutlined,
   CheckCircleOutlined, QrcodeOutlined, WifiOutlined, StopOutlined,
   EnvironmentOutlined, ReloadOutlined
 } from '@ant-design/icons';
@@ -16,26 +16,27 @@ import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { fuzzySearch } from '../utils/stringUtils';
+import PageHeader from '../components/PageHeader';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const COLOR_RED    = '#CE1126';
 const COLOR_GREEN  = '#22c55e';
 const COLOR_BLUE   = '#3b82f6';
-const COLOR_ORANGE = '#f59e0b';
 
 // ── Auto-status component ──────────────────────────────────────────
-const getAutoStatus = (thoiGian) => {
+const getAutoStatus = (thoiGian, thoiGianKetThuc) => {
   const now   = dayjs();
   const start = dayjs(thoiGian);
-  const end   = start.add(2, 'hour');
+  const end   = thoiGianKetThuc ? dayjs(thoiGianKetThuc) : start.add(2, 'hour');
   if (now.isBefore(start)) return 'Sap dien ra';
   if (now.isBefore(end))   return 'Dang dien ra';
   return 'Da ket thuc';
 };
 
-const StatusTag = ({ thoiGian }) => {
-  const status = getAutoStatus(thoiGian);
+const StatusTag = ({ thoiGian, thoiGianKetThuc }) => {
+  const status = getAutoStatus(thoiGian, thoiGianKetThuc);
   if (status === 'Sap dien ra')  return <Tag icon={<ClockCircleOutlined />} color="gold">Sắp diễn ra</Tag>;
   if (status === 'Dang dien ra') return <Tag icon={<SyncOutlined spin />}  color="processing">Đang diễn ra</Tag>;
   return <Tag icon={<CheckCircleOutlined />} color="default">Đã kết thúc</Tag>;
@@ -61,7 +62,8 @@ const buildQrContent = (meetingId, token) =>
 const ActivityManager = () => {
   const [activities, setActivities]   = useState([]);
   const [loading, setLoading]         = useState(false);
-  const [searchText, setSearchText]   = useState('');
+  const [dateRange, setDateRange]     = useState([]);
+  const [loaiHinh, setLoaiHinh]       = useState('');
 
   // Modal Tạo/Sửa
   const [isModalOpen, setIsModalOpen]     = useState(false);
@@ -91,20 +93,26 @@ const ActivityManager = () => {
   const fetchActivities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/activities', { params: { keyword: searchText } });
+      const params = {};
+      if (dateRange && dateRange.length === 2 && dateRange[0] && dateRange[1]) {
+        params.from_date = dateRange[0].startOf('day').format('YYYY-MM-DD HH:mm:ss');
+        params.to_date   = dateRange[1].endOf('day').format('YYYY-MM-DD HH:mm:ss');
+      }
+      if (loaiHinh) params.loai_hinh = loaiHinh;
+      const res = await axios.get('/activities', { params });
       setActivities(res.data);
     } catch { message.error('Lỗi tải dữ liệu'); }
     finally   { setLoading(false); }
   };
 
   useEffect(() => {
-    const t = setTimeout(fetchActivities, 500);
-    return () => clearTimeout(t);
-  }, [searchText]);
+    fetchActivities();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange, loaiHinh]);
 
   useEffect(() => {
     if (attendanceList.length > 0) {
-      const present = attendanceList.filter(m => m.status === 'Co mat').length;
+      const present = attendanceList.filter(m => m.status === 'Co mat' || m.isQR).length;
       const excused = attendanceList.filter(m => m.status === 'Vang co phep').length;
       const absent  = attendanceList.filter(m => m.status === 'Vang khong phep').length;
       setStats({ present, excused, absent, total: attendanceList.length });
@@ -114,7 +122,7 @@ const ActivityManager = () => {
   const filteredAttendance = useMemo(() => {
     if (!attendanceSearch.trim()) return attendanceList;
     return attendanceList.filter(m =>
-      m.ho_ten.toLowerCase().includes(attendanceSearch.toLowerCase())
+      fuzzySearch(m.ho_ten, attendanceSearch)
     );
   }, [attendanceList, attendanceSearch]);
 
@@ -209,7 +217,14 @@ const ActivityManager = () => {
   // 2. Submit tạo/sửa lịch họp
   const handleSubmit = async (values) => {
     try {
-      const payload = { ...values, thoi_gian: values.thoi_gian.format('YYYY-MM-DD HH:mm:ss') };
+      const { ngay_hop, gio_bat_dau, gio_ket_thuc, ...rest } = values;
+      const thoi_gian = dayjs(ngay_hop).format('YYYY-MM-DD') + ' ' + dayjs(gio_bat_dau).format('HH:mm:00');
+      const thoi_gian_ket_thuc = gio_ket_thuc 
+        ? dayjs(ngay_hop).format('YYYY-MM-DD') + ' ' + dayjs(gio_ket_thuc).format('HH:mm:00')
+        : null;
+
+      const payload = { ...rest, thoi_gian, thoi_gian_ket_thuc };
+
       if (editingActivity) {
         await axios.put(`/activities/${editingActivity.ma_lich}`, payload);
         message.success('Cập nhật thành công');
@@ -226,7 +241,13 @@ const ActivityManager = () => {
 
   const handleEdit = (record) => {
     setEditingActivity(record);
-    form.setFieldsValue({ ...record, thoi_gian: dayjs(record.thoi_gian) });
+    form.setFieldsValue({ 
+      ...record, 
+      ngay_hop: dayjs(record.thoi_gian),
+      gio_bat_dau: dayjs(record.thoi_gian),
+      gio_ket_thuc: record.thoi_gian_ket_thuc ? dayjs(record.thoi_gian_ket_thuc) : null,
+      hinh_thuc_diem_danh: record.hinh_thuc_diem_danh || 'Offline'
+    });
     setIsModalOpen(true);
   };
 
@@ -238,19 +259,33 @@ const ActivityManager = () => {
     } catch { message.error('Lỗi xóa lịch'); }
   };
 
+  // Helper: map dữ liệu điểm danh từ server (không tự gán vắng)
+  const mapAttendanceData = (data) => {
+    return data.map(m => {
+      const isQR = m.nguon_diem_danh === 'QR';
+      const status = m.trang_thai_tham_gia || null;
+      return { ...m, status, note: m.ghi_chu || '', nguon: m.nguon_diem_danh || null, isQR };
+    });
+  };
+
   // 3. Điểm danh thủ công
   const openAttendance = async (activity) => {
     setCurrentActivity(activity);
     setAttendanceSearch('');
     try {
       const res = await axios.get(`/activities/${activity.ma_lich}/attendance`);
-      setAttendanceList(res.data.map(m => ({
-        ...m,
-        status: m.trang_thai_tham_gia || 'Co mat',
-        note: m.ghi_chu || ''
-      })));
+      setAttendanceList(mapAttendanceData(res.data));
       setIsAttendanceOpen(true);
     } catch { message.error('Không tải được danh sách điểm danh'); }
+  };
+
+  const refreshAttendance = async () => {
+    if (!currentActivity) return;
+    try {
+      const res = await axios.get(`/activities/${currentActivity.ma_lich}/attendance`);
+      setAttendanceList(mapAttendanceData(res.data));
+      message.success('Đã tải lại danh sách!');
+    } catch { message.error('Lỗi tải lại'); }
   };
 
   const handleStatusChange    = (memberId, val) =>
@@ -260,12 +295,16 @@ const ActivityManager = () => {
 
   const saveAttendance = async () => {
     try {
-      await axios.post(`/activities/${currentActivity.ma_lich}/attendance`, {
-        attendanceData: attendanceList.map(m => ({
-          ma_dang_vien: m.ma_dang_vien, status: m.status, note: m.note
-        }))
-      });
-      message.success('Đã lưu kết quả điểm danh');
+      // Chỉ lưu những người Admin đã tích thủ công
+      const dataToSave = attendanceList
+        .filter(m => !m.isQR && m.status === 'Co mat')
+        .map(m => ({ ma_dang_vien: m.ma_dang_vien, status: 'Co mat', note: m.note }));
+      if (dataToSave.length === 0) {
+        message.info('Không có điểm danh thủ công nào cần lưu.');
+        return;
+      }
+      await axios.post(`/activities/${currentActivity.ma_lich}/attendance`, { attendanceData: dataToSave });
+      message.success(`Đã lưu ${dataToSave.length} điểm danh thủ công!`);
       setIsAttendanceOpen(false);
       fetchActivities();
     } catch { message.error('Lỗi lưu điểm danh'); }
@@ -331,8 +370,8 @@ const ActivityManager = () => {
           </Upload>
     },
     {
-      title: 'Trạng thái', dataIndex: 'thoi_gian', align: 'center', width: 150,
-      render: (t) => <StatusTag thoiGian={t} />
+      title: 'Trạng thái', key: 'trang_thai', align: 'center', width: 150,
+      render: (_, record) => <StatusTag thoiGian={record.thoi_gian} thoiGianKetThuc={record.thoi_gian_ket_thuc} />
     },
     {
       title: 'Hành động', key: 'action', align: 'center', width: 210,
@@ -364,25 +403,53 @@ const ActivityManager = () => {
     { title: 'Đảng viên', dataIndex: 'ho_ten', render: t => <span style={{ fontWeight: 600 }}>{t}</span> },
     { title: 'Chức vụ', dataIndex: 'chuc_vu_dang' },
     {
-      title: 'Trạng thái', key: 'status',
-      render: (_, record) => (
-        <Radio.Group value={record.status} onChange={(e) => handleStatusChange(record.ma_dang_vien, e.target.value)} buttonStyle="solid">
-          <Radio.Button value="Co mat">✅ Có mặt</Radio.Button>
-          <Radio.Button value="Vang co phep">🟡 Có phép</Radio.Button>
-          <Radio.Button value="Vang khong phep">❌ K.Phép</Radio.Button>
-        </Radio.Group>
-      )
+      title: 'Nguồn', key: 'nguon', width: 160, align: 'left',
+      render: (_, record) => {
+        if (record.isQR) return <Tag color="green" style={{ fontWeight: 600 }}>📱 QR</Tag>;
+        if (record.status === 'Co mat') return <Tag color="blue" style={{ fontWeight: 600 }}>✏️ Thủ công</Tag>;
+        return <Tag color="default" style={{ color: '#6b7280' }}>Chưa điểm danh</Tag>;
+      }
+    },
+    {
+      title: 'Trạng thái', key: 'status', align: 'center',
+      render: (_, record) => {
+        if (record.isQR) {
+          return (
+            <Tag color="green" icon={<CheckCircleOutlined />} style={{ padding: '4px 14px', borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
+              ĐÃ ĐIỂM DANH (QR)
+            </Tag>
+          );
+        }
+        if (record.status === 'Co mat') {
+          return (
+            <Button
+              icon={<CheckCircleOutlined />}
+              onClick={() => handleStatusChange(record.ma_dang_vien, null)}
+              style={{ borderRadius: 8, fontWeight: 600, background: '#16a34a', borderColor: '#16a34a', color: '#fff' }}
+            >
+              ✅ Đã điểm danh
+            </Button>
+          );
+        }
+        return (
+          <Button
+            onClick={() => handleStatusChange(record.ma_dang_vien, 'Co mat')}
+            style={{ borderRadius: 8, fontWeight: 600, borderColor: '#f87171', color: '#dc2626', background: '#fff5f5' }}
+          >
+            ❌ Vắng họp
+          </Button>
+        );
+      }
     }
   ];
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 700, color: '#111827' }}>
-          Lịch Sinh hoạt Chi bộ
-        </Title>
-        <Text style={{ color: '#6b7280' }}>Quản lý lịch họp, điểm danh và biên bản</Text>
-      </div>
+      <PageHeader
+        icon={<CalendarOutlined />}
+        title="Lịch Sinh hoạt Chi bộ"
+        subtitle="Quản lý lịch họp, điểm danh và biên bản"
+      />
 
       <Card variant="borderless" style={{ borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }} styles={{ body: { padding: 0 } }}
         title={
@@ -391,9 +458,23 @@ const ActivityManager = () => {
               <CalendarOutlined style={{ marginRight: 8, color: COLOR_RED }} />Danh sách buổi sinh hoạt
             </span>
             <Space wrap>
-              <Input placeholder="Tìm kiếm tiêu đề..." prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-                onChange={e => setSearchText(e.target.value)}
-                style={{ width: 240, borderRadius: 8 }} allowClear />
+              <DatePicker.RangePicker
+                placeholder={['Từ ngày', 'Đến ngày']}
+                format="DD/MM/YYYY"
+                onChange={(dates) => setDateRange(dates || [])}
+                style={{ borderRadius: 8 }}
+              />
+              <Select
+                value={loaiHinh || 'all'}
+                onChange={(val) => setLoaiHinh(val === 'all' ? '' : val)}
+                style={{ width: 200, borderRadius: 8 }}
+                popupMatchSelectWidth={false}
+              >
+                <Select.Option value="all">📋 Tất cả loại hình</Select.Option>
+                <Select.Option value="Thuong ky">🔵 Sinh hoạt thường kỳ</Select.Option>
+                <Select.Option value="Chuyen de">🟣 Sinh hoạt chuyên đề</Select.Option>
+                <Select.Option value="Chi uy">🔴 Họp Chi ủy</Select.Option>
+              </Select>
               <Button type="primary" icon={<PlusOutlined />}
                 onClick={() => { setEditingActivity(null); form.resetFields(); setIsModalOpen(true); }}
                 style={{ background: COLOR_RED, borderColor: COLOR_RED, borderRadius: 8 }}>
@@ -415,17 +496,46 @@ const ActivityManager = () => {
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item name="tieu_de" label="Tiêu đề" rules={[{ required: true }]}><Input style={{ borderRadius: 8 }} /></Form.Item>
-          <Form.Item name="thoi_gian" label="Thời gian" rules={[{ required: true }]}>
-            <DatePicker showTime format="DD/MM/YYYY HH:mm" style={{ width: '100%', borderRadius: 8 }} />
-          </Form.Item>
-          <Form.Item name="dia_diem" label="Địa điểm"><Input style={{ borderRadius: 8 }} /></Form.Item>
-          <Form.Item name="loai_hinh" label="Loại hình" initialValue="Thuong ky">
-            <Select style={{ borderRadius: 8 }}>
-              <Select.Option value="Thuong ky">Sinh hoạt thường kỳ</Select.Option>
-              <Select.Option value="Chuyen de">Sinh hoạt chuyên đề</Select.Option>
-              <Select.Option value="Chi uy">Họp Chi ủy</Select.Option>
-            </Select>
-          </Form.Item>
+          
+          <Row gutter={12}>
+            <Col span={10}>
+              <Form.Item name="ngay_hop" label="Ngày họp" rules={[{ required: true }]}>
+                <DatePicker format="DD/MM/YYYY" style={{ width: '100%', borderRadius: 8 }} />
+              </Form.Item>
+            </Col>
+            <Col span={7}>
+              <Form.Item name="gio_bat_dau" label="Bắt đầu" rules={[{ required: true }]}>
+                <TimePicker format="HH:mm" style={{ width: '100%', borderRadius: 8 }} />
+              </Form.Item>
+            </Col>
+            <Col span={7}>
+              <Form.Item name="gio_ket_thuc" label="Kết thúc">
+                <TimePicker format="HH:mm" style={{ width: '100%', borderRadius: 8 }} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="dia_diem" label="Địa điểm (hoặc Link họp trực tuyến)"><Input style={{ borderRadius: 8 }} /></Form.Item>
+          
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="loai_hinh" label="Loại hình" initialValue="Thuong ky">
+                <Select style={{ borderRadius: 8 }}>
+                  <Select.Option value="Thuong ky">Sinh hoạt thường kỳ</Select.Option>
+                  <Select.Option value="Chuyen de">Sinh hoạt chuyên đề</Select.Option>
+                  <Select.Option value="Chi uy">Họp Chi ủy</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="hinh_thuc_diem_danh" label="Hình thức họp" initialValue="Offline">
+                <Select style={{ borderRadius: 8 }}>
+                  <Select.Option value="Offline">🔵 Trực tiếp</Select.Option>
+                  <Select.Option value="Online">🟢 Trực tuyến</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item name="noi_dung_du_kien" label="Nội dung dự kiến"><Input.TextArea rows={3} style={{ borderRadius: 8 }} /></Form.Item>
           <Button type="primary" htmlType="submit" block
             style={{ background: COLOR_RED, borderColor: COLOR_RED, borderRadius: 8, height: 40, fontWeight: 600 }}>
@@ -448,7 +558,7 @@ const ActivityManager = () => {
         onCancel={closeQrModal}
         footer={null}
         width={520}
-        destroyOnClose
+        destroyOnHidden
       >
         {/* Trạng thái điểm danh */}
         {qrData?.isOpen ? (
@@ -559,7 +669,10 @@ const ActivityManager = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 30 }}>
             <span style={{ fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 600 }}>✅ Điểm danh: {currentActivity?.tieu_de}</span>
-            <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} style={{ color: COLOR_GREEN, borderColor: COLOR_GREEN, borderRadius: 8 }}>Xuất BC</Button>
+            <Space>
+              <Button icon={<ReloadOutlined />} onClick={refreshAttendance} style={{ borderRadius: 8 }}>Làm mới</Button>
+              <Button icon={<FileExcelOutlined />} onClick={handleExportExcel} style={{ color: COLOR_GREEN, borderColor: COLOR_GREEN, borderRadius: 8 }}>Xuất BC</Button>
+            </Space>
           </div>
         }
         open={isAttendanceOpen} onCancel={() => setIsAttendanceOpen(false)} width={950}
@@ -573,10 +686,9 @@ const ActivityManager = () => {
       >
         <div style={{ marginBottom: 16, padding: '12px 16px', background: '#f9fafb', borderRadius: 12 }}>
           <Row gutter={16} style={{ textAlign: 'center' }}>
-            <Col span={6}><Statistic title="Tổng số" value={stats.total} valueStyle={{ fontSize: 16 }} /></Col>
-            <Col span={6}><Statistic title="✅ Có mặt" value={stats.present} valueStyle={{ color: COLOR_GREEN, fontSize: 16 }} /></Col>
-            <Col span={6}><Statistic title="🟡 Có phép" value={stats.excused} valueStyle={{ color: COLOR_ORANGE, fontSize: 16 }} /></Col>
-            <Col span={6}><Statistic title="❌ Không phép" value={stats.absent} valueStyle={{ color: COLOR_RED, fontSize: 16 }} /></Col>
+            <Col span={8}><Statistic title="Tổng số" value={stats.total} valueStyle={{ fontSize: 16 }} /></Col>
+            <Col span={8}><Statistic title="✅ Đã điểm danh" value={stats.present} valueStyle={{ color: COLOR_GREEN, fontSize: 16 }} /></Col>
+            <Col span={8}><Statistic title="❌ Vắng mặt" value={stats.total - stats.present} valueStyle={{ color: COLOR_RED, fontSize: 16 }} /></Col>
           </Row>
         </div>
         <Input placeholder="🔍 Tìm nhanh theo tên Đảng viên..." value={attendanceSearch}

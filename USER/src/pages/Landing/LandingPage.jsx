@@ -112,7 +112,7 @@ const LandingPage = () => {
             <Button
               type="primary"
               size="large"
-              className="bg-red-dang hover:!bg-yellow-sao hover:!text-red-dang border-none shadow-xl h-14 px-10 text-lg text-yellow-sao font-bold transition-all duration-300 rounded-full"
+              className="bg-red-dang hover:!bg-red-dam hover:!text-white border-none shadow-xl h-14 px-10 text-lg text-yellow-sao font-bold transition-all duration-300 rounded-full"
               onClick={() => navigate('/login')}
             >
               Vào Hệ Thống

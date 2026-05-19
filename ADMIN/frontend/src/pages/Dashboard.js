@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Tag, Typography, Spin, Space, Empty } from 'antd';
+import { Row, Col, Card, Statistic, List, Tag, Typography, Spin, Space, Empty, Alert } from 'antd';
 import {
   UserOutlined,
   CalendarOutlined,
@@ -158,6 +158,7 @@ const Dashboard = () => {
     genderStats: [],
     hometownStats: [],
     ageStats: {},
+    warnings: { probation: [], feePayment: { isLow: false, rate: 100 } }
   };
 
   // ── Dữ liệu Donut Giới tính ──
@@ -190,7 +191,7 @@ const Dashboard = () => {
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
       {/* ── TIÊU ĐỀ TRANG ── */}
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <Title
           level={3}
           style={{
@@ -206,6 +207,33 @@ const Dashboard = () => {
           Cập nhật thời gian thực · Chi bộ của bạn
         </Text>
       </div>
+
+      {/* ── HỆ THỐNG CẢNH BÁO SỚM ── */}
+      {safeStats.warnings?.feePayment?.isLow && (
+        <Alert
+          message="Cảnh báo: Tỷ lệ nộp Đảng phí thấp!"
+          description={`Hiện tại chỉ có ${safeStats.warnings.feePayment.rate}% (${safeStats.warnings.feePayment.paid}/${safeStats.warnings.feePayment.total}) Đảng viên hoàn thành đóng phí tháng này. Vui lòng đôn đốc thu nộp.`}
+          type="error"
+          showIcon
+          style={{ marginBottom: 16, borderRadius: 8, fontFamily: 'Be Vietnam Pro, sans-serif' }}
+        />
+      )}
+      
+      {safeStats.warnings?.probation?.length > 0 && (
+        <Alert
+          message={`Cảnh báo: Có ${safeStats.warnings.probation.length} Đảng viên dự bị sắp hết hạn`}
+          description={
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              {safeStats.warnings.probation.map((p, idx) => (
+                <li key={idx}><strong>{p.ho_ten}</strong> (Dự bị {p.so_thang_du_bi} tháng) - Cần làm hồ sơ chuyển chính thức.</li>
+              ))}
+            </ul>
+          }
+          type="warning"
+          showIcon
+          style={{ marginBottom: 24, borderRadius: 8, fontFamily: 'Be Vietnam Pro, sans-serif' }}
+        />
+      )}
 
       {/* ── HÀNG 1: 4 THẺ THỐNG KÊ ── */}
       <Row gutter={[16, 16]}>

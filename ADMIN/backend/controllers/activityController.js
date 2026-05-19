@@ -1,31 +1,47 @@
 const db = require('../config/db');
 const { uploadFileToDrive } = require('../services/driveService');
 
-// 1. GET: Lấy danh sách (CÓ TÌM KIẾM + AUTO-STATUS theo thời gian)
+// 1. GET: Lấy danh sách (CÓ LỌC theo khoảng thời gian + loại hình + AUTO-STATUS)
 exports.getActivities = async (req, res) => {
     const branchId = req.user.branchId;
-    const { keyword } = req.query; // Nhận từ khóa tìm kiếm
+    const userId = req.user.id || req.user.userId;
+    const { from_date, to_date, loai_hinh } = req.query;
 
     try {
         let sql = `
-            SELECT *,
+            SELECT l.*,
             CASE
-                WHEN thoi_gian > NOW() THEN 'Sap dien ra'
-                WHEN thoi_gian <= NOW() AND thoi_gian > NOW() - INTERVAL '2 hours' THEN 'Dang dien ra'
+                WHEN l.thoi_gian > NOW() THEN 'Sap dien ra'
+                WHEN l.thoi_gian <= NOW()
+                     AND NOW() < COALESCE(l.thoi_gian_ket_thuc, l.thoi_gian + INTERVAL '2 hours')
+                     THEN 'Dang dien ra'
                 ELSE 'Da ket thuc'
-            END AS auto_status
-            FROM "lichsinhhoat"
-            WHERE ma_chi_bo = $1
+            END AS auto_status,
+            dd.trang_thai_tham_gia as my_status,
+            dd.nguon_diem_danh as my_source
+            FROM "lichsinhhoat" l
+            LEFT JOIN "diemdanh" dd ON l.ma_lich = dd.ma_lich AND dd.ma_dang_vien = $2
+            WHERE l.ma_chi_bo = $1
         `;
-        let params = [branchId];
+        let params = [branchId, userId];
 
-        // Nếu có từ khóa -> Thêm điều kiện tìm kiếm theo Tiêu đề
-        if (keyword) {
-            sql += ` AND LOWER(tieu_de) LIKE $2`;
-            params.push(`%${keyword.toLowerCase()}%`);
+        // Lọc theo khoảng thời gian bắt đầu
+        if (from_date) {
+            params.push(from_date);
+            sql += ` AND l.thoi_gian >= $${params.length}`;
+        }
+        if (to_date) {
+            params.push(to_date);
+            sql += ` AND l.thoi_gian <= $${params.length}`;
         }
 
-        sql += ' ORDER BY thoi_gian DESC';
+        // Lọc theo loại hình
+        if (loai_hinh) {
+            params.push(loai_hinh);
+            sql += ` AND l.loai_hinh = $${params.length}`;
+        }
+
+        sql += ' ORDER BY l.thoi_gian DESC';
 
         const result = await db.query(sql, params);
         res.json(result.rows);
@@ -35,10 +51,11 @@ exports.getActivities = async (req, res) => {
     }
 };
 
+
 // 2. POST: Tạo buổi sinh hoạt mới
 exports.createActivity = async (req, res) => {
     const branchId = req.user.branchId;
-    const { tieu_de, noi_dung_du_kien, thoi_gian, dia_diem, loai_hinh } = req.body;
+    const { tieu_de, noi_dung_du_kien, thoi_gian, thoi_gian_ket_thuc, dia_diem, loai_hinh, hinh_thuc_diem_danh } = req.body;
 
     if (!tieu_de || !thoi_gian) {
         return res.status(400).json({ message: 'Tiêu đề và thời gian là bắt buộc' });
@@ -46,11 +63,11 @@ exports.createActivity = async (req, res) => {
 
     try {
         const sql = `
-            INSERT INTO "lichsinhhoat" (ma_chi_bo, tieu_de, noi_dung_du_kien, thoi_gian, dia_diem, loai_hinh, trang_thai_buoi_hop)
-            VALUES ($1, $2, $3, $4, $5, $6, 'Sap dien ra')
+            INSERT INTO "lichsinhhoat" (ma_chi_bo, tieu_de, noi_dung_du_kien, thoi_gian, thoi_gian_ket_thuc, dia_diem, loai_hinh, hinh_thuc_diem_danh, trang_thai_buoi_hop, nguoi_tao)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Sap dien ra', $9)
             RETURNING *
         `;
-        const result = await db.query(sql, [branchId, tieu_de, noi_dung_du_kien, thoi_gian, dia_diem, loai_hinh]);
+        const result = await db.query(sql, [branchId, tieu_de, noi_dung_du_kien, thoi_gian, thoi_gian_ket_thuc, dia_diem, loai_hinh, hinh_thuc_diem_danh || 'Offline', req.user.id]);
         
         // --- Task 10: Tự động đẩy thông báo Lịch họp/Sinh hoạt ---
         const { createNotification } = require('../services/sharedNotificationService');
@@ -81,7 +98,7 @@ exports.createActivity = async (req, res) => {
 exports.updateActivity = async (req, res) => {
     const { id } = req.params;
     const branchId = req.user.branchId;
-    const { tieu_de, noi_dung_du_kien, thoi_gian, dia_diem, loai_hinh } = req.body;
+    const { tieu_de, noi_dung_du_kien, thoi_gian, thoi_gian_ket_thuc, dia_diem, loai_hinh, hinh_thuc_diem_danh } = req.body;
 
     try {
         // Kiểm tra quyền (chỉ sửa lịch của chi bộ mình)
@@ -90,10 +107,10 @@ exports.updateActivity = async (req, res) => {
 
         const sql = `
             UPDATE "lichsinhhoat" 
-            SET tieu_de = $1, noi_dung_du_kien = $2, thoi_gian = $3, dia_diem = $4, loai_hinh = $5
-            WHERE ma_lich = $6
+            SET tieu_de = $1, noi_dung_du_kien = $2, thoi_gian = $3, thoi_gian_ket_thuc = $4, dia_diem = $5, loai_hinh = $6, hinh_thuc_diem_danh = $7, nguoi_cap_nhat = $8
+            WHERE ma_lich = $9
         `;
-        await db.query(sql, [tieu_de, noi_dung_du_kien, thoi_gian, dia_diem, loai_hinh, id]);
+        await db.query(sql, [tieu_de, noi_dung_du_kien, thoi_gian, thoi_gian_ket_thuc, dia_diem, loai_hinh, hinh_thuc_diem_danh || 'Offline', req.user.id, id]);
 
         // --- Gửi Thông báo Cập nhật ---
         const { createNotification } = require('../services/sharedNotificationService');
@@ -152,7 +169,7 @@ exports.getAttendanceList = async (req, res) => {
         const sql = `
             SELECT 
                 d.ma_dang_vien, d.ho_ten, d.chuc_vu_dang,
-                dd.trang_thai_tham_gia, dd.ghi_chu
+                dd.trang_thai_tham_gia, dd.ghi_chu, dd.nguon_diem_danh
             FROM "dangvien" d
             LEFT JOIN "diemdanh" dd ON d.ma_dang_vien = dd.ma_dang_vien AND dd.ma_lich = $1
             WHERE d.ma_chi_bo = $2 AND d.hoat_dong = true

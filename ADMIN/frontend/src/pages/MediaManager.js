@@ -1,11 +1,10 @@
 import React from 'react';
-import { Tabs, Typography } from 'antd';
+import { Tabs } from 'antd';
 import { PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
 
 import ImageGallery from '../components/ImageGallery';
 import VideoGallery from '../components/VideoGallery';
-
-const { Title, Text } = Typography;
+import PageHeader from '../components/PageHeader';
 
 const MediaManager = () => {
   const items = [
@@ -31,15 +30,11 @@ const MediaManager = () => {
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      {/* Tiêu đề trang */}
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 700, color: '#111827' }}>
-          Thư viện Truyền thông & Kỷ yếu Chi bộ
-        </Title>
-        <Text style={{ color: '#6b7280', fontSize: 14 }}>
-          Quản lý hình ảnh và video hoạt động của Chi bộ
-        </Text>
-      </div>
+      <PageHeader
+        icon={<PictureOutlined />}
+        title="Thư viện Truyền thông & Kỷ yếu"
+        subtitle="Quản lý hình ảnh và video hoạt động của Chi bộ"
+      />
 
       {/* Tabs Ảnh / Video */}
       <div style={{

@@ -46,7 +46,6 @@ const ProfilePage = () => {
                     nganh_hoc: fetchedUser.nganh_hoc,
                     ma_so_sinh_vien: fetchedUser.ma_so_sinh_vien,
                     so_dinh_danh: fetchedUser.so_dinh_danh,
-                    so_dinh_danh: fetchedUser.so_dinh_danh,
                     so_the_dang_vien: fetchedUser.so_the_dang_vien,
                 });
             } catch (error) {

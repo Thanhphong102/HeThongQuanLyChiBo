@@ -6,7 +6,7 @@ import userApi from '../api/userApi';
 
 const { Text } = Typography;
 
-const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle }) => {
+const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, attendanceType }) => {
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('SCANNING'); // 'SCANNING', 'GEOLOCATING', 'SUCCESS', 'ERROR'
@@ -39,15 +39,59 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle }) =>
           try { scanner.clear(); } catch(e){}
       }
       setScanResult(decodedText);
-      setStatus('GEOLOCATING');
-      getLocationAndSubmit(decodedText);
+
+      // Parse JSON từ nội dung QR: { meetingId, token, type: 'ATTENDANCE_QR' }
+      let parsedToken = decodedText;
+      let parsedMeetingId = meetingId;
+      try {
+          const parsed = JSON.parse(decodedText);
+          if (parsed.type === 'ATTENDANCE_QR' && parsed.token) {
+              parsedToken = parsed.token;
+              parsedMeetingId = parsed.meetingId || meetingId;
+          }
+      } catch (e) {
+          // Nếu không parse được, dùng nguyên bản
+      }
+      
+      if (attendanceType === 'Online') {
+          setStatus('GEOLOCATING');
+          submitOnlineAttendance(parsedToken, parsedMeetingId);
+      } else {
+          setStatus('GEOLOCATING');
+          getLocationAndSubmit(parsedToken, parsedMeetingId);
+      }
+  };
+
+  const submitOnlineAttendance = async (qrToken, resolvedMeetingId) => {
+      try {
+          setLoading(true);
+          const res = await userApi.submitAttendance(resolvedMeetingId, {
+              qr_token: qrToken,
+              lat: null,
+              lng: null
+          });
+          
+          if (res.data.success) {
+              setStatus('SUCCESS');
+              message.success("Điểm danh trực tuyến thành công!");
+          } else {
+              setStatus('ERROR');
+              message.error(res.data.message || "Điểm danh thất bại");
+          }
+      } catch (error) {
+          console.error(error);
+          setStatus('ERROR');
+          message.error(error.response?.data?.message || "Mã QR đã hết hạn");
+      } finally {
+          setLoading(false);
+      }
   };
 
   const onScanFailure = (error) => {
       // Bỏ qua lỗi quét
   };
 
-  const getLocationAndSubmit = (qrToken) => {
+  const getLocationAndSubmit = (qrToken, resolvedMeetingId) => {
       if (!navigator.geolocation) {
           message.error("Trình duyệt không hỗ trợ định vị");
           setStatus('ERROR');
@@ -62,7 +106,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle }) =>
               try {
                   setLoading(true);
                   // Gọi API qua function submitAttendance (sẽ code ở userApi)
-                  const res = await userApi.submitAttendance(meetingId, {
+                  const res = await userApi.submitAttendance(resolvedMeetingId, {
                       qr_token: qrToken,
                       lat,
                       lng
@@ -130,8 +174,13 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle }) =>
                 {status === 'GEOLOCATING' && (
                     <div className="text-center py-10">
                         <Spin size="large" />
-                        <h4 className="text-lg font-semibold text-blue-600 mt-4 flex items-center justify-center"><EnvironmentOutlined className="mr-2" /> Đang lấy vị trí phân tích...</h4>
-                        <p className="text-gray-500 text-sm mt-2">Vui lòng kiên nhẫn chờ trong giây lát. Đảm bảo bạn đã bật GPS.</p>
+                        <h4 className="text-lg font-semibold text-blue-600 mt-4 flex items-center justify-center">
+                            {attendanceType === 'Online' ? <CheckCircleOutlined className="mr-2" /> : <EnvironmentOutlined className="mr-2" />} 
+                            {attendanceType === 'Online' ? 'Đang gửi yêu cầu điểm danh...' : 'Đang lấy vị trí phân tích...'}
+                        </h4>
+                        <p className="text-gray-500 text-sm mt-2">
+                            {attendanceType === 'Online' ? 'Vui lòng kiên nhẫn chờ trong giây lát.' : 'Vui lòng kiên nhẫn chờ trong giây lát. Đảm bảo bạn đã bật GPS.'}
+                        </p>
                     </div>
                 )}
                 
@@ -152,7 +201,9 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle }) =>
                             <span className="text-4xl text-red-500 font-bold">!</span>
                         </div>
                         <h4 className="text-xl font-bold text-red-600 mt-2">VỊ TRÍ HOẶC QR KHÔNG HỢP LỆ</h4>
-                        <p className="text-gray-600 mb-6 px-4">Khoảng cách quét hoặc mã QR cung cấp không khớp với Server.</p>
+                        <p className="text-gray-600 mb-6 px-4">
+                            {attendanceType === 'Online' ? 'Mã QR cung cấp không khớp với Server hoặc đã hết hạn.' : 'Khoảng cách quét hoặc mã QR cung cấp không khớp với Server.'}
+                        </p>
                         <div className="flex justify-center flex-row gap-4">
                             <Button className="h-10 px-6 rounded-lg font-semibold" onClick={() => setStatus('SCANNING')}>Thử Lại</Button>
                             <Button type="primary" danger className="h-10 px-6 rounded-lg font-semibold bg-red-dang" onClick={handleClose}>Huỷ</Button>

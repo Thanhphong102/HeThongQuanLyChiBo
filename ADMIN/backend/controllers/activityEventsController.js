@@ -59,9 +59,9 @@ exports.getActivities = async (req, res) => {
     let idx = 2;
 
     if (keyword) {
-      sql += ` AND LOWER(hd.ten_hoat_dong) LIKE $${idx}`;
-      params.push(`%${keyword.toLowerCase()}%`);
-      idx++;
+      sql += ` AND (f_unaccent(hd.ten_hoat_dong) ILIKE f_unaccent($${idx}) OR f_unaccent(hd.ten_hoat_dong) % f_unaccent($${idx + 1}))`;
+      params.push(`%${keyword}%`, keyword);
+      idx += 2;
     }
     if (trang_thai) {
       sql += ` AND hd.trang_thai = $${idx}`;
@@ -91,10 +91,10 @@ exports.createActivity = async (req, res) => {
   try {
     const result = await db.query(
       `INSERT INTO "hoatdong"
-        (ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da, trang_thai, ma_chi_bo)
-       VALUES ($1, $2, $3, $4, $5, $6, 'Dang mo', $7)
+        (ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da, trang_thai, ma_chi_bo, nguoi_tao)
+       VALUES ($1, $2, $3, $4, $5, $6, 'Dang mo', $7, $8)
        RETURNING *`,
-      [ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da || null, branchId]
+      [ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da || null, branchId, req.user.id]
     );
 
     // --- Task 10: Thông báo cho toàn bộ User trong Chi bộ ---
@@ -124,10 +124,11 @@ exports.updateActivity = async (req, res) => {
     const result = await db.query(
       `UPDATE "hoatdong"
        SET ten_hoat_dong = $1, mo_ta = $2, thoi_gian_bat_dau = $3,
-           thoi_gian_ket_thuc = $4, dia_diem = $5, so_luong_toi_da = $6, trang_thai = $7
-       WHERE id = $8 AND ma_chi_bo = $9
+           thoi_gian_ket_thuc = $4, dia_diem = $5, so_luong_toi_da = $6, trang_thai = $7,
+           nguoi_cap_nhat = $8
+       WHERE id = $9 AND ma_chi_bo = $10
        RETURNING *`,
-      [ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da, trang_thai, id, branchId]
+      [ten_hoat_dong, mo_ta, thoi_gian_bat_dau, thoi_gian_ket_thuc, dia_diem, so_luong_toi_da, trang_thai, req.user.id, id, branchId]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Không tìm thấy hoạt động' });
     
@@ -226,7 +227,7 @@ exports.confirmRegistration = async (req, res) => {
     const result = await db.query(
       `UPDATE "dangkyhoatdong"
        SET xac_nhan_admin = true, trang_thai_tham_gia = true, ghi_chu = $1
-       WHERE id = $2
+       WHERE ma_dang_ky = $2
        RETURNING *`,
       [ghi_chu || null, regId]
     );
@@ -246,7 +247,7 @@ exports.rejectRegistration = async (req, res) => {
     await db.query(
       `UPDATE "dangkyhoatdong"
        SET xac_nhan_admin = false, trang_thai_tham_gia = false
-       WHERE id = $1`,
+       WHERE ma_dang_ky = $1`,
       [regId]
     );
     res.json({ success: true, message: 'Đã hủy xác nhận' });
@@ -312,7 +313,7 @@ exports.registerEvent = async (req, res) => {
 
     // Tạo bản ghi Đăng ký
     const result = await db.query(`
-      INSERT INTO "dangkyhoatdong" (ma_hoat_dong, user_id, trang_thai_tham_gia)
+      INSERT INTO "dangkyhoatdong" (ma_hoat_dong, ma_dang_vien, trang_thai_tham_gia)
       VALUES ($1, $2, false)
       RETURNING *
     `, [id, userId]);
@@ -352,6 +353,32 @@ exports.uploadEvidence = async (req, res) => {
     if (now < eventStartTime) {
         return res.status(400).json({ message: 'Sự kiện chưa diễn ra. Chưa thể nộp minh chứng!' });
     }
+
+    // --- KIỂM TRA EXIF METADATA (CHỐNG GIAN LẬN) ---
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
+      try {
+        const ExifParser = require('exif-parser');
+        const parser = ExifParser.create(file.buffer);
+        const result = parser.parse();
+        
+        if (result.tags && result.tags.DateTimeOriginal) {
+          const photoTime = new Date(result.tags.DateTimeOriginal * 1000); // EXIF lưu dạng Unix timestamp
+          const dayjs = require('dayjs');
+          
+          // Nếu ảnh chụp TRƯỚC thời gian bắt đầu sự kiện quá 1 tiếng (cho phép sai số nhỏ hoặc chuẩn bị)
+          // Hoặc ảnh chụp cách đây quá lâu (ví dụ ảnh từ năm ngoái)
+          if (dayjs(photoTime).isBefore(dayjs(eventStartTime).subtract(1, 'hour'))) {
+            return res.status(400).json({ 
+              message: `Ảnh minh chứng không hợp lệ. Ảnh này được chụp vào lúc ${photoTime.toLocaleString('vi-VN')}, trước khi sự kiện bắt đầu.` 
+            });
+          }
+        }
+      } catch (exifErr) {
+        console.warn('Không thể đọc EXIF từ ảnh:', exifErr.message);
+        // Vẫn cho phép upload nếu lỗi parse EXIF để tránh chặn người dùng khi ảnh bị lỗi header
+      }
+    }
+    // ----------------------------------------------
     
     const oldUrl = checkReg.rows[0].minh_chung_url;
     if (oldUrl && oldUrl.includes('id=')) {
@@ -376,7 +403,7 @@ exports.uploadEvidence = async (req, res) => {
     const result = await db.query(`
       UPDATE "dangkyhoatdong"
       SET minh_chung_url = $1
-      WHERE id = $2
+      WHERE ma_dang_ky = $2
       RETURNING *
     `, [finalUrl, regId]);
 

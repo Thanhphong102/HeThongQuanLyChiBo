@@ -127,7 +127,7 @@ exports.togglePayment = async (req, res) => {
 exports.updateFeeLevel = async (req, res) => {
     const { ma_dang_vien, muc_dong_phi } = req.body;
     try {
-        await db.query('UPDATE "dangvien" SET muc_dong_phi = $1 WHERE ma_dang_vien = $2', [muc_dong_phi, ma_dang_vien]);
+        await db.query('UPDATE "dangvien" SET muc_dong_phi = $1, nguoi_cap_nhat = $2 WHERE ma_dang_vien = $3', [muc_dong_phi, req.user.id, ma_dang_vien]);
         res.json({ message: 'Đã cập nhật mức đóng phí' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi cập nhật mức phí' });
@@ -182,9 +182,9 @@ exports.updateExpense = async (req, res) => {
 
         await db.query(
             `UPDATE "taichinh" 
-             SET so_tien = $1, noi_dung_giao_dich = $2, ngay_giao_dich = $3 
-             WHERE ma_giao_dich = $4`,
-            [so_tien, noi_dung_giao_dich, ngay_giao_dich, id]
+             SET so_tien = $1, noi_dung_giao_dich = $2, ngay_giao_dich = $3, nguoi_cap_nhat = $4 
+             WHERE ma_giao_dich = $5`,
+            [so_tien, noi_dung_giao_dich, ngay_giao_dich, req.user.id, id]
         );
 
         res.json({ message: 'Cập nhật phiếu chi thành công' });

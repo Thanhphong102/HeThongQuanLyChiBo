@@ -241,9 +241,7 @@ const NotificationPopover = () => {
       placement="bottomRight"
       trigger="click"
       content={content}
-      overlayInnerStyle={{ padding: 0, borderRadius: 16 }}
-      styles={{ body: { padding: 0 } }}
-      overlayStyle={{ minWidth: 370 }}
+      styles={{ root: { minWidth: 370 }, body: { padding: 0, borderRadius: 16 } }}
     >
       <Badge count={unreadCount} size="small" offset={[-2, 6]}>
         <Button

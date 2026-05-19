@@ -29,6 +29,7 @@ import DangKyImg from '../assets/co-dang.png';
 
 
 import NotificationPopover from '../components/Header/NotificationPopover';
+import FloatingChatbot from '../components/FloatingChatbot'; // [NEW] Chatbot AI
 
 const { Header, Content, Footer } = Layout;
 
@@ -248,6 +249,10 @@ const MainLayout = () => {
             </div>
         </div>
       </Footer>
+
+      {/* --- PHẦN 5: CHATBOT AI --- */}
+      <FloatingChatbot />
+
     </Layout>
   );
 };

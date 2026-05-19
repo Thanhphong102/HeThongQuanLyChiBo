@@ -6,6 +6,7 @@ import {
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
+import { fuzzySearch } from '../utils/stringUtils';
 
 const { Text } = Typography;
 const COLOR_RED = '#CE1126';
@@ -37,7 +38,7 @@ const ImageGallery = () => {
   const filteredImages = useMemo(() => {
     let result = images;
     if (searchText.trim()) {
-      result = result.filter(img => img.tieu_de.toLowerCase().includes(searchText.toLowerCase()));
+      result = result.filter(img => fuzzySearch(img.tieu_de, searchText));
     }
     if (dateRange && dateRange.length === 2 && dateRange[0] && dateRange[1]) {
       const from = dayjs(dateRange[0]).startOf('day');

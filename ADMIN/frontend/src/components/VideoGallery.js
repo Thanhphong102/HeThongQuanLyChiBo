@@ -3,12 +3,12 @@ import {
   Button, Modal, Input, message, Empty, Popconfirm, Tooltip,
   DatePicker, Space, Typography, Tag
 } from 'antd';
-import { PlusOutlined, DeleteOutlined, YoutubeOutlined, EditOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
+import { DeleteOutlined, YoutubeOutlined, EditOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
+import { fuzzySearch } from '../utils/stringUtils';
 
 const { Text } = Typography;
-const COLOR_RED = '#CE1126';
 
 const VideoGallery = () => {
   const [videos, setVideos]         = useState([]);
@@ -37,7 +37,7 @@ const VideoGallery = () => {
   const filteredVideos = useMemo(() => {
     let result = videos;
     if (searchText.trim()) {
-      result = result.filter(v => v.tieu_de.toLowerCase().includes(searchText.toLowerCase()));
+      result = result.filter(v => fuzzySearch(v.tieu_de, searchText));
     }
     if (dateRange && dateRange.length === 2 && dateRange[0] && dateRange[1]) {
       const from = dayjs(dateRange[0]).startOf('day');
@@ -145,7 +145,7 @@ const VideoGallery = () => {
                   {videoId
                     ? <iframe width="100%" height="190"
                         src={`https://www.youtube.com/embed/${videoId}`}
-                        tieu_de={vid.tieu_de} frameBorder="0" allowFullScreen
+                        title={vid.tieu_de || 'Video'} frameBorder="0" allowFullScreen
                         style={{ borderTopLeftRadius: 12, borderTopRightRadius: 12, display: 'block' }}
                       />
                     : <div style={{ height: 190, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>Link lỗi</div>

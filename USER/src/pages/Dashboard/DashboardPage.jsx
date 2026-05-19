@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Typography, Spin, Divider, List, Tag, Button, Empty } from 'antd';
 // Import useNavigate để chuyển trang
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, CalendarOutlined, DollarCircleOutlined, DashboardOutlined, ClockCircleOutlined, EnvironmentOutlined, QrcodeOutlined, EditOutlined } from '@ant-design/icons';
+import { UserOutlined, CalendarOutlined, DollarCircleOutlined, DashboardOutlined, ClockCircleOutlined, EnvironmentOutlined, QrcodeOutlined, EditOutlined, LinkOutlined, GlobalOutlined, VideoCameraOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
 import AttendanceScannerModal from '../../components/AttendanceScannerModal';
@@ -40,14 +40,13 @@ const DashboardPage = () => {
                  
                  const now = dayjs();
                  const eventTime = dayjs(m.thoi_gian);
+                 const endTime = m.thoi_gian_ket_thuc ? dayjs(m.thoi_gian_ket_thuc) : eventTime.add(2, 'hour'); // Mặc định 2 tiếng nếu không có
                  
                  // Chỉ hiển thị khi: Thời gian hiện tại >= eventTime - 1 ngày
-                 // Tức là: Không cho xem quá sớm khi cuộc họp còn cách xa
                  if (now.isBefore(eventTime.subtract(1, 'day'))) return false;
                  
-                 // Ẩn lịch khi: Thời gian hiện tại > eventTime + 1 ngày
-                 // Tức là: Đã kết thúc và qua 24h
-                 if (now.isAfter(eventTime.add(1, 'day'))) return false;
+                 // Ẩn lịch khi: Thời gian hiện tại > endTime + 1 ngày
+                 if (now.isAfter(endTime.add(1, 'day'))) return false;
                  
                  return true;
             })
@@ -165,25 +164,73 @@ const DashboardPage = () => {
                             title={<span className="text-red-dang font-semibold">{item.tieu_de}</span>}
                             description={
                                 <div className="text-xs text-gray-500 mt-1">
-                                    <div className="mb-1"><ClockCircleOutlined className="mr-1"/> {dayjs(item.thoi_gian).format('HH:mm - DD/MM/YYYY')}</div>
-                                    <div><EnvironmentOutlined className="mr-1"/> {item.dia_diem || 'Chưa cập nhật'}</div>
-                                    <div className="mt-2">
-                                        {dayjs().isAfter(dayjs(item.thoi_gian)) ? (
-                                            <Tag color="default" className="text-gray-500 border-gray-300 text-sm font-semibold px-3 py-1">
-                                                Đã kết thúc
-                                            </Tag>
-                                        ) : (
-                                            <Button 
-                                                size="small"
-                                                onClick={() => {
-                                                    setSelectedMeeting(item);
-                                                    setIsQrModalOpen(true);
-                                                }}
-                                                className="bg-yellow-50 text-yellow-600 border-yellow-200 hover:!bg-yellow-100 hover:!text-yellow-700 font-bold"
-                                            >
-                                                <QrcodeOutlined /> Điểm danh (QR)
-                                            </Button>
-                                        )}
+                                    <div className="mb-1"><ClockCircleOutlined className="mr-1"/> {dayjs(item.thoi_gian).format('HH:mm')} - {item.thoi_gian_ket_thuc ? dayjs(item.thoi_gian_ket_thuc).format('HH:mm DD/MM/YYYY') : dayjs(item.thoi_gian).format('DD/MM/YYYY')}</div>
+                                     <div className="mb-1">
+                                         <Tag color={item.hinh_thuc_diem_danh === 'Online' ? 'green' : 'blue'} style={{ fontSize: 10 }}>
+                                             {item.hinh_thuc_diem_danh === 'Online' ? '🟢 Trực tuyến' : '🔵 Trực tiếp'}
+                                         </Tag>
+                                     </div>
+                                     <div className="flex items-start gap-1 mb-1">
+                                         {item.hinh_thuc_diem_danh === 'Online' ? (
+                                             <><VideoCameraOutlined className="mr-1 text-green-500 flex-shrink-0"/>
+                                             {item.dia_diem && item.dia_diem.startsWith('http') ? (
+                                                 <a href={item.dia_diem} target="_blank" rel="noopener noreferrer"
+                                                    className="text-blue-500 underline hover:text-blue-700 break-all"
+                                                    onClick={(e) => e.stopPropagation()}>
+                                                     {item.dia_diem}
+                                                 </a>
+                                             ) : (
+                                                 <span>{item.dia_diem || 'Chưa cập nhật link họp'}</span>
+                                             )}</>
+                                         ) : (
+                                             <><EnvironmentOutlined className="mr-1 flex-shrink-0"/><span>{item.dia_diem || 'Chưa cập nhật'}</span></>
+                                         )}
+                                     </div>
+                                     <div className="mt-2">
+                                        {(() => {
+                                            const now = dayjs();
+                                            const eventStart = dayjs(item.thoi_gian);
+                                            const eventEnd = item.thoi_gian_ket_thuc ? dayjs(item.thoi_gian_ket_thuc) : eventStart.add(2, 'hour');
+                                            
+                                            // Cho phép điểm danh trước 15 phút
+                                            const canScan = now.isAfter(eventStart.subtract(15, 'minute')) && now.isBefore(eventEnd);
+                                            const isEnded = now.isAfter(eventEnd);
+
+                                            if (item.my_status === 'Co mat') {
+                                                return (
+                                                    <Tag color="success" className="text-green-600 border-green-300 text-sm font-bold px-3 py-1">
+                                                        <CheckCircleOutlined /> ĐÃ ĐIỂM DANH
+                                                    </Tag>
+                                                );
+                                            }
+
+                                            if (isEnded) {
+                                                return (
+                                                    <Tag color="default" className="text-gray-500 border-gray-300 text-sm font-semibold px-3 py-1">
+                                                        Đã kết thúc
+                                                    </Tag>
+                                                );
+                                            } else if (canScan) {
+                                                return (
+                                                    <Button 
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setSelectedMeeting(item);
+                                                            setIsQrModalOpen(true);
+                                                        }}
+                                                        className="bg-yellow-50 text-yellow-600 border-yellow-200 hover:!bg-yellow-100 hover:!text-yellow-700 font-bold"
+                                                    >
+                                                        <QrcodeOutlined /> Điểm danh (QR)
+                                                    </Button>
+                                                );
+                                            } else {
+                                                return (
+                                                    <Tag color="blue" className="text-blue-500 border-blue-300 text-sm font-semibold px-3 py-1">
+                                                        Sắp diễn ra
+                                                    </Tag>
+                                                );
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             }
@@ -225,6 +272,7 @@ const DashboardPage = () => {
          onClose={() => setIsQrModalOpen(false)}
          meetingId={selectedMeeting?.ma_lich}
          meetingTitle={selectedMeeting?.tieu_de || 'Cuộc họp'}
+         attendanceType={selectedMeeting?.hinh_thuc_diem_danh || 'Offline'}
       />
     </div>
   );

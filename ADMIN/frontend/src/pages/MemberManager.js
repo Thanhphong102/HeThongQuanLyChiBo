@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Card, Table, Tag, Button, Modal, Form, Input, Select, message, Tooltip, Avatar, DatePicker, Space, Row, Col, Descriptions, Popconfirm 
+  Table, Tag, Button, Modal, Form, Input, Select, message, Tooltip, Avatar, DatePicker, Space, Row, Col, Descriptions, Statistic, Spin
 } from 'antd';
 import { 
-  UserOutlined, EditOutlined, SearchOutlined, LockOutlined, UnlockOutlined, KeyOutlined, UserAddOutlined, FileExcelOutlined, EyeOutlined,
-  ManOutlined, WomanOutlined // <--- Import Icon giới tính
+  UserOutlined, EditOutlined, SearchOutlined, UserAddOutlined, FileExcelOutlined, EyeOutlined,
+  ManOutlined, WomanOutlined, TeamOutlined
 } from '@ant-design/icons';
+import PageHeader from '../components/PageHeader';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
@@ -23,15 +24,17 @@ const MemberManager = () => {
   // --- STATE MODAL ---
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isPassOpen, setIsPassOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   
   const [selectedMember, setSelectedMember] = useState(null);
   const [doiTuong, setDoiTuong] = useState('Sinh vien');
 
+  // --- STATE SMART PASTE AI ---
+  const [aiLoading, setAiLoading] = useState(false);
+  const [rawText, setRawText] = useState('');
+
   const [formAdd] = Form.useForm();
   const [formEdit] = Form.useForm();
-  const [formPass] = Form.useForm();
 
   // 1. HÀM LẤY DỮ LIỆU
   const fetchMembers = async (page = 1) => {
@@ -54,6 +57,35 @@ const MemberManager = () => {
     }
   };
 
+  // HÀM SMART PASTE AI
+  const handleSmartPaste = async () => {
+    if (!rawText.trim()) return message.warning('Vui lòng dán nội dung văn bản vào ô bên trên trước!');
+    setAiLoading(true);
+    try {
+      const res = await axios.post('/ai/parse-member', { rawText });
+      const d = res.data.data;
+      formAdd.setFieldsValue({
+        ho_ten:         d.hoTen        || undefined,
+        ma_so_sinh_vien: d.mssv        || undefined,
+        lop:            d.lop          || undefined,
+        so_dien_thoai:  d.dienThoai    || undefined,
+        email:          d.email        || undefined,
+        ngay_sinh:      d.ngaySinh     ? dayjs(d.ngaySinh)     : undefined,
+        ngay_vao_dang:  d.ngayVaoDang  ? dayjs(d.ngayVaoDang)  : undefined,
+        que_quan:       d.queQuan      || undefined,
+        dia_chi_hien_tai: d.diaChiHienTai || undefined,
+        gioi_tinh:      d.gioiTinh     || undefined,
+      });
+      message.success('✨ AI đã trích xuất thành công! Kiểm tra lại thông tin trước khi lưu.');
+      setRawText('');
+    } catch (err) {
+      message.error(err.response?.data?.message || 'AI không thể trích xuất. Vui lòng thử lại.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchMembers(1);
   }, [filterStatus, searchText]);
@@ -105,6 +137,7 @@ const MemberManager = () => {
     try {
       const payload = {
         ...values,
+        ngay_vao_dang: values.ngay_vao_dang ? values.ngay_vao_dang.format('YYYY-MM-DD') : null,
         ngay_chinh_thuc: values.ngay_chinh_thuc ? values.ngay_chinh_thuc.format('YYYY-MM-DD') : null,
         ngay_sinh: values.ngay_sinh ? values.ngay_sinh.format('YYYY-MM-DD') : null
       };
@@ -115,22 +148,6 @@ const MemberManager = () => {
     } catch (error) { message.error('Cập nhật thất bại'); }
   };
 
-  const handleToggleStatus = async (id) => {
-    try {
-        const res = await axios.put(`/branch-members/${id}/status`);
-        message.success(res.data.message);
-        setMembers(prev => prev.map(m => m.ma_dang_vien === id ? {...m, hoat_dong: res.data.status} : m));
-    } catch (error) { message.error('Lỗi'); }
-  };
-
-  const handleResetPassword = async (values) => {
-    try {
-        await axios.put(`/branch-members/${selectedMember.ma_dang_vien}/password`, values);
-        message.success('Đã cấp lại mật khẩu');
-        setIsPassOpen(false);
-        formPass.resetFields();
-    } catch (error) { message.error('Lỗi'); }
-  };
 
   const renderDynamicFields = (formType) => {
     if (doiTuong === 'Sinh vien') {
@@ -220,6 +237,7 @@ const MemberManager = () => {
                     formEdit.setFieldsValue({
                         ...record,
                         ngay_sinh: record.ngay_sinh ? dayjs(record.ngay_sinh) : null,
+                        ngay_vao_dang: record.ngay_vao_dang ? dayjs(record.ngay_vao_dang) : null,
                         ngay_chinh_thuc: record.ngay_chinh_thuc ? dayjs(record.ngay_chinh_thuc) : null
                     });
                     setIsEditOpen(true);
@@ -235,13 +253,33 @@ const MemberManager = () => {
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      {/* Tiêu đề trang */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-          Hồ sơ Đảng viên
-        </div>
-        <div style={{ color: '#6b7280', fontSize: 14, marginTop: 2 }}>Quản lý hồ sơ và thông tin toàn bộ Đảng viên Chi bộ</div>
-      </div>
+      <PageHeader
+        icon={<TeamOutlined />}
+        title="Hồ sơ Đảng viên"
+        subtitle={`Chi bộ hiện có ${pagination.total} đảng viên`}
+      />
+
+      {/* Stats tổng quan */}
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col xs={24} sm={8}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+            <Statistic title="Tổng Đảng viên" value={pagination.total}
+              valueStyle={{ color: '#003a8c', fontWeight: 700 }} prefix={<TeamOutlined />} />
+          </div>
+        </Col>
+        <Col xs={12} sm={8}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+            <Statistic title="Chính thức" value={members.filter(m => m.trang_thai_dang_vien === 'Chinh thuc').length}
+              valueStyle={{ color: '#22c55e', fontWeight: 700 }} />
+          </div>
+        </Col>
+        <Col xs={12} sm={8}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+            <Statistic title="Dự bị" value={members.filter(m => m.trang_thai_dang_vien === 'Du bi').length}
+              valueStyle={{ color: '#f59e0b', fontWeight: 700 }} />
+          </div>
+        </Col>
+      </Row>
 
       {/* Toolbar */}
       <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', padding: '16px 24px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
@@ -341,8 +379,41 @@ const MemberManager = () => {
             </div>
         </Modal>
 
-        <Modal title="Thêm Hồ sơ mới" open={isAddOpen} onCancel={() => setIsAddOpen(false)} footer={null} width={800} destroyOnClose={true}>
+        <Modal title="Thêm Hồ sơ mới" open={isAddOpen} onCancel={() => { setIsAddOpen(false); setRawText(''); formAdd.resetFields(); }} footer={null} width={820} forceRender>
             <Form form={formAdd} layout="vertical" onFinish={handleCreate} autoComplete="off">
+
+              {/* === SMART PASTE BLOCK === */}
+              <div style={{
+                background: 'linear-gradient(135deg, #e8f4ff 0%, #f0f9ff 100%)',
+                border: '1.5px dashed #1677ff',
+                borderRadius: 12,
+                padding: '14px 18px',
+                marginBottom: 20,
+              }}>
+                <div style={{ fontWeight: 600, color: '#1677ff', marginBottom: 8, fontSize: 14 }}>
+                  ✨ Nhập liệu thông minh bằng AI
+                </div>
+                <Input.TextArea
+                  rows={3}
+                  placeholder="Dán thông tin Đảng viên vào đây (ví dụ: từ email, văn bản, hồ sơ scan...). AI sẽ tự động điền vào form."
+                  value={rawText}
+                  onChange={e => setRawText(e.target.value)}
+                  style={{ borderRadius: 8, marginBottom: 10, fontSize: 13 }}
+                />
+                <Button
+                  type="primary"
+                  icon={aiLoading ? <Spin size="small" /> : <span>✨</span>}
+                  onClick={handleSmartPaste}
+                  loading={aiLoading}
+                  style={{
+                    background: '#1677ff', borderRadius: 8, fontWeight: 600,
+                    fontFamily: 'Be Vietnam Pro, sans-serif',
+                  }}
+                >
+                  {aiLoading ? 'AI đang phân tích...' : 'Trích xuất bằng AI'}
+                </Button>
+              </div>
+              {/* === END SMART PASTE === */}
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item name="doi_tuong" label="Đối tượng" initialValue="Sinh vien">
@@ -354,11 +425,11 @@ const MemberManager = () => {
                 <div style={{ background: '#f5f5f5', padding: '15px 15px 0 15px', marginBottom: 15, borderRadius: 6 }}>{renderDynamicFields('add')}</div>
                 <Row gutter={16}>
                     <Col span={8}><Form.Item name="ngay_sinh" label="Ngày sinh"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
-                    <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nu">Nữ</Select.Option></Select></Form.Item></Col>
+                    <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nữ">Nữ</Select.Option></Select></Form.Item></Col>
                     <Col span={8}><Form.Item name="que_quan" label="Quê quán"><Input /></Form.Item></Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={12}><Form.Item name="email" label="Email"><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="email" label="Email" rules={[{ required: true, message: 'Vui lòng nhập Email' }, { type: 'email', message: 'Email không hợp lệ' }]}><Input /></Form.Item></Col>
                     <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại"><Input /></Form.Item></Col>
                 </Row>
                 <Form.Item name="dia_chi_hien_tai" label="Địa chỉ hiện tại"><Input /></Form.Item>
@@ -375,7 +446,7 @@ const MemberManager = () => {
             </Form>
         </Modal>
 
-        <Modal title="Cập nhật Hồ sơ" open={isEditOpen} onCancel={() => setIsEditOpen(false)} footer={null} width={800} destroyOnClose={true}>
+        <Modal title="Cập nhật Hồ sơ" open={isEditOpen} onCancel={() => setIsEditOpen(false)} footer={null} width={800} destroyOnHidden forceRender>
             <Form form={formEdit} layout="vertical" onFinish={handleUpdate}>
                 <Row gutter={16}>
                     <Col span={8}>
@@ -388,18 +459,19 @@ const MemberManager = () => {
                 <div style={{ background: '#f5f5f5', padding: '15px 15px 0 15px', marginBottom: 15, borderRadius: 6 }}>{renderDynamicFields('edit')}</div>
                 <Row gutter={16}>
                     <Col span={8}><Form.Item name="ngay_sinh" label="Ngày sinh"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
-                    <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nu">Nữ</Select.Option></Select></Form.Item></Col>
+                    <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nữ">Nữ</Select.Option></Select></Form.Item></Col>
                     <Col span={8}><Form.Item name="que_quan" label="Quê quán"><Input /></Form.Item></Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={12}><Form.Item name="email" label="Email"><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="email" label="Email" rules={[{ required: true, message: 'Vui lòng nhập Email' }, { type: 'email', message: 'Email không hợp lệ' }]}><Input /></Form.Item></Col>
                     <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại"><Input /></Form.Item></Col>
                 </Row>
                 <Form.Item name="dia_chi_hien_tai" label="Địa chỉ"><Input /></Form.Item>
                 <div style={{ borderTop: '1px solid #eee', paddingTop: 10, marginTop: 10 }}>
                     <Row gutter={16}>
-                         <Col span={12}><Form.Item name="trang_thai_dang_vien" label="Trạng thái Đảng"><Select><Select.Option value="Du bi">Dự bị</Select.Option><Select.Option value="Chinh thuc">Chính thức</Select.Option><Select.Option value="Chuyen di">Đã chuyển đi</Select.Option></Select></Form.Item></Col>
-                         <Col span={12}><Form.Item name="ngay_chinh_thuc" label="Ngày chính thức"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
+                         <Col span={8}><Form.Item name="trang_thai_dang_vien" label="Trạng thái Đảng"><Select><Select.Option value="Du bi">Dự bị</Select.Option><Select.Option value="Chinh thuc">Chính thức</Select.Option><Select.Option value="Chuyen di">Đã chuyển đi</Select.Option></Select></Form.Item></Col>
+                         <Col span={8}><Form.Item name="ngay_vao_dang" label="Ngày kết nạp Đảng"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
+                         <Col span={8}><Form.Item name="ngay_chinh_thuc" label="Ngày chính thức"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
                     </Row>
                 </div>
                 <Button type="primary" htmlType="submit" block

@@ -74,7 +74,34 @@ exports.getStats = async (req, res) => {
             [branchId]
         );
 
-        // 9. Tính toán số liệu
+        // 9. [MỚI] Cảnh báo sớm: Đảng viên dự bị sắp đến hạn chính thức (> 11 tháng)
+        const probationWarnings = await db.query(
+            `SELECT ho_ten, ngay_vao_dang, 
+                    EXTRACT(MONTH FROM AGE(CURRENT_DATE, ngay_vao_dang)) + EXTRACT(YEAR FROM AGE(CURRENT_DATE, ngay_vao_dang)) * 12 as so_thang_du_bi
+             FROM "dangvien" 
+             WHERE ma_chi_bo = $1 AND trang_thai_dang_vien = 'Du bi' AND hoat_dong = true
+             AND ngay_vao_dang <= CURRENT_DATE - INTERVAL '11 months'
+             ORDER BY ngay_vao_dang ASC`,
+            [branchId]
+        );
+
+        // 10. [MỚI] Cảnh báo thu nộp Đảng phí tháng hiện tại
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        const feePaymentStats = await db.query(
+            `SELECT 
+                (SELECT COUNT(*) FROM "dangvien" WHERE ma_chi_bo = $1 AND hoat_dong = true) as total_active,
+                (SELECT COUNT(*) FROM "taichinh" 
+                 WHERE ma_chi_bo = $1 AND loai_giao_dich = 'Thu' 
+                 AND EXTRACT(MONTH FROM ngay_giao_dich) = $2 
+                 AND EXTRACT(YEAR FROM ngay_giao_dich) = $3) as total_paid`,
+            [branchId, currentMonth, currentYear]
+        );
+
+        const feeStats = feePaymentStats.rows[0];
+        const paymentRate = feeStats.total_active > 0 ? (feeStats.total_paid / feeStats.total_active) * 100 : 100;
+
+        // 11. Tính toán số liệu
         const total = parseInt(totalMembers.rows[0].count);
         const reserve = parseInt(reserveMembers.rows[0].count);
         const tongThu = parseFloat(fundQuery.rows[0].tong_thu) || 0;
@@ -86,15 +113,23 @@ exports.getStats = async (req, res) => {
             reserveMembers: reserve,
             officialMembers: total - reserve,
             nextMeeting: nextMeeting.rows[0] || null,
-            // [ĐÃ THAY] unpaidFeeCount -> tongQuy
             tongQuy: tongQuy,
             tongThu: tongThu,
             tongChi: tongChi,
             recentDocs: recentDocs.rows,
-            // [MỚI]
             genderStats: genderStats.rows,
             hometownStats: hometownStats.rows,
             ageStats: ageStatsQuery.rows[0],
+            // TRẢ VỀ CẢNH BÁO
+            warnings: {
+                probation: probationWarnings.rows,
+                feePayment: {
+                    rate: Math.round(paymentRate),
+                    isLow: paymentRate < 70,
+                    paid: parseInt(feeStats.total_paid),
+                    total: parseInt(feeStats.total_active)
+                }
+            }
         });
 
     } catch (error) {

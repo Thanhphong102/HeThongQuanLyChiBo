@@ -3,13 +3,24 @@ const db = require('../config/db');
 // 1. GET: Lấy danh sách chỉ tiêu được giao cho Chi bộ
 exports.getAssignedTargets = async (req, res) => {
     const branchId = req.user.branchId;
+    const { search, status } = req.query;
     try {
-        const sql = `
-            SELECT * FROM chitieu 
-            WHERE ma_chi_bo = $1 
-            ORDER BY ma_chi_tieu DESC
-        `;
-        const result = await db.query(sql, [branchId]);
+        let sql = `SELECT * FROM chitieu WHERE ma_chi_bo = $1`;
+        const params = [branchId];
+
+        if (search) {
+            sql += ` AND (f_unaccent(ten_chi_tieu) ILIKE f_unaccent($${params.length + 1}) OR f_unaccent(ten_chi_tieu) % f_unaccent($${params.length + 2}))`;
+            params.push(`%${search}%`, search);
+        }
+
+        if (status) {
+            params.push(status);
+            sql += ` AND f_unaccent(trang_thai) ILIKE f_unaccent($${params.length})`;
+        }
+
+        sql += ` ORDER BY ma_chi_tieu DESC`;
+
+        const result = await db.query(sql, params);
         res.json(result.rows);
     } catch (error) {
         console.error('[getAssignedTargets Error]:', error);

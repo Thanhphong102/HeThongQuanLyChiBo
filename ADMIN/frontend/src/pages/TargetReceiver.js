@@ -34,11 +34,14 @@ const TargetReceiver = () => {
   const [editingTarget, setEditingTarget] = useState(null);
   const [form] = Form.useForm();
 
+  const [searchText, setSearchText] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+
   // Load danh sách chỉ tiêu
   const fetchTargets = async () => {
     setLoading(true);
     try {
-      const data = await targetService.getAssignedTargets();
+      const data = await targetService.getAssignedTargets(searchText, filterStatus);
       setTargets(data);
     } catch (error) {
       message.error('Không thể tải danh sách chỉ tiêu');
@@ -48,8 +51,13 @@ const TargetReceiver = () => {
   };
 
   useEffect(() => {
-    fetchTargets();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchTargets();
+    }, 300); // Đợi 300ms sau khi người dùng ngừng gõ mới gọi API
+
+    return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText, filterStatus]);
 
   // Mở modal cập nhật tiến độ
   const handleEdit = (record) => {
@@ -175,6 +183,26 @@ const TargetReceiver = () => {
           </div>
         </div>
       </Card>
+
+      <div style={{ marginBottom: 20, display: 'flex', gap: 16 }}>
+        <Input.Search 
+          placeholder="Tìm kiếm tên chỉ tiêu..." 
+          allowClear 
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 300 }} 
+        />
+        <Select
+          placeholder="Lọc theo trạng thái"
+          allowClear
+          style={{ width: 200 }}
+          onChange={(value) => setFilterStatus(value || '')}
+        >
+          <Option value="Dang thuc hien">Đang thực hiện</Option>
+          <Option value="Hoan thanh">Hoàn thành</Option>
+          <Option value="Chua hoan thanh">Chưa hoàn thành</Option>
+          <Option value="Tam dung">Tạm dừng</Option>
+        </Select>
+      </div>
 
       <Table 
         columns={columns} 

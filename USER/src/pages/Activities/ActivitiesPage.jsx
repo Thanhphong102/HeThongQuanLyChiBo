@@ -62,7 +62,26 @@ const ActivitiesPage = () => {
             setFileList([]);
             fetchEvents(); // Reload dể cập nhật UI
         } catch (error) {
-            message.error('Lỗi tải minh chứng. Vui lòng thử lại.');
+            const errorMsg = error.response?.data?.message || 'Lỗi tải minh chứng. Vui lòng thử lại.';
+            
+            // Xử lý lỗi EXIF đặc thù (Ảnh chụp trước sự kiện)
+            if (errorMsg.includes('chụp trước thời gian diễn ra')) {
+                Modal.error({
+                    title: 'HÌNH ẢNH KHÔNG HỢP LỆ',
+                    content: (
+                        <div>
+                            <p className="font-bold text-red-600 mb-2">Hệ thống phân tích ảnh (EXIF) đã từ chối tệp của bạn!</p>
+                            <p>{errorMsg}</p>
+                            <p className="mt-2 text-gray-500 italic">Vui lòng tải lên ảnh chụp thực tế tại thời điểm diễn ra hoạt động để đảm bảo tính minh bạch.</p>
+                        </div>
+                    ),
+                    okText: 'Đã hiểu',
+                    okButtonProps: { danger: true },
+                    centered: true
+                });
+            } else {
+                message.error(errorMsg);
+            }
         } finally {
             setSubmitting(false);
         }

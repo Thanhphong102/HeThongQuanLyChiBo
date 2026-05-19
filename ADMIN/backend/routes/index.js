@@ -16,6 +16,8 @@ const notificationRoutes      = require('./notificationRoutes');      // [NEW] T
 const publicRoutes            = require('./publicRoutes');            // [NEW] Task 5: Landing Data (Public)
 const targetRoutes            = require('./targetRoutes');            // [NEW] Task 9: Nhận chỉ tiêu
 
+const aiRoutes                = require('./aiRoutes');                // [NEW] AI Smart Paste
+
 // Gom nhóm các route
 router.use('/auth',              authRoutes);
 router.use('/branch-admin',      branchRoutes);
@@ -31,6 +33,7 @@ router.use('/events',            activityEventsRoutes);   // Task 8
 router.use('/notifications',     notificationRoutes);     // Task 2
 router.use('/public',            publicRoutes);           // Task 5 (Dữ liệu Landing)
 router.use('/targets',           targetRoutes);           // Task 9
+router.use('/ai',                aiRoutes);               // [NEW] AI Smart Paste
 
 
 module.exports = router;

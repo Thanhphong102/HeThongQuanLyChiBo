@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Card, Table, Button, Modal, Form, Input, DatePicker, InputNumber,
-  Select, message, Tag, Space, Popconfirm, Typography, Drawer,
-  Descriptions, Image, Badge, Tooltip, Row, Col, Statistic, Avatar
+  Table, Button, Modal, Form, Input, DatePicker, InputNumber,
+  Select, message, Tag, Space, Popconfirm, Drawer,
+  Image, Badge, Tooltip, Row, Col, Statistic, Avatar
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined,
   CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined,
   TeamOutlined, SearchOutlined, PictureOutlined, UserOutlined,
-  CalendarOutlined, EnvironmentOutlined, SyncOutlined
+  CalendarOutlined, EnvironmentOutlined, SyncOutlined, StarOutlined
 } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
+import PageHeader from '../components/PageHeader';
 
-const { Title, Text, Paragraph } = Typography;
 const COLOR_RED    = '#CE1126';
 const COLOR_GREEN  = '#22c55e';
 const COLOR_ORANGE = '#f59e0b';
@@ -148,7 +148,7 @@ const EventsManager = () => {
       await axios.post(`/events/registrations/${regId}/confirm`);
       message.success('Đã xác nhận tham gia');
       setRegistrations(prev =>
-        prev.map(r => r.id === regId ? { ...r, xac_nhan_admin: true, trang_thai_tham_gia: true } : r)
+        prev.map(r => r.ma_dang_ky === regId ? { ...r, xac_nhan_admin: true, trang_thai_tham_gia: true } : r)
       );
     } catch { message.error('Lỗi xác nhận'); }
   };
@@ -158,7 +158,7 @@ const EventsManager = () => {
       await axios.post(`/events/registrations/${regId}/reject`);
       message.success('Đã hủy xác nhận');
       setRegistrations(prev =>
-        prev.map(r => r.id === regId ? { ...r, xac_nhan_admin: false, trang_thai_tham_gia: false } : r)
+        prev.map(r => r.ma_dang_ky === regId ? { ...r, xac_nhan_admin: false, trang_thai_tham_gia: false } : r)
       );
     } catch { message.error('Lỗi hủy xác nhận'); }
   };
@@ -284,12 +284,14 @@ const EventsManager = () => {
     {
       title: 'Đăng ký lúc',
       dataIndex: 'thoi_gian_dang_ky',
+      key: 'thoi_gian_dang_ky',
       width: 130,
       render: (t) => <span style={{ fontSize: 12, color: '#6b7280' }}>{dayjs(t).format('DD/MM HH:mm')}</span>
     },
     {
       title: 'Minh chứng',
       dataIndex: 'minh_chung_url',
+      key: 'minh_chung_url',
       align: 'center',
       width: 110,
       render: (url) => url ? (
@@ -307,12 +309,14 @@ const EventsManager = () => {
     },
     {
       title: 'Trạng thái',
+      key: 'trang_thai',
       align: 'center',
       width: 140,
       render: (_, r) => <RegStatusTag xacNhanAdmin={r.xac_nhan_admin} trangThaiThamGia={r.trang_thai_tham_gia} />
     },
     {
       title: 'Hành động',
+      key: 'hanh_dong',
       align: 'center',
       width: 130,
       render: (_, r) => (
@@ -321,13 +325,13 @@ const EventsManager = () => {
             <Tooltip title="Xác nhận tham gia">
               <Button size="small" type="primary"
                 icon={<CheckCircleOutlined />}
-                onClick={() => handleConfirm(r.id)}
+                onClick={() => handleConfirm(r.ma_dang_ky)}
                 style={{ background: COLOR_GREEN, borderColor: COLOR_GREEN, borderRadius: 6, fontSize: 12 }}>
                 Duyệt
               </Button>
             </Tooltip>
           ) : (
-            <Popconfirm title="Hủy xác nhận?" onConfirm={() => handleReject(r.id)} okButtonProps={{ danger: true }}>
+            <Popconfirm title="Hủy xác nhận?" onConfirm={() => handleReject(r.ma_dang_ky)} okButtonProps={{ danger: true }}>
               <Button size="small" danger icon={<CloseCircleOutlined />} style={{ borderRadius: 6, fontSize: 12 }}>
                 Hủy XN
               </Button>
@@ -344,13 +348,11 @@ const EventsManager = () => {
 
   return (
     <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0, fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 700, color: '#111827' }}>
-          Quản lý Hoạt động Chi bộ
-        </Title>
-        <Text style={{ color: '#6b7280' }}>Tổ chức và theo dõi đăng ký tham gia của Đảng viên</Text>
-      </div>
+      <PageHeader
+        icon={<StarOutlined />}
+        title="Quản lý Hoạt động Chi bộ"
+        subtitle="Tổ chức và theo dõi đăng ký tham gia của Đảng viên"
+      />
 
       {/* Toolbar */}
       <div style={{
@@ -497,7 +499,7 @@ const EventsManager = () => {
         <Table
           columns={regColumns}
           dataSource={registrations}
-          rowKey="id"
+          rowKey="ma_dang_ky"
           loading={regLoading}
           pagination={{ pageSize: 10, showSizeChanger: false }}
           size="small"

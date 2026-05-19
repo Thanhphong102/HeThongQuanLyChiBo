@@ -13,8 +13,8 @@ exports.getTargets = async (req, res) => {
         const params = [];
 
         if (search) {
-            params.push(`%${search}%`);
-            sql += ` AND t.ten_chi_tieu ILIKE $${params.length}`;
+            sql += ` AND (f_unaccent(t.ten_chi_tieu) ILIKE f_unaccent($${params.length + 1}) OR f_unaccent(t.ten_chi_tieu) % f_unaccent($${params.length + 2}))`;
+            params.push(`%${search}%`, search);
         }
         if (branch) {
             params.push(branch);
