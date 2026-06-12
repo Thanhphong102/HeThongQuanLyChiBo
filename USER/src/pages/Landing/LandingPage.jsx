@@ -34,7 +34,7 @@ const LandingPage = () => {
     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
     const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const id = (match && match[1]) || (idParamMatch && idParamMatch[1]);
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://admin-backend-chibo.onrender.com/api';
     if (id) {
       return `${apiBaseUrl}/media/proxy/${id}`;
     }

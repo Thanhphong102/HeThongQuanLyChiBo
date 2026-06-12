@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5001/api', // Địa chỉ Backend của bạn
+  baseURL: 'https://admin-backend-chibo.onrender.com/api', // Địa chỉ Backend của bạn
 });
 
 // Tự động thêm Token vào Header trước khi gửi request

@@ -25,7 +25,7 @@ const getImageUrl = (url) => {
     const cleanPath = url.replace(/\\/g, '/');
     if (!cleanPath.startsWith('http')) {
       const path = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
-      return `http://localhost:5001/${path}`;
+      return `https://admin-backend-chibo.onrender.com/${path}`;
     }
   }
 

@@ -38,7 +38,7 @@ const getVideoEmbedSrc = (duong_dan) => {
     if (idMatch) return `https://drive.google.com/file/d/${idMatch[0]}/preview`;
   }
   if (duong_dan.includes('uploads/')) {
-    return `http://localhost:5001/${duong_dan}`;
+    return `https://admin-backend-chibo.onrender.com/${duong_dan}`;
   }
   return duong_dan;
 };
