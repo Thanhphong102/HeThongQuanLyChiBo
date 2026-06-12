@@ -107,7 +107,7 @@ const BranchManager = () => {
         <Table columns={columns} dataSource={branches} rowKey="ma_chi_bo" loading={loading} pagination={{ pageSize: 8, className: "custom-pagination" }} className="border-t border-gray-100 mt-2" rowClassName="hover:bg-gray-50 transition-colors" />
       </Card>
 
-      <Modal title={<span className="text-lg font-bold">{editingBranch ? "Chỉnh sửa thông tin" : "Thêm Chi bộ mới"}</span>} open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null} className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']" destroyOnHidden>
+      <Modal title={<span className="text-lg font-bold">{editingBranch ? "Chỉnh sửa thông tin" : "Thêm Chi bộ mới"}</span>} open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null} className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']" destroyOnClose>
         <Form form={form} layout="vertical" onFinish={handleSave} className="mt-4">
           <Form.Item name="ten_chi_bo" label={<span className="font-semibold">Tên Chi bộ</span>} rules={[{ required: true, message: 'Vui lòng nhập tên chi bộ!' }]}>
             <Input size="large" prefix={<BankOutlined className="text-gray-400" />} placeholder="Ví dụ: Chi bộ Sinh viên 1" className="rounded-lg" />

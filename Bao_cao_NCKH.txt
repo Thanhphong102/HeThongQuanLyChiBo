@@ -1,0 +1,950 @@
+TRƯỜNG ĐẠI HỌC KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+KHOA CÔNG NGHỆ THÔNG TIN
+-----
+BÁO CÁO TỔNG KẾT
+HỆ THỐNG QUẢN LÝ CÁC CHI BỘ
+ CỦA TRƯỜNG ĐẠI HỌC 
+KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+GIẢNG VIÊN HƯỚNG DẪN:
+SINH VIÊN THỰC HIỆN:
+ThS.Phạm Thị Thùy Linh
+1. Nguyễn Xuân Thanh Phong
+    (MSSV: KTPM2211038)
+2. Võ Thị Hai (MSSV: KTPM2211024)
+Nghành: KỸ THUẬT PHẦN MỀM
+Cần Thơ, 10 tháng 4 năm 2026
+LỜI CẢM ƠN
+Chúng em xin chân thành cảm ơn đến thầy cô giảng viên của trường Đại học Kỹ thuật – Công nghệ Cần Thơ, thầy cô giảng viên ở khoa Công nghệ thông tin nói chung và giảng viên hướng dẫn ThS.Phạm Thị Thùy Linh nói riêng đã tận tâm giúp đỡ hướng dẫn chúng em, sửa lỗi cho chúng em trong thời gian qua. Trong khoảng thời gian làm nghiên cứu khoa học về đề tài “Hệ thống quản lý các chi bộ của trường Đại học Kỹ Thuật-Công Nghệ Cần Thơ”, chúng em đã nhận được rất nhiều sự giúp đỡ và cũng như sự chỉ bảo, thầy cô đã truyền đạt cho nhóm nghiên cứu từ những kiến thức nền tảng đến những kiến thức chuyên ngành của bộ môn Kỹ thuật phần mềm để chúng em có thể hoàn thành được đề tài nghiên cứu này. 
+Đề tài “Hệ thống quản lý các chi bộ của trường Đại học Kỹ Thuật-Công Nghệ Cần Thơ” chúng em được nhận sự quan tâm, chỉ dẫn, giúp đỡ nhiệt tình của các thầy cô trong khoa Công nghệ thông tin, giảng viên hướng dẫn ThS.Phạm Thị Thùy Linh người đã tận tình hướng dẫn, giúp đỡ, gợi ý, chỉ ra những sai sót và đưa ra những ý tưởng để nhóm nghiên cứu dựa theo đó mà phát triển thêm ý tưởng khác.  
+Mặc dù, còn nhiều khá nhiều khó khăn hạn chế trong quá trình thực hiện làm đồ án, có nhiều kiến thức mới mẻ cần học hỏi trau dồi thêm nhiều, nhưng nhờ vậy chúng em đã tích lũy thêm nhiều kiến thức để có một cái nhìn sâu sắc và hoàn thiện hơn trong học tập. Chúng em rất mong nhận được sự đánh giá và đóng góp ý kiến của quý thầy cô. Đến đây, chúng em xin chúc thầy cô có nhiều sức khỏe và thành công trong công việc công tác tại trường. 
+Chúng em xin chân thành cảm ơn! 
+UBND THÀNH PHỐ CẦN THƠ
+         TRƯỜNG ĐẠI HỌC 
+KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+THÔNG TIN KẾT QUẢ NGHIÊN CỨU CỦA ĐỀ TÀI
+1. Thông tin chung:
+- Tên đề tài: HỆ THỐNG QUẢN LÝ CÁC CHI BỘ CỦA TRƯỜNG ĐẠI HỌC KỸ THUẬT-CÔNG NGHỆ CẦN THƠ
+- Sinh viên thực hiện: Nguyễn Xuân Thanh Phong
+- Lớp: KTPM2211
+- Khoa: Công Nghệ Thông Tin 
+- Năm thứ: 4 
+- Số năm đào tạo:4,5
+- Người hướng dẫn: ThS.Phạm Thị Thùy Linh
+2. Mục tiêu đề tài:
+2.1 Mục tiêu tổng quát Quản lý hệ thống chi bộ: 
+- Đề tài hướng đến việc thiết kế và xây dựng một hệ thống quản lý các chi bộ của Trường Đại học Kỹ thuật Công nghệ Cần Thơ, nhằm đảm bảo quản lý đồng bộ, chặt chẽ và hiệu quả các hoạt động của chi bộ, bao gồm các tính năng chính như: 
++ Quản lý thông tin đảng viên, sinh hoạt Đảng, tài chính Đảng phí, các thông báo, tin tức liên quan đến công tác Đảng và các báo cáo một cách minh bạch và logic. 
+Phát triển nền tảng số hóa (website) hỗ trợ lãnh đạo và đảng viên dễ dàng truy cập thông tin, cứu dữ liệu và thực hiện các tác vụ quản lý. tra 
++ Hỗ trợ lãnh đạo nhà trường và các chi bộ ra quyết định dựa trên dữ liệu thống kê và phân tích, từ đó nâng cao chất lượng công tác Đảng và vai trò lãnh đạo trong môi trường giáo dục. 
+2.2 Mục tiêu cụ thể 
+- Quản lý hệ thống chi bộ: 
++ Quản lý thông tin đảng viên: Kiểm soát và lưu trữ thông tin cá nhân, lý lịch đảng viên, thời gian sinh hoạt và vai trò trong chi bộ. Theo dỡi tình trạng đảng viên (chính thức, dự bị) và thông báo khi có thay đổi hoặc cần bổ sung dữ liệu. 
++ Quản lý sinh hoạt Đảng: Thống kê và quản lý các buổi sinh hoạt Đảng, bao gồm nội dung, thời gian, địa điểm và danh sách tham gia. Hỗ trợ lưu trữ biên bản và đánh giá chất lượng sinh hoạt. 
++ Quản lý tài chính Đảng phí: Theo dõi việc thu - chi Đảng phí của từng chi bộ, đảm bảo minh bạch và chính xác. Cung cấp báo cáo tài chính định kỳ và cảnh báo khi có sai lệch hoặc chậm nộp. 
+- Quản lý chỉ tiêu và báo cáo: 
++ Quản lý chỉ tiêu công tác Đảng: Xây dựng và theo dõi các chỉ tiêu về phát triển đảng viên, chất lượng snh hoạt Đảng và các nhiệm vụ chính trị của từng chi bộ, nhằm tối ưu hóa hiệu quả lãnh đạo. 
++ Thống kê và báo cáo: Cung cấp công cụ thống kê số liệu về đảng viên, sinh hoạt Đảng và tài chính, hỗ trợ so sánh hiệu quả hoạt động giữa các chỉ bộ để đưa ra chiến lược phát triển phù hợp. 
+- Quản lý phân cấp và lịch làm việc: 
++ Quản lý phân cấp lãnh đạo: Hỗ trợ phân cấp vai trò đảng viên (bí thư, phó bí thư, đảng viên thường) và các chức vụ trong chi bộ, giúp quản lý hiệu quả và rõ ràng hơn. 
++ Quản lý lịch sinh hoạt: Cung cấp tính năng tạo và điều chỉnh lịch sinh hoạt Đảng linh hoạt, cho phép cập nhật nhanh chóng khi có thay đổi về thời gian hoặc địa điểm. - Quản lý nền tảng số: 
++ Phát triển giao diện truy cập: Xây dựng website cho phép đảng viên và lãnh đạo chi bộ truy cập thông tin, tra cứu dữ liệu và thực hiện các tác vụ quản lý một cách tiện lợi. 
++ Quản lý tài liệu và dữ liệu: Hỗ trợ lưu trữ và quản lý các tài liệu liên quan đến công tác Đảng (nghị quyết, biên bản, báo cáo), đảm bảo dễ dàng tra cứu và bảo mật thông tin. 
+Sản phẩm nghiên cứu: 
+Đề tài sẽ tạo ra một hệ thống quản lý chi bộ hoàn chỉnh, tích hợp các module quản lý đảng viên, sinh hoạt Đảng, tài chính và báo cáo, được triển khai dưới dạng nền tảng số (website) với giao diện thân thiện, dễ sử dụng. Hệ thống đạt mức độ tự động hóa cao, đảm bảo tính chính xác, minh bạch và hỗ trợ hiệu quả công tác lãnh đạo tại Trường Đại học Kỹ thuật - Công nghệ Cần Thơ, góp phần nâng cao chất lượng quản lý chỉ bộ và đáp ứng các tiêu chuẩn của công tác Đảng trong môi trường giáo dục.
+3. Tính mới và sáng tạo:
+Ứng dụng công nghệ Hybrid Attendance (Điểm danh hỗn hợp): Đây là điểm sáng tạo nhất của đề tài. Hệ thống không chỉ sử dụng mã QR thông thường mà còn kết hợp xác thực tọa độ địa lý (Geolocation) và cơ chế mã QR động (tự động làm mới mỗi 45 giây). Điều này giải quyết triệt để bài toán điểm danh hộ hoặc gửi ảnh mã QR từ xa, đảm bảo tính kỷ luật và minh bạch trong sinh hoạt Đảng. Hiện đại hóa quy trình nghiệp vụ đặc thù: Hệ thống đã số hóa các quy trình vốn trước đây thực hiện thủ công hoặc trên các phần mềm cũ kỹ (như quản lý chỉ tiêu công tác Đảng, duyệt ảnh minh chứng tham gia hoạt động, theo dõi quỹ Đảng phí theo thời gian thực). Cơ chế quản trị đa tầng (Multi-actor Architecture): Đề tài xây dựng một cấu trúc dữ liệu và phân quyền khoa học, cho phép Đảng ủy cấp trên (SuperAdmin) theo dõi tổng thể toàn trường nhưng vẫn đảm bảo sự chủ động, độc lập trong quản lý dữ liệu của từng Chi bộ (Admin) và quyền lợi tiếp cận thông tin của Đảng viên (User). Trải nghiệm người dùng (UX) hiện đại: Sử dụng ngôn ngữ thiết kế Modern UI với các Dashboard biểu đồ trực quan (Data Visualization), giúp các đồng chí Bí thư Chi bộ (vốn có thể không chuyên về CNTT) vẫn có thể nắm bắt tình hình đơn vị một cách nhanh chóng chỉ qua vài "điểm chạm".
+4. Kết quả nghiên cứu:
+Về mặt sản phẩm phần mềm: Đã xây dựng hoàn thiện hệ thống "Quản lý các Chi bộ" dựa trên nền tảng Web Application (ReactJS, NodeJS, PostgreSQL) với đầy đủ các phân hệ: Phân hệ Quản lý Đảng viên: Lưu trữ hồ sơ điện tử, theo dõi biến động trạng thái (Chính thức/Dự bị). Phân hệ Sinh hoạt & Điểm danh: Số hóa quy trình tổ chức họp, điểm danh bảo mật và lưu trữ biên bản cuộc họp. Phân hệ Quản lý Hoạt động & Sự kiện: Quản lý đăng ký hoạt động và xác thực minh chứng (Evidence-based verification) qua ảnh chụp. Phân hệ Tài chính: Quản lý Đảng phí và quỹ chi bộ minh bạch. Về mặt dữ liệu và thống kê: Hệ thống cung cấp các bộ công cụ thống kê đa chiều về: Cơ cấu giới tính, độ tuổi, quê quán, tỷ lệ phân loại Đảng viên và tình hình nhận/thực hiện chỉ tiêu. Về mặt khoa học: Đề tài đã nghiên cứu và vận dụng thành công các công nghệ mới (JWT Authentication, RESTful API, Geolocation API, Cloud Storage) vào giải quyết một bài toán quản trị tổ chức thực tế.
+Về mặt thực tiễn: Sản phẩm có khả năng triển khai thực tế ngay tại các Đảng bộ trường Đại học, giúp giảm 80% thời gian tổng hợp báo cáo thủ công và tăng tính tương tác giữa Đảng viên với tổ chức.
+5. Đóng góp về mặt kinh tế - xã hội, giáo dục và đào tạo, an ninh, quốc phòng và khả năng áp dụng của đề tài: 
+5.1. Đối với lĩnh vực giáo dục và đào tạo 
+- Để tài “Xây dựng hệ thống quản lý các chi bộ của Trường Đại học Kỹ thuật - Công nghệ Cần Thơ” không chỉ là một công trình nghiên cứu khoa học mà còn là tài liệu tham khảo giá trị cho sinh viên và giảng viên trong việc nghiên cứu các đề tài liên quan đến quản lý tổ chức Đảng trong môi trường giáo dục. Đề tài cung cấp quy trình thực hiện nghiên cứu khoa học, các phương pháp áp dụng công nghệ thông tin vào quản lý chỉ bộ, và các khía cạnh mới trong việc số hóa quản lý tổ chức Đảng. 
+- Kết quả nghiên cứu giúp sinh viên tiếp cận gần hơn với các bài toán thực tiễn trong quản lý tổ chức, trang bị thêm kiến thức và kinh nghiệm thực tế. Đồng thời, hệ thống này sẽ hỗ trợ cán bộ, đảng viên tại trường nâng cao kỹ các năng quản lý, tổ chức sinh hoạt Đảng và thực hiện các nhiệm vụ chính trị một cách hiệu quả hơn. 
+5.2. Đối với lĩnh vực khoa học và công nghệ có liên quan 
+- Đề tài tạo ra một hệ thống quản lý chi bộ số hóa, tích hợp các chức năng quản lý đảng viên, sinh hoạt Đảng, tài chính Đảng phí và báo cáo, góp phần vào việc ứng dụng công nghệ thông tin trong quản lý tổ chức Đảng. Hệ thống này là một bước tiến trong việc tối ưu hóa các quy trình truyền thống, cung cấp giải pháp hiệu quả cho các trường đại học trong việc quản lý chi bộ một cách minh bạch và khoa học.
+- Kết quả nghiên cứu là nền tảng cho các đề tài tương tự trong tương lai, cung cấp công cụ tiền đề để cải thiện và phát triển các hệ thống quản lý tổ chức Đảng. Các nghiên cứu tiếp theo có thể dựa trên hệ thống này để mở rộng chức năng, tích hợp thêm công nghệ mới, hoặc áp dụng vào các cơ sở giáo dục khác. 
+5.3. Đối với phát triển kinh tế-xã hội 
+- Hệ thống quản lý chi bộ giúp tối ưu hóa các hoạt động quản lý như thông tin đáng viên, sinh hoạt Đảng, và tài chính, từ đó giảm thiếu chỉ phí và công sức trong việc vận hành thủ công. Việc số hóa giúp giảm bớt yêu cầu về nguồn nhân lực có trình độ cao trong công tác quản lý chỉ bộ, tạo điều kiện để các cán bộ trẻ |hoặc mới tham gia có thể nhanh chóng làm quen và thực hiện nhiệm vụ hiệu quả. 
+- Hệ thống cung cấp công cụ chính xác, dể thao tác, hỗ trợ thống kê và phân tích dữ liệu về đảng viên, sinh hoạt và tài chính, giúp lãnh đạo chi bộ tập trung vào các nhiệm vụ cốt lõi như nâng cao chất lượng lãnh đạo và đào tạo. Điều này góp phần nâng cao hiệu quả công tác Đảng, từ đó hỗ trợ phát triển chất lượng giáo dục và đóng góp tích cực vào sự ổn định và phát triển của xã hội. 
+5.4. Đối với tổ chức chủ trì và các cơ sở ứng dụng kết quả nghiên cứu 
+- Hệ thống quản lý chỉ bộ là một công trình nghiên cứu mang tính ứng dụng cao, giúp Trường Đại học Kỹ thuật - Công nghệ Cần Thơ có cái nhìn thực tiễn về việc áp dụng công nghệ thông tin vào quản lý tổ chức Đảng. Kết quả nghiên cứu không chỉ cải thiện quy trình quản lý chỉ bộ mà còn là tiền đề để nhà trường tiếp tục phát triển các nghiên cứu khoa học khác, nâng cao chất lượng giáo dục và đào tạo. 
+- Việc triển khai thành công hệ thống sẽ khẳng định vai trò của nhà trường trong việc tiên phong ứng dụng công nghệ vào công tác Đảng, đồng thời tăng cường kiến thức chuyên môn và kỹ năng thực tế cho đội ngũ cán bộ, giảng viên và sinh viên. Hệ thống này cũng có thể được chia sẻ hoặc mở rộng áp dụng cho các trường đại học khác, góp phần nâng cao hiệu quả quản lý tổ chức Đảng trong lĩnh vực giáo dục.
+6. Công bố khoa học của sinh viên từ kết quả nghiên cứu của đề tài (ghi rõ tên tạp chí nếu có) hoặc nhận xét, đánh giá của cơ sở đã áp dụng các kết quả nghiên cứu (nếu có):
+Ngày   Tháng   NămSinh viên chịu trách nhiệm thực hiện đề tài(ký, họ và tên)Ngày   Tháng   NămSinh viên chịu trách nhiệm thực hiện đề tài(ký, họ và tên)
+Ngày   Tháng   Năm
+Sinh viên chịu trách nhiệm thực hiện đề tài
+(ký, họ và tên)
+Ngày   Tháng   Năm
+Sinh viên chịu trách nhiệm thực hiện đề tài
+(ký, họ và tên)
+Nhận xét của người hướng dẫn về những đóng góp khoa học của sinh viên thực hiện đề tài (phần này do người hướng dẫn ghi):
+Ngày   Tháng   NămNgười hướng dẫn(ký, họ và tên)Ngày   Tháng   NămNgười hướng dẫn(ký, họ và tên)
+Ngày   Tháng   Năm
+Người hướng dẫn
+(ký, họ và tên)
+Ngày   Tháng   Năm
+Người hướng dẫn
+(ký, họ và tên)
+UBND THÀNH PHỐ CẦN THƠ
+TRƯỜNG ĐẠI HỌC
+KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+THÔNG TIN VỀ SINH VIÊN
+CHỊU TRÁCH NHIỆM CHÍNH THỰC HIỆN ĐỀ TÀI
+I. SƠ LƯỢC VỀ SINH VIÊN: 
+Họ và tên: Nguyễn Xuân Thanh Phong
+Sinh ngày: 10 tháng 2 năm 2004
+Nơi sinh: Cần Thơ
+Lớp: KTPM2211                                               Khóa: 10
+Khoa: Công Nghệ Thông Tin
+Địa chỉ liên hệ: 18 Trần Văn Ơn, phường Cái Khế, thành phố Cần Thơ
+Điện thoại: 0977259072   Email: nxtphongktpm2211038@student.ctuet.edu.vn
+II. QUÁ TRÌNH HỌC TẬP (kê khai thành tích của sinh viên từ năm thứ 1 đến năm đang học):
+* Năm thứ 1:
+    Ngành học: Kỹ Thuật Phần Mềm               Khoa: Công Nghệ Thông Tin
+    Kết quả xếp loại học tập: Giỏi
+    Sơ lược thành tích:
+* Năm thứ 2:
+    Ngành học: Kỹ Thuật Phần Mềm               Khoa: Công Nghệ Thông Tin
+    Kết quả xếp loại học tập: Xuất sắc
+    Sơ lược thành tích:
+                       
+* Năm thứ 3:
+    Ngành học: Kỹ Thuật Phần Mềm               Khoa: Công Nghệ Thông Tin
+    Kết quả xếp loại học tập: Xuất sắc
+    Sơ lược thành tích:
+* Năm thứ 4:
+    Ngành học: Kỹ Thuật Phần Mềm               Khoa: Công Nghệ Thông Tin
+    Kết quả xếp loại học tập:
+    Sơ lược thành tích:
+Ngày   Tháng   NămSinh viên chịu trách nhiệm thực hiện đề tài(ký, họ và tên)Ngày   Tháng   NămSinh viên chịu trách nhiệm thực hiện đề tài(ký, họ và tên)
+Ngày   Tháng   Năm
+Sinh viên chịu trách nhiệm thực hiện đề tài
+(ký, họ và tên)
+Ngày   Tháng   Năm
+Sinh viên chịu trách nhiệm thực hiện đề tài
+(ký, họ và tên)
+MỤC LỤC
+MỤC LỤCi
+DANH MỤC HÌNH ẢNHiv
+DANH MỤC BẢNGvii
+DANH MỤC TỪ VIẾT TẮTviii
+ĐẶT VẤN ĐỀ1
+CHƯƠNG 1: TỔNG QUAN TÀI LIỆU2
+1.1. NODE.JS2
+1.2. KIẾN TRÚC RESTFUL API3
+1.3. HTML3
+1.4. CSS3
+1.5. Ngôn ngữ lập trình JAVASCRIPT4
+1.6. JSON WEB TOKEN (JWT)5
+1.7. Hệ quản trị cơ sở dữ liệu Postgresql5
+1.8. Công cụ5
+1.8.1. Express.js5
+1.8.2. Draw.io5
+1.8.3. Github và Git6
+1.8.4. Supabase6
+1.9. Thư viện Reactjs6
+1.10. Môi trường cài đặt8
+1.10.1. Visual Studio8
+1.10.2. Lợi ích khi sử dụng Visual Studio Code9
+1.11. GOOGLE DRIVE API9
+1.12. CÔNG CỤ DELOY DỰ ÁN10
+1.12.1. Deploy FrontEnd Vercel10
+1.12.2. Deploy BackEnd Render11
+CHƯƠNG 2: ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP NGHIÊN CỨU12
+2.1. Đặc tả yêu cầu12
+2.1.1. Yêu cầu về chức năng của hệ thống12
+2.1.2. Yêu cầu về phi chức năng của hệ thống13
+2.2. Sơ đồ usecase15
+2.3. Sơ đồ class23
+2.4. Thiết kế cơ sở dữ liệu24
+2.5. PHÂN TÍCH NGHIỆP VỤ VÀ LỰA CHỌN KIẾN TRÚC25
+2.5.1. Phân tích nghiệp vụ trước khi đưa ra giải pháp25
+2.5.2. So sánh phương án thiết kế và lựa chọn kiến trúc25
+2.5. PHÂN TÍCH NGHIỆP VỤ VÀ LỰA CHỌN KIẾN TRÚC
+2.5.1. Phân tích nghiệp vụ trước khi đưa ra giải pháp
+Trước khi thiết kế hệ thống, nhóm nghiên cứu đã tiến hành khảo sát thực trạng công tác quản lý chi bộ tại Trường Đại học Kỹ thuật - Công nghệ Cần Thơ. Thực trạng cho thấy các bất cập sau:
+- Quản lý hồ sơ và biến động Đảng viên: Hiện tại việc lưu trữ lý lịch trích ngang, theo dõi thời gian chuyển Đảng chính thức hay sinh hoạt phí chủ yếu làm trên Excel hoặc sổ sách thủ công. Việc này dễ dẫn đến sai sót, chậm trễ trong việc nhắc nhở các mốc thời gian quan trọng (ví dụ hết 12 tháng dự bị).
+- Sinh hoạt và điểm danh: Điểm danh qua giấy hoặc qua biểu mẫu Google Form dễ xảy ra tình trạng "điểm danh hộ", không đảm bảo tính kỷ luật và sự hiện diện thực tế của Đảng viên trong các buổi sinh hoạt chuyên đề.
+- Quản lý minh chứng và chỉ tiêu: Đảng ủy giao chỉ tiêu xuống Chi bộ, nhưng việc báo cáo tiến độ và nộp minh chứng (hình ảnh tham gia phong trào, nghị quyết) chưa có hệ thống tập trung. Minh chứng gửi qua Zalo/Email dễ trôi tin và khó thẩm định tính xác thực của hình ảnh.
+Từ những bài toán nghiệp vụ trên, hệ thống cần một giải pháp công nghệ có khả năng: số hóa hồ sơ, tự động nhắc nhở, chống gian lận điểm danh (qua tọa độ), chống gian lận minh chứng (qua phân tích siêu dữ liệu ảnh), và cung cấp dashboard thống kê thời gian thực cho cấp lãnh đạo.
+
+2.5.2. So sánh phương án thiết kế và lựa chọn kiến trúc
+a) Lựa chọn kiến trúc tổng thể (Architecture)
+- Phương án 1: Kiến trúc Monolithic truyền thống (Giao diện và Logic nghiệp vụ nằm chung một khối code). Ưu điểm: Dễ phát triển ban đầu. Nhược điểm: Khó mở rộng, nếu một module (ví dụ module điểm danh) quá tải sẽ làm sập toàn bộ hệ thống.
+- Phương án 2: Kiến trúc tách rời Frontend - Backend qua RESTful API, triển khai độc lập (Multi-tier Architecture). Ưu điểm: Phân tách rõ ràng giữa giao diện và xử lý dữ liệu, dễ bảo trì, tính sẵn sàng cao (Graceful Degradation).
+=> Quyết định: Nhóm chọn Phương án 2, thiết kế hệ thống tách biệt thành Frontend (ReactJS) và Backend (NodeJS/Express). Điều này phù hợp với mô hình 3 actor (SuperAdmin, Admin, User), giúp cách ly dữ liệu và bảo mật luồng truy cập độc lập.
+
+b) Lựa chọn Hệ quản trị Cơ sở dữ liệu
+- Phương án 1: Cơ sở dữ liệu phi quan hệ (NoSQL - MongoDB). Phù hợp với dữ liệu phi cấu trúc, linh hoạt.
+- Phương án 2: Cơ sở dữ liệu quan hệ (RDBMS - PostgreSQL). Hỗ trợ ACID, ràng buộc khóa ngoại chặt chẽ.
+=> Quyết định: Quản lý Đảng viên, Chi bộ, Chỉ tiêu và Thu/Chi Đảng phí là các thực thể có mối quan hệ ràng buộc khắt khe (Relational). Cần tính toàn vẹn dữ liệu cực cao (không thể xảy ra tình trạng thiếu dữ liệu cha). Do đó, PostgreSQL được lựa chọn làm hệ quản trị cơ sở dữ liệu chính.
+
+c) Lựa chọn giải pháp điểm danh chống gian lận
+- Phương án 1: Chỉ dùng mã QR tĩnh hoặc danh sách điểm danh truyền thống. Nhược điểm: Đảng viên có thể chụp ảnh QR gửi cho người khác quét, không xác thực được vị trí thực tế.
+- Phương án 2: Hybrid Attendance (Mã QR động + Xác thực Geolocation).
+=> Quyết định: Lựa chọn Phương án 2. Hệ thống tạo mã QR động (thay đổi mỗi 100 giây) kết hợp với thuật toán tính khoảng cách Haversine từ tọa độ GPS của thiết bị đến tâm hội trường. Giải pháp này triệt tiêu hoàn toàn khả năng điểm danh hộ.
+
+d) Lựa chọn giải pháp lưu trữ tài liệu (Storage)
+- Phương án 1: Lưu trữ file trực tiếp trên ổ cứng máy chủ Backend (Local Storage). Tốn tài nguyên băng thông, dễ tràn ổ đĩa, chi phí duy trì server lớn.
+- Phương án 2: Sử dụng giải pháp Cloud Storage bên thứ 3.
+=> Quyết định: Chọn Google Drive API làm Object Storage để lưu trữ văn bản và hình ảnh hoạt động. Cơ sở dữ liệu nội bộ chỉ lưu trữ định danh (File ID), giúp hệ thống hoạt động mượt mà, tốc độ tải trang nhanh và tận dụng tốt tài nguyên đám mây miễn phí cho giáo dục.
+
+e) Tích hợp Trí tuệ nhân tạo (AI) trong phân tích dữ liệu
+- Khi nhập liệu hồ sơ Đảng viên mới, thao tác thủ công rất tốn thời gian. Thay vì dùng biểu thức chính quy (Regex) kém linh hoạt, hệ thống quyết định tích hợp API của mô hình Llama 3 (qua nền tảng Groq). Mô hình LLM đóng vai trò xử lý ngôn ngữ tự nhiên, tự động trích xuất các thực thể (Entity Extraction) từ một đoạn mô tả thô (Họ tên, quê quán, ngày vào Đảng) và điền tự động vào Form, cải thiện đáng kể năng suất xử lý công việc hành chính.
+
+2.6. HỆ THỐNG BÊN ĐẢNG ỦY TRƯỜNG - SUPERADMIN25
+2.6.1. Phân hệ xác thực và kiểm soát truy cập25
+2.6.2. Phân hệ thống kê và phân tích dữ liệu26
+2.6.3. Chức năng quản lý danh sách chi bộ28
+2.6.4. Phân hệ quản trị thông tin và sự kiện29
+2.6.5. Phân hệ quản trị người dùng và phân quyền30
+2.6.6. Phân hệ quản trị chỉ tiêu và đánh giá32
+2.6.7. Phân hệ quản lý tài liệu số33
+2.6.8. Phân hệ quản trị giao diện công cộng34
+2.7. HỆ THỐNG BÊN CHI BỘ - ADMIN35
+2.7.1. Phân hệ xác thực và kiểm soát truy cập35
+2.7.2. Phân hệ thống kê chi bộ tập trung36
+2.7.3.  Phân hệ quản trị hồ sơ đảng viên số38
+2.7.4. Phân hệ quản trị tài khoản và định danh40
+2.7.5. Hệ thống điểm danh kép thông minh42
+2.7.6. Phân hệ quản trị tài chính44
+2.7.7. Phân hệ quản trị biểu mẫu nội bộ45
+2.7.8. Phân hệ thư viện ảnh và video chi bộ46
+2.7.9. Quản lý hoạt động và số hóa minh chứng47
+2.7.10. Phân hệ điều hành chỉ tiêu công tác48
+2.7.11. Trung tâm thông báo tập trung49
+2.8. HỆ THỐNG BÊN ĐẢNG VIÊN – USER51
+2.8.1. Trang giới thiệu công khai51
+2.8.2. Chức năng đăng nhập52
+2.8.3. Trang chủ và hệ thống tin tức54
+2.8.4. Trang hồ sơ đảng viên và quản trị định danh55
+2.8.5. Trang tổng quan và thống kê cá nhân56
+2.8.6. Phân hệ quản lý hoạt động và sự kiện58
+2.8.7. Kho tài liệu và ngân hàng biểu mẫu điện tử59
+2.8.8. Thư viện tư liệu và hình ảnh61
+2.8.9. Cổng tra cứu nghiệp vụ Đảng62
+2.8.10. Trợ lý AI chi bộ (chatbot)64
+CHƯƠNG 3: KẾT QUẢ VÀ THẢO LUẬN66
+3.1. KẾT QUẢ ĐẠT ĐƯỢC66
+3.2. THẢO LUẬN VÀ NHẬN XÉT KẾT QUẢ66
+KẾT LUẬN VÀ KIẾN NGHỊ67
+TÀI LIỆU THAM KHẢOa
+DANH MỤC HÌNH ẢNH
+Chương 1
+Hình 1.1. Đoạn code HTML ứng dụng vào đề tài3
+Hình 1.2. Đoạn code CSS ứng dụng vào đề tài4
+Hình 1.3. Đoạn code Javascript ứng dụng vào đề tài4
+Hình 1.4. Sử dụng hệ những câu truy vấn của hệ quản trị PostgreSQL5
+Hình 1.5. Sử dụng trang supabase để đưa cơ sở PostgreSQL lên6
+Hình 1.6. Một vài thư viện của ReactJS7
+Hình 1.7. Sử dụng ReactJS để thiết kế giao diện8
+Chương 2
+Hình 2.1. Sơ đồ UseCase toàn hệ thống15
+Hình 2.2. Sơ đồ UseCase quản lý hệ thống15
+Hình 2.3. Sơ đồ UseCase quản lý Đảng viên16
+Hình 2.4. Sơ đồ UseCase quản lý hoạt động17
+Hình 2.5. Sơ đồ UseCase quản lý tài chính19
+Hình 2.6. Sơ đồ UseCase quản lý thống kê và báo cáo20
+Hình 2.7. Sơ đồ UseCase quản lý tài liệu21
+Hình 2.8. Sơ đồ UseCase quản lý tài khoản Đảng viên22
+Hình 2.9. Sơ đồ class toàn hệ thống23
+Hình 2.10. Lược đồ cơ sở dữ liệu toàn hệ thống24
+Hình 2.11. Trang đăng nhập của superadmin25
+Hình 2.12. Trang tổng quan bên hệ thống superadmin26
+Hình 2.13. Trang quản lý chi bộ28
+Hình 2.14. Trang quản lý tin tức – sự kiện29
+Hình 2.15. Trang quản lý tài khoản đảng viên và phân quyền30
+Hình 2.16. Email nhận thông báo khi được cấpb lại mật khẩu31
+Hình 2.17. Trang quản lý chỉ tiêu, giao nhiệm vụ32
+Hình 2.18. Trang quan lý tài liệu33
+Hình 2.19. Trang quản lý landing page – sơ đồ tổ chức34
+Hình 2.20. Trang quản lý landing page – quy trình công tác Đảng34
+Hình 2.21. Trang đăng nhập của admin35
+Hình 2.22. Trang tổng quan hệ thống admin37
+Hình 2.23. Trang quản lý thông tin Đảng viên38
+Hình 2.24. Form thêm hồ sơ Đảng viên có tích hợp AI phân tích và nhập liệu thông minh39
+Hình 2.25. Trang quản lý tài khoản Đảng viên40
+Hình 2.26. Kết quả cấp lại mật khẩu được hiển thị trên hệ thống của admin41
+Hình 2.27. Trang bắt buộc thay đỏi mật khẩu cá nhân42
+Hình 2.28. Trang quản lý sinh hoạt và điểm danh42
+Hình 2.29. Mã QR điểm danh sinh hoạt43
+Hình 2.30. Danh sách ghi nhận kết quả điểm danh sinh hoạt44
+Hình 2..31. Trang quản lý thu Đảng phí44
+Hình 2.32. Trang quản lý chi tiêu Đảng phí45
+Hình 2.33. Trang quản lý biểu mẫu nội bộ45
+Hình 2.34. Trang quản lý và lưu trữ ảnh chi bộ46
+Hình 2.35. Trang quản lý thư viện video47
+Hình 2.36. Trang quản lý hoạt động chi bộ47
+Hình 2.37. Trang quản lý và nhận chỉ tiêu, nhiệm vụ từ superadmin48
+Hình 2.38. Khung thông báo của admin49
+Hình 2.39. Trang landingpage51
+Hình 2.40. Trang đăng nhập của user52
+Hình 2.41. Form khôi phục mật khẩu tự động53
+Hình 2.42. Trang chủ - trang tin tin tức54
+Hình 2.43. Trang hồ sơ của Đảng viên55
+Hình 2.44. Trang tổng quan về Đảng viên56
+Hình 2.45. Kết quả điểm danh mã QR thành công57
+Hình 2.46. Trang tham gia hoạt động58
+Hình 2. 47. Kho tài liệu về biểu mẫu chi bộ59
+Hình 2.48. Trang kho tài liệu và biểu mẫu60
+Hình 2.49. Trang thư viện ảnh61
+Hình 2.50. Trang thư viện hình video61
+Hình 2.51. Trang tra cứu lịch sử đóng Đảng phí62
+Hình 2.52. Trang tra cứu lịch sinh hoạt63
+Hình 2.53. Giao diện Chatbot AI Trợ lý Chi bộ64
+DANH MỤC BẢNG
+Bảng 2.1 Mô tả UseCase quản lý hệ thống16
+Bảng 2.2 Mô tả UseCase quản lý Đảng viên17
+Bảng 2.3 Mô tả UseCase quản lý hệ thống18
+Bảng 2.4 Mô tả UseCase quản lý tài chính20
+Bảng 2.5 Mô tả quản lý thống kê và báo cáo21
+Bảng 2.6 Mô tả UseCase quản lý tài liệu22
+Bảng 2.7 Mô tả UseCase Đảng viên23
+STT
+Từ viết tắt
+Chữ đầy đủ
+1
+AI
+Artificial Intelligence
+2
+API
+Application Programming Interface
+3
+UI
+User Interface
+4
+NPM
+Node Package Manager
+5
+PDF
+Portable Document Format
+6
+HTTP
+HyperText Transfer Protocol
+7
+JSON
+JavaScript Object Notation
+8
+XML
+Extensible Markup Language
+9
+DOM
+Document Object Model
+10
+HTML
+Hypertext Markup Language
+11
+IDE
+Integrated Development Environment
+12
+CSS
+Cascading Style Sheets
+13
+JSX
+JavaScript + Extensible Markup Language
+DANH MỤC TỪ VIẾT TẮT
+ĐẶT VẤN ĐỀ
+Lý do chọn đề tài
+- Trong bối cảnh hiện đại hóa giáo dục và sự phát triển mạnh mẽ của công nghệ thông tin, việc ứng dụng các giải pháp số hóa vào quản lý các hoạt động tổ chức, đặc biệt là trong môi trường giáo dục đại học, đã trở thành một xu thế tất yếu. Hệ thống quản lý các chi bộ, với vai trò là đơn vị cơ sở trong công tác quản lý và tổ chức hoạt động của Đoàn Thanh niên và Đảng Cộng sản Việt Nam tại các trường đại học, đang đối mặt với nhiều thách thức trong việc quản lý thông tin, theo dõi hoạt động và đảm bảo hiệu quả tương tác giữa các thành viên.
+- Hiện nay, nhiều giải pháp quản lý truyền thống hoặc các phần mềm có sẵn thường thiếu tính linh hoạt, khó tùy chỉnh theo đặc thù của từng chi bộ, hoặc đòi hỏi chi phí và nguồn lực đáng kể để triển khai và bảo trì. Ngoài ra, việc tích hợp với các hệ thống khác hoặc mở rộng tính năng để đáp ứng nhu cầu quản lý ngày càng phức tạp cũng là một vấn đề nan giải. Những hạn chế này gây khó khăn trong việc tối ưu hóa quy trình quản lý, lưu trữ dữ liệu và nâng cao hiệu quả hoạt động của chi bộ sinh viên.
+- Xuất phát từ thực tiễn đó, nhóm nghiên cứu đã quyết định triển khai dự án "Website quản lý chi bộ sinh viên" nhằm xây dựng một nền tảng số hóa hiện đại, linh hoạt và dễ mở rộng. Hệ thống này được thiết kế để đáp ứng các yêu cầu cụ thể của công tác quản lý chi bộ sinh viên, bao gồm quản lý thông tin thành viên, theo dõi hoạt động, hỗ trợ tương tác và báo cáo dữ liệu một cách hiệu quả. Dự án không chỉ hướng đến việc nâng cao chất lượng quản lý mà còn góp phần thúc đẩy sự gắn kết và tính chuyên nghiệp trong hoạt động của chi bộ, từ đó hỗ trợ công tác giáo dục chính trị tư tưởng và phát triển tổ chức trong môi trường đại học.
+Mục tiêu nghiên cứu
+- Nghiên cứu tập trung vào việc thiết kế và phát triển “Hệ thống quản lý các chi bộ của trường Đại học Kỹ Thuật – Công Nghệ Cần Thơ” nhằm số hóa và tối ưu hóa công tác quản lý chi bộ sinh viên trong các cơ sở giáo dục đại học. Hệ thống hướng đến hỗ trợ cán bộ chi bộ trong việc quản lý thông tin thành viên, theo dõi các hoạt động đoàn thể, tổ chức các sự kiện giáo dục chính trị - tư tưởng, và đánh giá kết quả rèn luyện của sinh viên. Về phía sinh viên, nền tảng cung cấp khả năng truy cập thông tin chi bộ, đăng ký tham gia hoạt động, tra cứu kết quả rèn luyện và tương tác trực tuyến với cán bộ quản lý thông qua giao diện thân thiện, dễ sử dụng
+- “Hệ thống quản lý các chi bộ của trường Đại học Kỹ Thuật – Công Nghệ Cần Thơ” số hóa công tác quản lý, cho phép cán bộ chi bộ quản lý thông tin thành viên, tổ chức hoạt động và đánh giá rèn luyện sinh viên một cách hiệu quả. Sinh viên có thể truy cập thông tin, đăng ký sự kiện và tra cứu kết quả qua giao diện thân thiện. Hệ thống giảm thiểu quy trình thủ công, tăng cường tương tác, đáp ứng xu hướng số hóa giáo dục, góp phần nâng cao chất lượng quản lý chi bộ và sự tham gia của sinh viên.
+CHƯƠNG 1: TỔNG QUAN TÀI LIỆU
+1.1. NODE.JS
+Node.js là một môi trường chạy JavaScript phía máy chủ (server-side), được xây dựng trên engine V8 của Google Chrome. Nó có thể cho phép lập trình viên sử dụng JavaScript để phát triển các ứng dụng mạng hiệu suất cao, đặc biệt là các ứng dụng thời gian thực [1].
+1.2. KIẾN TRÚC RESTFUL API 
+RESTful API là một tiêu chuẩn dùng trong việc thiết kế API cho các ứng dụng web (thiết kế Web services) để tiện cho việc quản lý các resource. Nó chú trọng vào tài nguyên hệ thống (tệp văn bản, ảnh, âm thanh, video, hoặc dữ liệu động…), bao gồm các trạng thái tài nguyên được định dạng và được truyền tải qua HTTP [2].
+1.3. HTML
+HTML là viết tắt của cụm từ Hypertext Markup Language (tạm dịch là ngôn ngữ đánh dấu siêu văn bản). HTML được sử dụng để tạo và cấu trúc các thành phần trong trang web hoặc ứng dụng, phân chia các đoạn văn, heading, titles, blockquotes... và HTML không phải là ngôn ngữ lập trình [3].
+Hình 1.1. Đoạn code HTML ứng dụng vào đề tài
+1.4. CSS
+CSS (Cascading Style Sheets) là một ngôn ngữ biểu diễn (style language) giúp định dạng và làm đẹp cho các trang web được viết bằng HTML hoặc XML. Trong khi HTML tạo ra các thành phần chính của trang web như tiêu đề, đoạn văn, hình ảnh, thì CSS quyết định cách những thành phần này sẽ xuất hiện: từ màu sắc, phông chữ, đến bố cục và cách sắp xếp trên trang [4].
+Hình 1.2. Đoạn code CSS ứng dụng vào đề tài
+1.5. Ngôn ngữ lập trình JAVASCRIPT
+- JavaScript là ngôn ngữ lập trình website phổ biến hiện nay, nó được tích hợp và nhúng vào HTML giúp website trở nên sống động hơn. JavaScript đóng vai trò như một phần của trang web, thực thi cho phép Client-side script từ phía người dùng cũng như phía máy chủ tạo ra trang web động.
+- JavaScript là một ngôn ngữ lập trình thông dịch với khả năng hướng đến đối tượng. Là một trong 3 ngôn ngữ chính trong lập trình web và có mối liên hệ lẫn nhau để xây dựng một website sống động, chuyên nghiệp:
++ HTML: Hỗ trợ trong việc xây dựng layout, thêm nội dung dễ dàng trên website.
++ CSS: Hỗ trợ việc định dạng thiết kế, bố cục, style, màu sắc, ...
++ JavaScript: Tạo nên những nội dung động trên Website [5].
+Hình 1.3. Đoạn code Javascript ứng dụng vào đề tài
+1.6. JSON WEB TOKEN (JWT)
+JWT là một tiêu chuẩn mở (RFC 7519) cho phép truyền tải thông tin giữa các bên dưới dạng đối tượng JSON nhỏ gọn và tự chứa. Thông tin trong JWT được xác thực và có thể tin cậy thông qua chữ ký số [6].
+1.7. Hệ quản trị cơ sở dữ liệu Postgresql
+- PostgreSQL là một hệ quản trị cơ sỡ dữ liệu quan hệ (RDBMS) cho phép bạn làm việc với các truy vấn phức tạp và các hoạt động dữ liệu có khối lượng lớn. Khách hàng của nó bao gồm những tên tuổi nổi tiếng như Apple, Yahoo, Meta, v.v.
+- Mặc dù là một cơ sở dữ liệu mã nguồn mở, PostgreSQL cung cấp một công cụ cơ sở dữ liệu mạnh mẽ được củng cố bởi gần 30 năm cập nhật của cộng đồng và nhà phát triển.
+- PostgreSQL đã được sử dụng rộng rãi trong các hoạt động ở quy mô doanh nghiệp như một giải pháp RDBMS chi phí thấp. Nó tạo sự cạnh tranh gay gắt với dữ liệu quan hệ (SQL) và phi quan hệ (JSON). Công cụ này thực hiện các truy vấn dài trên dữ liệu có cấu trúc, bán cấu trúc và không cấu trúc [7].
+Hình 1.4. Sử dụng hệ những câu truy vấn của hệ quản trị PostgreSQL
+1.8. Công cụ
+1.8.1. Express.js
+Express.js là một framework nhẹ và linh hoạt cho Node.js, được thiết kế để xây dựng các ứng dụng web và API. Nó cung cấp các công cụ đơn giản để xử lý tuyến đường (routing), middleware, và các yêu cầu HTTP [8].
+1.8.2. Draw.io
+- Draw.io (hiện là diagrams.net) là một phần mềm đồ họa sơ đồ trực tuyến và ngoại tuyến mã nguồn mở, được sử dụng rộng rãi trong việc mô hình hóa các quy trình hệ thống và kiến trúc phần mềm. Công cụ này cung cấp giao diện trực quan với thư viện ký hiệu phong phú, hỗ trợ các chuẩn công nghiệp như UML (Unified Modeling Language), BPMN (Business Process Model and Notation), và các sơ đồ mạng. Đặc điểm nổi bật của draw.io là khả năng tích hợp mạnh mẽ với các nền tảng lưu trữ đám mây như Google Drive, GitHub và OneDrive, cho phép người dùng quản lý phiên bản và cộng tác trực tiếp trên các tệp sơ đồ dưới định dạng XML hoặc hình ảnh [9].
+1.8.3. Github và Git 
+* Github là gì?
+- GitHub là một mạng xã hội đặc biệt dành cho lập trình viên, là một hệ thống quản lý dự án, lưu trữ source code, theo dõi và cộng tác trong các dự án phần mềm. 
+- Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc [10]. 
+* Git là gì?
+ Git là một hệ thống quản lý phiên bản mã nguồn mở, giúp theo dõi các thay đổi trong mã nguồn, và bạn có thể sử dụng Git mà không cần GitHub [11].
+1.8.4. Supabase
+Supabase là một nền tảng mã nguồn mở thay thế Firebase, cung cấp cơ sở dữ liệu PostgreSQL, xác thực, API tự động, và lưu trữ tệp. Nó được thiết kế để đơn giản hóa việc xây dựng backend cho ứng dụng [12].
+Hình 1.5. Sử dụng trang supabase để đưa cơ sở PostgreSQL lên
+1.9. Thư viện Reactjs
+ReactJS: là thư viện JavaScript dùng để xây dựng giao diện người dùng (UI) trên web và mobile, giúp chia giao diện phức tạp thành các component nhỏ, dễ quản lý và tái sử dụng. Với luồng dữ liệu một chiều, ReactJS giúp ứng dụng chặt chẽ và dễ kiểm soát hơn, đồng thời sử dụng DOM ảo (Virtual DOM) để tăng hiệu suất bằng cách chỉ cập nhật các thay đổi cần thiết. Cú pháp JSX kết hợp HTML và JavaScript giúp viết mã trực quan, đơn giản hơn, và tính năng Hot Reload hỗ trợ cập nhật nhanh, tăng tốc độ phát triển. Nhìn chung, ReactJS mang lại hiệu suất cao và tối ưu cho phát triển UI trên cả web và mobile [13].
+Hình 1.6. Một vài thư viện của ReactJS
+Hình 1.7. Sử dụng ReactJS để thiết kế giao diện
+1.10. Môi trường cài đặt
+1.10.1. Visual Studio
+- Sử dụng Visual Studio Code phiên bản 1.98.2
+- Visual Studio Code chính là ứng dụng cho phép biên tập, soạn thảo các đoạn code để hỗ trợ trong quá trình thực hiện xây dựng, thiết kế website một cách nhanh chóng. Visual Studio Code hay còn được viết tắt là VS Code. Trình soạn thảo này vận hành mượt mà trên các nền tảng như Windows, macOS, Linux. Hơn thế nữa, VS Code còn cho khả năng tương thích với những thiết bị máy tính có cấu hình tầm trung vẫn có thể sử dụng dễ dàng.
+- Visual Studio Code hỗ trợ đa dạng các chức năng Debug, đi kèm với Git, có Syntax Highlighting. Đặc biệt là tự hoàn thành mã thông minh, Snippets, và khả năng cải tiến mã nguồn. Nhờ tính năng tùy chỉnh, Visual Studio Code cũng cho phép các lập trình viên thay đổi Theme, phím tắt, và đa dạng các tùy chọn khác. Mặc dù trình soạn thảo Code này tương đối nhẹ, nhưng lại bao gồm các tính năng mạnh mẽ.
+- Dù mới được phát hành nhưng VSCode là một trong những Code Editor mạnh mẽ và phổ biến nhất dành cho lập trình viên. Nhờ hỗ trợ nhiều ngôn ngữ lập trình phổ biến, tích hợp đầy đủ các tính năng và khả năng mở rộng, nên VSCode trở nên cực kì thân thuộc với bất kì lập trình viên nào [14].
+1.10.2. Lợi ích khi sử dụng Visual Studio Code
+- Đa dạng ngôn ngữ lập trình giúp người dùng thỏa sức sáng tạo và sử dụng như HTML, CSS, JavaScript, C++, …
+- Ngôn ngữ, giao diện tối giản, thân thiện, giúp các lập trình viên dễ dàng định hình nội dung. 
+- Các tiện ích mở rộng rất đa dạng và phong phú. 
+- Tích hợp các tính năng quan trọng như tính năng bảo mật (Git), khả năng tăng tốc xử lý vòng lặp (Debug), …
+- Đơn giản hóa việc tìm quản lý hết tất cả các Code có trên hệ thống.
+- Sử dụng được hầu hết trên tất cả hệ điều hành khác nhau.
+- Kiến trúc mạnh mẽ và người dùng có thể khai thác mở rộng
+- Số lượng người sử dụng lớn tạo nên cộng đồng hỗ trợ rộng rãi
+- Ít dung lượng
+- Tính năng mạnh mẽ
+- Intellisense chuyên nghiệp
+- Giao diện thân thiện
+1.11. GOOGLE DRIVE API
+API Google Drive cho phép bạn tạo các ứng dụng sử dụng bộ nhớ đám mây của Google Drive. Bạn có thể phát triển các ứng dụng tích hợp với Drive và tạo chức năng mạnh mẽ trong ứng dụng của mình bằng Drive API.
+* Google Drive
+Dịch vụ lưu trữ tệp trên đám mây của Google cung cấp cho người dùng một không gian lưu trữ cá nhân, được gọi là Drive của tôi, và lựa chọn truy cập vào các thư mục dùng chung để cộng tác, được gọi là ổ đĩa dùng chung.
+* Google Drive API
+API REST cho phép bạn sử dụng bộ nhớ Drive ngay trong ứng dụng của mình.
+* Ứng dụng Google Drive
+Một ứng dụng sử dụng Drive làm giải pháp lưu trữ.
+* Giao diện người dùng của Google Drive
+Giao diện người dùng của Google giúp quản lý các tệp được lưu trữ trên Drive. Nếu ứng dụng của bạn là ứng dụng thuộc loại trình chỉnh sửa (chẳng hạn như bảng tính hoặc trình xử lý văn bản), bạn có thể tích hợp với giao diện người dùng Drive để tạo và mở tệp trong ứng dụng của mình.
+* Drive của tôi
+Vị trí lưu trữ trên Drive mà một người dùng cụ thể sở hữu. Bạn có thể chia sẻ các tệp được lưu trữ trên Drive của tôi với những người dùng khác, nhưng quyền sở hữu nội dung vẫn thuộc về một người dùng cụ thể [15].
+* OAuth 2.0
+Giao thức uỷ quyền mà Drive API yêu cầu để xác thực người dùng ứng dụng của bạn. Nếu ứng dụng của bạn sử dụng tính năng đăng nhập bằng Google, thì ứng dụng sẽ xử lý quy trình OAuth 2.0 và mã truy cập ứng dụng [16].
+1.12. CÔNG CỤ DELOY DỰ ÁN
+1.12.1. Deploy FrontEnd Vercel
+- Vercel trước đây tên gọi là Zeit, là một nền tảng đám mây cho phép các developer deploy các ứng dụng tĩnh và serverless nhanh chóng, an toàn và hiệu quả. Vercel hỗ trợ nhiều framework phổ biến như: Next.js, React, Vue.js, Angular, ... Vercel dùng để deploy giao diện 
+- Điểm mạnh của Vercel là khả năng tối ưu hóa hiệu suất và trải nghiệm người dùng thông qua việc cung cấp CDN (Content Delivery Network) toàn cầu và các tính năng như Serverless Functions.
+* Điểm nổi bật vercel
+- Dễ dàng triển khai: chỉ với vài thao tác đơn giản, có thể deploy dự án của mình mà không cần các cấu hình phức tạp. Mọi thứ điểu được tự động hóa.
+- Hiệu suất cao: Vercel sử dụng CDN toàn cầu giúp nội dung website/ứng dụng  được tải nhanh hơn, phân phối từ máy chủ gần với người dùng nhất, giảm thiểu độ trễ và nâng cao trải nghiệm.
+- Hỗ trợ Serverless Functions: Vercel cho phép viết và chạy code phía server mà không cần tốn công thiết lập hay quản lý server. 
+- Tích hợp chặt chẽ với Git: Mỗi khi push code lên Github, Vercel sẽ tự động build và deploy phiên bản mới.
+- Miễn phí cho dự án cá nhân: Vercel cung cấp gói miễn phí đủ cho các dự án nhỏ, thử nghiệm ý tưởng hoặc xây dựng sản phẩm MVP, giúp bạn bắt đầu nhanh chóng mà không lo lắng về chi phí [17].
+1.12.2. Deploy BackEnd Render
+- Render là một nền tảng đám mây mạnh mẽ cho phép triển khai các ứng dụng web và dịch vụ API một cách dễ dàng, là quá trình tạo ra một hình ảnh hoặc video hai chiều (2D) hoặc ba chiều (3D) từ các mô hình đồ họa máy tính bằng cách sử dụng các chương trình ứng dụng. Tác dụng dùng để deploy backend
+* Điểm nổi bật
+- Tự động hóa hoàn toàn (Auto-Deploy): Render kết nối trực tiếp với GitHub/GitLab. Mỗi khi bạn đẩy mã nguồn mới lên (push code), hệ thống sẽ tự động build và cập nhật phiên bản mới nhất cho ứng dụng.
+- Quản trị hạ tầng đơn giản: Không cần cấu hình server phức tạp. Bạn chỉ cần khai báo lệnh chạy (Start Command) và lệnh xây dựng (Build Command), Render sẽ lo phần còn lại, …
+- Hỗ trợ SSL miễn phí: Mọi dịch vụ được triển khai trên Render đều được cấp chứng chỉ bảo mật TLS (HTTPS) tự động và được miễn phí.
+- Quản lý biến môi trường (Environment Variables): Cho phép lưu trữ các thông tin nhạy cảm như Key API, chuỗi kết nối Database một cách bảo mật và dễ dàng thay đổi mà không cần sửa mã nguồn.
+- Khả năng mở rộng (Scalability): Dễ dàng nâng cấp tài nguyên (CPU, RAM) hoặc thiết lập tự động mở rộng quy mô khi lưu lượng truy cập tăng đột ngột. 
+- Cung cấp sẵn Database: Render hỗ trợ khởi tạo nhanh các dịch vụ PostgreSQL và Redis được quản lý sẵn, giúp Backend kết nối dữ liệu mượt mà trong cùng một hệ sinh thái [18].
+CHƯƠNG 2: ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP NGHIÊN CỨU
+2.1. Đặc tả yêu cầu 
+2.1.1. Yêu cầu về chức năng của hệ thống
+Hệ thống quản lý chi bộ được xây dựng với mục tiêu số hóa toàn diện các hoạt động Đảng vụ tại cơ sở, phân quyền chặt chẽ cho ba nhóm đối tượng (SuperAdmin, Admin, User). Các chức năng chính được phân bổ chi tiết như sau:
+* Quản lý hệ thống và phân quyền
+- Xác thực đa cấp: Hệ thống cung cấp các cổng đăng nhập chuyên biệt cho từng actor. Quy trình xác thực dựa trên giao thức JWT (JSON Web Token), đảm bảo tính toàn vẹn và bảo mật thông tin phiên làm việc.
+- Phân quyền dựa trên vai trò (RBAC): Cấp 1 (Đảng ủy) có toàn quyền cấu trúc tổ chức và quản trị cấp cao. Cấp 2 (Admin chi bộ) quản lý trực tiếp Đảng viên và các hoạt động nội bộ. Cấp 3 (User) thực hiện tra cứu và tương tác cá nhân.
+- Quản trị vòng đời tài khoản và Bảo mật mật khẩu: Bao gồm khởi tạo, khóa/mở khóa tài khoản. Đặc biệt, hệ thống tích hợp cơ chế tự động sinh mật khẩu ngẫu nhiên, mã hóa một chiều bằng thuật toán Bcrypt và gửi trực tiếp qua thư điện tử (Nodemailer). Hệ thống ép buộc Đảng viên phải đổi mật khẩu (Force Reset) ở lần đăng nhập đầu tiên nhằm đảm bảo an toàn thông tin tuyệt đối.
+* Quản lý thông tin Đảng viên
+- Hồ sơ điện tử chi tiết: Lưu trữ đồng bộ các thông tin từ lý lịch trích ngang, trình độ chuyên môn, đến quá trình sinh hoạt Đảng.
+- Nhập liệu thông minh với Trí tuệ Nhân tạo (AI): Cho phép tải lên danh sách Đảng viên hàng loạt từ tệp Excel. Đặc biệt, hệ thống tích hợp bộ phân tích hồ sơ tự động bằng mô hình AI Llama 3.3, nhận diện và trích xuất thông tin từ văn bản thô thành dữ liệu có cấu trúc.
+- Bộ lọc và Tìm kiếm nâng cao: Ứng dụng kỹ thuật tìm kiếm gần đúng (Fuzzy Search), hỗ trợ truy xuất linh hoạt thông tin Đảng viên không phân biệt dấu và sai sót nhỏ về chính tả, kết hợp lọc theo đa tiêu chí (đơn vị công tác, lớp, chức vụ).
+- Hệ thống Cảnh báo sớm (Early Warning Dashboard): Tự động phân loại và đưa ra cảnh báo trực quan khi Đảng viên sắp hết thời gian dự bị (trên 11 tháng) hoặc có tỷ lệ nộp Đảng phí thấp, giúp cấp ủy kịp thời ra quyết định.
+* Quản lý sinh hoạt Đảng và Hoạt động phong trào
+- Quy trình Sinh hoạt Chi bộ: Cho phép Chi ủy thiết lập kế hoạch họp, đính kèm tài liệu nghiên cứu và gửi thông báo trực tiếp đến các Đảng viên.
+- Điểm danh kép thông minh: Cung cấp cơ chế điểm danh kết hợp quét mã QR động mã hóa (thay đổi theo thời gian thực) và xác thực định vị GPS thông qua thuật toán Haversine (giới hạn bán kính 50m), ngăn chặn triệt để hành vi điểm danh hộ.
+- Quản lý minh chứng hoạt động chống gian lận: Đảng viên đăng ký và tải lên hình ảnh minh chứng tham gia phong trào. Hệ thống tự động phân tích siêu dữ liệu hình ảnh (EXIF Metadata) để xác thực thời gian chụp thực tế, loại bỏ các minh chứng giả mạo trước khi cho phép duyệt.
+* Quản lý Truyền thông, Tin tức và Kho Văn bản
+- Quản lý Tin tức và Thông báo: Cung cấp nền tảng truyền thông nội bộ cho phép Ban Chi ủy đăng tải các bản tin, nghị quyết và thông báo khẩn. Hệ thống hỗ trợ định dạng văn bản đa dạng và đẩy thông báo (Push Notification/Alert) tức thời đến màn hình hiển thị của Đảng viên để đảm bảo thông tin được xuyên suốt.
+- Lưu trữ Văn bản và Biểu mẫu điện tử: Số hóa hoàn toàn kho tệp tin hành chính (đơn xin vào Đảng, giấy chuyển sinh hoạt, nghị quyết...). Các biểu mẫu và văn bản được phân loại khoa học, tích hợp API của Google Drive để lưu trữ và tải xuống nhanh chóng, giảm tải băng thông lưu trữ cho máy chủ nội bộ.
+- Thư viện số đa phương tiện: Quản lý kho hình ảnh hoạt động và thư viện video chuyên đề. Đặc biệt tích hợp luồng phát trực tiếp từ YouTube (YouTube iframe API) mang lại trải nghiệm xem video mượt mà, tối ưu hóa tốc độ tải trang.
+* Quản lý Tài chính và Hỗ trợ Đảng viên
+- Quản lý Đảng phí: Theo dõi luồng thu nộp Đảng phí hàng tháng của Đảng viên, phân loại trực quan tình trạng (Đã nộp/Chưa nộp), đảm bảo minh bạch tài chính.
+- Trợ lý ảo AI (Dynamic RAG Chatbot): Tích hợp chatbot thông minh hỗ trợ giải đáp tự động các quy trình công tác Đảng. AI có khả năng truy vấn động dữ liệu thực tế từ cơ sở dữ liệu (thông tin Chi ủy, sơ đồ tổ chức) để cung cấp câu trả lời chính xác, sát thực với tình hình của từng Chi bộ.
+2.1.2. Yêu cầu về phi chức năng của hệ thống
+Hệ thống phải đáp ứng các tiêu chuẩn kỹ thuật nghiêm ngặt để đảm bảo vận hành ổn định trong môi trường thực tế:
+* Hiệu năng (Performance)
+- Khả năng chịu tải: Hệ thống hoạt động ổn định với tối thiểu 50 người dùng đồng thời thực hiện các tác vụ truy vấn dữ liệu lớn và tải tài liệu.
+- Tốc độ phản hồi: Nhờ tối ưu hóa cơ sở dữ liệu và tích hợp API hiệu năng cao (Groq API cho AI), thời gian tải trang và xử lý yêu cầu trung bình dưới 2 giây.
+* Bảo mật (Security)
+- Mã hóa và Xác thực: Hệ thống áp dụng quy trình bảo mật khép kín từ khâu cấp phát đến ép buộc đổi mật khẩu (Force Reset Password).
+- Kiểm soát truy cập: Tích hợp các lớp Middleware để ngăn chặn các lỗ hổng bảo mật chuẩn OWASP như SQL Injection, XSS và phân quyền truy cập trái phép.
+* Tính tin cậy và Khả dụng (Reliability & Availability)
+- Kiến trúc độc lập: Thiết kế tách biệt 3 cụm Frontend-Backend (SuperAdmin, Admin, User) giúp hệ thống không bị sụp đổ toàn bộ khi một phân hệ gặp sự cố (Graceful Degradation).
+- Phục hồi dữ liệu: Cơ sở dữ liệu PostgreSQL được lưu trữ tập trung tại Supabase với cơ chế sao lưu tự động (Auto-backup) hàng ngày.
+* Công nghệ nền tảng và Tương thích
+- Ngôn ngữ & Framework: Kết hợp ReactJS (Frontend) với giao diện Ant Design Responsive, và NodeJS/Express (Backend) xử lý bất đồng bộ mạnh mẽ.
+- Dịch vụ bên thứ ba: Tích hợp Google Drive API (lưu trữ), Nodemailer (Email), YouTube API (Media) và Groq API (LLM inference) giúp tối ưu hóa toàn diện sức mạnh hệ thống mà không tạo áp lực lên máy chủ nội bộ.
+* Kiến trúc triển khai và Phục hồi dữ liệu (Deployment & Availability)
+- Mô hình tách biệt: Hệ thống được thiết kế theo mô hình tách biệt giữa tầng ứng dụng và tầng dữ liệu để đảm bảo tính sẵn sàng cao. Giao diện (Frontend) được triển khai trên nền tảng máy chủ Vercel, trong khi logic nghiệp vụ (Backend) vận hành trên Render. Việc thiết kế tách biệt 3 cụm (SuperAdmin, Admin, User) giúp hệ thống không bị sụp đổ toàn bộ khi một phân hệ gặp sự cố (Graceful Degradation).
+- Phục hồi dữ liệu: Toàn bộ dữ liệu thực thể được lưu trữ tập trung tại cơ sở dữ liệu PostgreSQL thông qua dịch vụ đám mây Supabase. Cơ chế sao lưu tự động (Auto-backup) hàng ngày được thực hiện trực tiếp tại tầng Database, đảm bảo an toàn dữ liệu tuyệt đối và độc lập hoàn toàn với các rủi ro máy chủ tại tầng Hosting.
+2.2. Sơ đồ usecase
+Hình 2.1. Sơ đồ UseCase toàn hệ thống
+Hình 2.2. Sơ đồ UseCase quản lý hệ thống
+Actor 
+Đảng ủy trường cấp 1
+Mục tiêu 
+- Thiết lập và duy trì cơ cấu tổ chức Đảng bộ/Chi bộ của Nhà trường
+- Thiết lập, điều chỉnh vai trò và quyền hạn truy cập cho từng người dùng.
+Tiền điều kiện 
+- Actor đã đăng nhập với Quyền Cấp 1
+Chuỗi hành vi 
+- Quản lý cấu trúc tổ chức
++ Đảng ủy Trường truy cập module Quản lý Tổ chức.
++  Đảng ủy Trường thực hiện: Thêm mới Chi bộ (nhập tên, mã chi bộ, mô tả) hoặc Điều chỉnh cấu trúc (chuyển đổi, sắp xếp thứ bậc các chi bộ).
++ Hệ thống lưu trữ cấu trúc mới.
++  Hệ thống cập nhật thông tin chi bộ/đảng viên liên quan.
+- Quản lý phân quyền người dùng
++ Đảng ủy Trường truy cập module Phân quyền/Tài khoản.
++ Đảng ủy Trường chọn một tài khoản (Đảng viên/Cán bộ).
++ Đảng ủy Trường chỉ định hoặc thay đổi cấp quyền (Cấp 1, 2, 3) và vai trò (Bí thư, Phó Bí thư, Đảng viên thường).
++ Hệ thống cập nhật vai trò mới và giới hạn quyền truy cập tương ứng.
+Điều kiện cuối
+- Cơ cấu tổ chức Đảng bộ được cập nhật chính xác.
+- Vai trò và quyền hạn của người dùng đã được phân cấp.
+Bảng 2.1 Mô tả UseCase quản lý hệ thống
+Hình 2.3. Sơ đồ UseCase quản lý Đảng viên
+Actor 
+Đảng ủy trường cấp 1, Chi ủy Chi bộ cấp 2
+Mục tiêu 
+- Cập nhật, chỉnh sửa và duy trì cơ sở dữ liệu về lý lịch, thông tin cá nhân của Đảng viên.
+- Kiểm soát và lưu trữ tình trạng (chính thức, dự bị) của Đảng viên và thông báo khi có biến động.
+Tiền điều kiện 
+Actor đã đăng nhập với Quyền Cấp 1 hoặc Cấp 2.
+Chuỗi hành vi 
+- Quản lý thông tin Đảng viên
++Actor truy cập module Quản lý Thông tin Đảng viên.
++ Actor thực hiện: Thêm mới Đảng viên, Chỉnh sửa thông tin (lý lịch, địa chỉ, SĐT) hoặc Lọc/Tìm kiếm Đảng viên theo tiêu chí. 
++ Hệ thống lưu trữ và chuẩn hóa dữ liệu.
+- Theo dõi tình trạng Đảng viên
++ Actor truy cập module Theo dõi Tình trạng. 
++ Actor cập nhật Tình trạng (ví dụ: chuyển từ Dự bị sang Chính thức). 
++ Hệ thống lưu lại lịch sử thay đổi. 
++ Hệ thống tự động thông báo khi có thay đổi hoặc cần bổ sung dữ liệu (ví dụ: sắp hết thời gian dự bị).
+Điều kiện cuối
+- Dữ liệu Đảng viên được cập nhật chính xác và đồng bộ.
+- Tình trạng Đảng viên được quản lý và theo dõi hiệu quả.
+Bảng 2.2 Mô tả UseCase quản lý Đảng viên
+Hình 2.4. Sơ đồ UseCase quản lý hoạt động
+Actor 
+Chi ủy Chi bộ cấp 2
+Mục tiêu 
+- Cung cấp công cụ tạo, điều chỉnh và thông báo về lịch sinh hoạt Đảng.
+- Ghi nhận danh sách tham gia, nội dung cuộc họp và lưu trữ biên bản để đánh giá chất lượng sinh hoạt.
+- Lưu trữ thông tin chi tiết về các hoạt động như kết nạp, kiểm điểm, hội nghị.
+Tiền điều kiện 
+Actor đã đăng nhập với Quyền Cấp 2.
+Chuỗi hành vi 
+- Quản lý sinh hoạt Đảng
++ Chi ủy Chi bộ truy cập module Quản lý Sinh hoạt. 
++ Chi ủy Chi bộ tạo lịch sinh hoạt mới (nhập thời gian, địa điểm, nội dung). 
++ Chi ủy Chi bộ có thể điều chỉnh thông tin lịch đã tạo. 
++ Hệ thống gửi thông báo lịch sinh hoạt đến Đảng viên trong chi bộ.
+- Ghi nhận sinh hoạt và biên bản
++ Chi ủy Chi bộ chọn buổi sinh hoạt đã diễn ra. 
++ Chi ủy Chi bộ nhập danh sách tham gia/vắng mặt. 
++ Chi ủy Chi bộ nhập nội dung biên bản cuộc họp và đánh giá chất lượng sinh hoạt. 
++ Hệ thống lưu trữ biên bản và dữ liệu thống kê tham gia.
+- Quản lý hoạt động đặc biệt
++ Chi ủy Chi bộ truy cập module Hoạt động Đặc biệt. 
++ Chi ủy Chi bộ tạo hồ sơ sự kiện (nhập loại hình, mô tả, người tham gia chính, tài liệu liên quan). 
++ Hệ thống lưu trữ hồ sơ sự kiện và cho phép tra cứu sau này.
+Điều kiện cuối
+- Lịch sinh hoạt được thiết lập và thông báo đến Đảng viên.
+- Dữ liệu về chất lượng và thành phần tham gia sinh hoạt được lưu trữ.
+- Hồ sơ về các hoạt động đặc biệt được số hóa và quản lý.
+Bảng 2.3 Mô tả UseCase quản lý hệ thống
+Hình 2.5. Sơ đồ UseCase quản lý tài chính
+Actor 
+Chi ủy Chi bộ (Cấp 2), Đảng ủy Trường (Cấp 1)
+Mục tiêu 
+Cung cấp báo cáo tài chính định kỳ để theo dõi tình hình quỹ.
+Tiền điều kiện 
+Dữ liệu thu chi đã được ghi nhận.
+Chuỗi hành vi 
+- Xuất báo cáo tài chính
++ Actor truy cập module Báo cáo. 
++ Actor chọn loại báo cáo (Tài chính Đảng phí) và phạm vi thời gian. 
++ Hệ thống tổng hợp dữ liệu và xuất báo cáo (dưới dạng bảng/tệp). 
++ Actor xem hoặc tải xuống báo cáo.
+Điều kiện cuối
+Báo cáo tài chính chi bộ/toàn trường được tạo ra minh bạch, hỗ trợ tổng hợp.
+Actor 
+Chi ủy Chi bộ (Quyền Cấp 2)
+Mục tiêu 
+Theo dõi việc thu - chi Đảng phí của chi bộ, đảm bảo minh bạch và chính xác.
+Tiền điều kiện 
+Giao dịch thu hoặc chi Đảng phí phát sinh.
+Chuỗi hành vi 
+- Quản lý thu – chi Đảng ủy
++ Chi ủy Chi bộ truy cập module Tài chính Đảng phí. 
++ Chi ủy Chi bộ nhập dữ liệu giao dịch (Thu/Chi, số tiền, nội dung, ngày tháng). 
++ Hệ thống cộng trừ vào tổng quỹ của chi bộ
++ Hệ thống cảnh báo khi có sai lệch hoặc chậm nộp theo quy định.
+Điều kiện cuối
+Dữ liệu thu chi Đảng phí được cập nhật chi tiết và chính xác.
+Bảng 2.4 Mô tả UseCase quản lý tài chính
+Hình 2.6. Sơ đồ UseCase quản lý thống kê và báo cáo 
+Actor 
+Đảng ủy trường cấp 1
+Mục tiêu 
+- Cung cấp cái nhìn tổng quan về tình hình Đảng viên, sinh hoạt và tài chính của toàn trường.
+- Xây dựng và theo dõi các chỉ tiêu về phát triển đảng viên và chất lượng sinh hoạt Đảng.
+Tiền điều kiện 
+- Dữ liệu từ các chi bộ đã được nhập đầy đủ.
+- Actor đã đăng nhập với Quyền Cấp 1.
+Chuỗi hành vi 
+- Thống kê tổng hợp toàn trường
++ Đảng ủy Trường truy cập giao diện Thống kê Tổng hợp. 
++ Hệ thống hiển thị biểu đồ và số liệu về: Tổng số Đảng viên (chính thức/dự bị), Tần suất sinh hoạt, Tình hình thu chi Đảng phí của toàn Đảng bộ. 
++ Đảng ủy Trường sử dụng dữ liệu để hỗ trợ ra quyết định và chiến lược.
+- Quản lý chi tiêu công tác
++ Đảng ủy Trường truy cập module Quản lý Chỉ tiêu. 
++ Đảng ủy Trường tạo chỉ tiêu mới (ví dụ: Tỷ lệ kết nạp Đảng viên sinh viên năm 2026). 
++ Đảng ủy Trường gán chỉ tiêu cho từng chi bộ. 
++ Hệ thống theo dõi và hiển thị tiến độ đạt chỉ tiêu.
+Điều kiện cuối
+- Lãnh đạo có cơ sở dữ liệu để phân tích và ra quyết định.
+- Các chỉ tiêu về công tác Đảng được quản lý tập trung và dễ dàng theo dõi.
+Actor 
+Đảng ủy Trường (Cấp 1), Chi ủy Chi bộ (Cấp 2)
+Mục tiêu 
+Cung cấp các báo cáo số liệu về Đảng viên, sinh hoạt để so sánh hiệu quả hoạt động.
+Tiền điều kiện 
+Dữ liệu về hoạt động và Đảng viên đã được ghi nhận.
+Chuỗi hành vi 
+- Xuất báo cáo công tác Đảng
++ Actor truy cập module Báo cáo. 
++ Actor chọn loại báo cáo (ví dụ: Biến động Đảng viên, Kết quả sinh hoạt) và phạm vi thời gian. 
++ Hệ thống tổng hợp và xuất báo cáo dưới dạng bảng/tệp. 
++ Hệ thống hỗ trợ so sánh hiệu quả hoạt động giữa các chi bộ (Chỉ Cấp 1).
+Điều kiện cuối
+Báo cáo công tác được tổng hợp phục vụ tổng kết và đề ra chiến lược phát triển.
+Bảng 2.5 Mô tả quản lý thống kê và báo cáo
+Hình 2.7. Sơ đồ UseCase quản lý tài liệu
+Actor 
+Đảng ủy Trường (Cấp 1), Chi ủy Chi bộ (Cấp 2)
+Mục tiêu 
+Lưu trữ và quản lý các tài liệu chính thức (nghị quyết, báo cáo) và thực hiện chuyển đổi dữ liệu ban đầu.
+Tiền điều kiện 
+Có tài liệu hoặc dữ liệu cần chuyển đổi.
+Chuỗi hành vi 
+- Quản lý tài liệu và dữ liệu
++ Actor truy cập module Quản lý Tài liệu/Import. 
++ Actor thực hiện: Tải lên tài liệu (nghị quyết, biên bản) hoặc Import dữ liệu (từ tệp Excel). 
++ Đối với Import: Hệ thống xử lý và chuẩn hóa dữ liệu. 
++ Actor (được phân quyền) kiểm tra và xác nhận tính chính xác của dữ liệu sau khi import.
+Điều kiện cuối
+Tài liệu quan trọng và dữ liệu ban đầu được lưu trữ, đảm bảo dễ dàng tra cứu và bảo mật.
+Bảng 2.6 Mô tả UseCase quản lý tài liệu
+Hình 2.8. Sơ đồ UseCase quản lý tài khoản Đảng viên
+Actor 
+Đảng viên
+Mục tiêu 
+Cho phép Đảng viên tra cứu thông tin cá nhân và tiếp nhận thông báo.
+Tiền điều kiện 
+Actor đã đăng nhập với Quyền Cấp 3.
+Chuỗi hành vi 
+- Đảng viên truy cập giao diện cá nhân. 
+- Hệ thống hiển thị thông tin cá nhân (lý lịch, vai trò, lịch sinh hoạt). 
+- Đảng viên có thể xem các thông báo, tin tức liên quan đến công tác Đảng. 
+- (Tùy chọn) Đảng viên báo cáo tiến độ thực hiện nhiệm vụ.
+Điều kiện cuối
+Đảng viên cập nhật được thông tin và nhiệm vụ cá nhân.
+Bảng 2.7 Mô tả UseCase Đảng viên
+2.3. Sơ đồ class 
+Hình 2.9. Sơ đồ class toàn hệ thống
+2.4. Thiết kế cơ sở dữ liệu
+Hình 2.10. Lược đồ cơ sở dữ liệu toàn hệ thống
+2.6. HỆ THỐNG BÊN ĐẢNG ỦY TRƯỜNG - SUPERADMIN
+2.6.1. Phân hệ xác thực và kiểm soát truy cập
+Hình 2.11. Trang đăng nhập của superadmin
+- Phân hệ xác thực được thiết kế với mục tiêu tối thượng là thiết lập một rào chắn an ninh vững chắc cho toàn bộ dữ liệu cốt lõi của Đảng ủy cấp trường. Bằng cách áp dụng cơ chế bảo mật đa tầng, phân hệ này đóng vai trò như một cổng kiểm soát (Gateway) nghiêm ngặt, đảm bảo tính toàn vẹn của hệ thống, ngăn chặn triệt để các hành vi truy cập trái phép hoặc đánh cắp định danh (Identity Theft).
+- Xác thực danh tính (Authentication) với Bcrypt: Khi SuperAdmin thao tác đăng nhập, mật khẩu truyền vào không bao giờ được so sánh dưới dạng chuỗi văn bản thô (Plain-text). Thay vào đó, Backend sẽ sử dụng thư viện Bcrypt để tạo mã băm (Hash) một chiều tích hợp chuỗi nhiễu ngẫu nhiên (Salt). Kỹ thuật này giúp vô hiệu hóa hoàn toàn các phương pháp tấn công cưỡng bức (Brute-force) hoặc tấn công từ điển (Dictionary Attacks).
+- Duy trì phiên đăng nhập bằng JSON Web Token (JWT): Sau khi xác thực thành công, máy chủ cấp phát một thẻ bài điện tử JWT. Chuỗi token này được đính kèm vào phần Header của mọi yêu cầu HTTP gửi đi sau đó, giúp hệ thống duy trì phiên làm việc không trạng thái (Stateless Session) tốc độ cao mà không làm tăng tải trọng (Load) lên cơ sở dữ liệu.
+- Điều hướng tự động (Role-based Routing): Căn cứ vào trường dữ liệu role được giải mã từ JWT, nền tảng Frontend (ReactJS) sẽ kích hoạt luồng điều hướng chuyên biệt, đưa tài khoản SuperAdmin vào đúng không gian làm việc (Workspace) được cấp phép, cách ly tuyệt đối khỏi môi trường của cấp Chi ủy (Admin) và Đảng viên (User).
+2.6.2. Phân hệ thống kê và phân tích dữ liệu
+Hình 2.12. Trang tổng quan bên hệ thống superadmin
+- Chuyển đổi trạng thái quản trị từ "đọc báo cáo văn bản" sang "quản trị dựa trên dữ liệu thời gian thực" (Real-time Data-driven Management). Màn hình Tổng quan (Dashboard) cung cấp cho Ban Thường vụ Đảng ủy lăng kính toàn cảnh về thực trạng tổ chức, từ quy mô phát triển Đảng viên đến số lượng đơn vị cơ sở đang hoạt động.
+- Hệ thống thẻ chỉ số (Metric Cards): Hiển thị trực tiếp các con số trọng yếu như: Tổng số Chi bộ trực thuộc, Tổng quy mô Đảng viên toàn trường, và Tỷ lệ Đảng viên Chính thức/Dự bị. Các con số này không phải là dữ liệu tĩnh mà được tính toán liên tục thông qua các câu truy vấn gom nhóm (Aggregation Queries như COUNT, SUM) tại tầng PostgreSQL.
+- Trực quan hóa dữ liệu (Data Visualization): Sử dụng thư viện đồ họa Recharts để vẽ các biểu đồ phân tích xu hướng. Khi có bất kỳ một hồ sơ Đảng viên mới nào được nạp vào hệ thống, biểu đồ sẽ ngay lập tức tái cấu trúc đồ thị (Re-render) mà không cần tải lại trang, giúp cấp lãnh đạo nắm bắt biến động tổ chức một cách trực quan và sinh động nhất. Tích hợp thư viện Recharts để kết xuất dữ liệu dưới dạng các đồ thị động:
++ Biểu đồ cột (Bar Chart): Biểu diễn tương quan quy mô nhân sự giữa các đơn vị về số lượng Đảng viên.
++ Biểu đồ tròn (Pie/Donut Chart): Biểu diễn cơ cấu phân bổ theo giới tính và trạng thái Đảng.
++ Biểu đồ thanh ngang (Horizontal Bar): Phân cụm độ tuổi theo các dải tần số xác định, phục vụ công tác đánh giá nhân lực kế cận.
+- Cơ chế lọc và truy xuất sâu (Drill-down Analytics): Hệ thống cho phép bóc tách dữ liệu theo từng đơn vị cơ sở. Khi một tham số lọc được kích hoạt, hệ thống sẽ tái cấu trúc biểu đồ dựa trên tập dữ liệu mới (được truy xuất qua API), cho phép phân tích dữ liệu ở mức độ chi tiết cao.
+2.6.3. Chức năng quản lý danh sách chi bộ
+ 
+Hình 2.13. Trang quản lý chi bộ
+- Xây dựng khung xương tổ chức (Organizational Chart) trên môi trường số. Phân hệ này chịu trách nhiệm quản lý vòng đời hoạt động của các đơn vị cơ sở trực thuộc, từ lúc thành lập một Chi bộ mới cho đến khi tiến hành sáp nhập hoặc giải thể.
+- Quản trị vòng đời đơn vị (CRUD Operations): Cung cấp các công cụ Thêm mới, Chỉnh sửa thông tin, và Xóa Chi bộ. Đặc biệt, thao tác "Xóa" được lập trình theo cơ chế "Vô hiệu hóa logic" (Soft Delete). Dữ liệu Chi bộ không bị xóa hẳn khỏi ổ cứng máy chủ mà chỉ chuyển cờ trạng thái (Status Flag) sang "Lưu trữ", nhằm bảo toàn các liên kết dữ liệu lịch sử (Ví dụ: Lịch sử nộp Đảng phí của Chi bộ đó trong quá khứ).
+- Truy xuất thông minh (Fuzzy Search): Ứng dụng kỹ thuật tìm kiếm mờ kết hợp hàm loại bỏ dấu tiếng Việt (unaccent) tại phía cơ sở dữ liệu. Nhờ đó, người dùng có thể gõ "cong nghe thong tin" hoặc " nghệ công tin thông" thì hệ thống vẫn trả về kết quả cấu trúc chính xác, tối ưu hóa triệt để trải nghiệm tra cứu.
+2.6.4. Phân hệ quản trị thông tin và sự kiện
+ 
+Hình 2.14. Trang quản lý tin tức – sự kiện
+- Tạo lập một kênh truyền thông chính thống, số hóa và phi giấy tờ. Cấp Đảng ủy có thể sử dụng phân hệ này để phổ biến nhanh chóng các nghị quyết, thông báo đại hội hoặc bản tin hoạt động đến hàng ngàn Đảng viên trong cùng một thời điểm.
+- Quy trình xuất bản nội dung: Tích hợp trình soạn thảo văn bản cùng với sự hỗ trợ định dạng đa dạng. Mỗi bản ghi tin tức bao gồm siêu dữ liệu (metadata) như tiêu đề, nội dung cốt lõi và hình ảnh đại diện, được quản lý theo mô hình vòng đời (khởi tạo, xuất bản, lưu trữ).
+- Kiến trúc lưu trữ phân tán: Ứng dụng Google Drive API làm giải pháp lưu trữ đối tượng (Object Storage) cho tệp tin đa phương tiện. Hình ảnh tải lên được đồng bộ hóa và trả về định danh (File ID) để tham chiếu trong cơ sở dữ liệu hệ thống, giúp tối ưu hóa băng thông tải trang.
+2.6.5. Phân hệ quản trị người dùng và phân quyền
+ 
+Hình 2.15. Trang quản lý tài khoản đảng viên và phân quyền
+- Quản lý tập trung toàn bộ danh tính số của người dùng tham gia hệ thống. Đây là trung tâm phân bổ quyền lực, nơi SuperAdmin định đoạt giới hạn thao tác của mọi cá nhân, đảm bảo nguyên tắc "Ai làm việc nấy - Đúng người đúng quyền".
+- Ủy quyền phân cấp (Role Delegation): SuperAdmin có quyền rà soát danh sách toàn trường và kích hoạt quyền "Admin" (Chi ủy của Chi bộ gồm có: Bí thư, phó bí thư và chi ủy viên) cho các cá nhân được chỉ định và quyền “User” (đối với các đồng chí Đảng viên khác). Logic hệ thống sẽ cập nhật trường role trong cơ sở dữ liệu.
+- Bảo vệ toàn vẹn phiên làm việc: Ngay khi một tài khoản bị giáng cấp hoặc khóa (Banned), hệ thống sẽ kích hoạt một Trigger nội bộ để vô hiệu hóa ngay lập tức Token phiên làm việc hiện tại của người đó. Khi họ cố gắng thực hiện hành động tiếp theo, hệ thống API Gateway sẽ từ chối với mã lỗi 401 Unauthorized, ép người dùng đăng xuất, bảo vệ tuyệt đối an toàn thông tin nội bộ.
+Hình 2.16. Email nhận thông báo khi được cấpb lại mật khẩu 
+Cơ chế cấp lại mật khẩu tự động và bảo mật (Automated Password Reset): Khi nhận được yêu cầu khôi phục quyền truy cập từ các Bí thư Chi bộ hoặc tài khoản quản trị trực thuộc, SuperAdmin có thể kích hoạt tính năng cấp lại mật khẩu. Quy trình xử lý tại Backend diễn ra hoàn toàn tự động:
+- Hệ thống khởi tạo một chuỗi mật khẩu tạm thời ngẫu nhiên gồm 10 ký tự, kết hợp ngẫu nhiên giữa chữ hoa, chữ thường, chữ số và các ký tự đặc biệt nhằm triệt tiêu khả năng suy đoán của các công cụ dò mật khẩu.
+- Chuỗi mật khẩu này được tiến hành băm một chiều bằng thuật toán băm mật mã hóa mạnh Bcrypt (với độ phức tạp Salt Rounds = 10) trước khi cập nhật đè vào trường mat_khau của bản ghi trong cơ sở dữ liệu PostgreSQL.
+- Ngay sau khi cập nhật thành công cơ sở dữ liệu, một tiến trình ngầm gọi dịch vụ gửi thư điện tử Nodemailer thông qua giao thức truyền tải thư tín đơn giản SMTP để chuyển tiếp mật khẩu tạm mới này trực tiếp đến Email đã đăng ký của người nhận, hạn chế tối đa rủi ro lộ lọt thông tin qua các kênh trung gian.
+2.6.6. Phân hệ quản trị chỉ tiêu và đánh giá
+ 
+Hình 2.17. Trang quản lý chỉ tiêu, giao nhiệm vụ
+- Số hóa quy trình thiết lập, giao khoán và giám sát kết quả thực hiện các chỉ tiêu thi đua, nhiệm vụ chính trị trong suốt năm học. Biến các chỉ tiêu trên giấy tờ thành các con số định lượng có thể đo lường, giám sát được.
+- Cơ chế giao việc dạng cây (Hierarchical Task Assignment): SuperAdmin khởi tạo một bộ chỉ tiêu gốc (Ví dụ: "Kết nạp Đảng viên mới"). Hệ thống sẽ nhân bản chỉ tiêu này và phân bổ (Broadcast) đồng loạt vào tài khoản của tất cả các Chi bộ cấp dưới.
+- Theo dõi tiến độ thời gian thực: Cung cấp thanh trạng thái (Progress Bar) theo dõi phần trăm hoàn thành chỉ tiêu dựa trên dữ liệu phản hồi (Feedback) từ các Admin Chi bộ. Thuật toán tự động tính toán tổng số chỉ tiêu đã đạt/chưa đạt để đưa ra báo cáo tổng kết thi đua cuối năm một cách khách quan nhất.
+2.6.7. Phân hệ quản lý tài liệu số
+ 
+Hình 2.18. Trang quan lý tài liệu
+Xây dựng một thư viện học liệu và văn bản quy phạm pháp luật tập trung (Centralized Digital Repository). Giải quyết bài toán thất lạc tài liệu truyền thống và tình trạng áp dụng sai biểu mẫu cũ đã hết hiệu lực.
+- Phân loại và lưu trữ cấu trúc: Cho phép đăng tải hàng loạt tài liệu định dạng PDF, DOCX, XLSX. Tệp tin được gán nhãn dán (Tags) và phân loại theo các danh mục như "Nghị quyết", "Quy chế", "Biểu mẫu kết nạp". Mỗi tệp tin được gắn thẻ phân loại (Category) và gán các thuộc tính dung lượng, thời gian khởi tạo nhằm để tối ưu hóa việc quản lý.
+- Cơ chế phân phối tài liệu: Hệ thống cung cấp các giao thức tải xuống (Download) và xem trước (Preview) an toàn. Tích hợp bộ máy tìm kiếm nội bộ theo từ khóa và bộ lọc danh mục, giúp tối ưu hóa thời gian truy xuất tài liệu so với phương pháp lưu trữ truyền thống.
+2.6.8. Phân hệ quản trị giao diện công cộng
+ 
+Hình 2.19. Trang quản lý landing page – sơ đồ tổ chức
+- Thiết lập một hệ thống quản trị nội dung (CMS) tinh gọn, trao quyền cho ban quản trị tự do tùy biến "bộ mặt số" của tổ chức (Trang chủ/Landing Page) mà không cần phải can thiệp trực tiếp vào mã nguồn lập trình.
+- Mô hình hóa cấu trúc tổ chức (Org Chart): Tích hợp công cụ biểu diễn cấu trúc cây phân cấp (Hierarchical Tree), cho phép quản trị viên thiết lập và cập nhật sơ đồ nhân sự, ban ngành một cách trực quan.
+Hình 2.20. Trang quản lý landing page – quy trình công tác Đảng 
+- Đối với mục quy trình công tác Đảng, phân hệ cho phép quản trị viên thực hiện các tác vụ toàn diện (Thêm mới, Cập nhật, Xóa) các bước thủ tục hành chính (ví dụ: Quy trình phát triển Đảng viên mới, Quy trình chuyển sinh hoạt). 
+2.7. HỆ THỐNG BÊN CHI BỘ - ADMIN
+2.7.1. Phân hệ xác thực và kiểm soát truy cập
+ 
+Hình 2.21. Trang đăng nhập của admin
+- Đóng vai trò là bức tường lửa bảo vệ không gian quản lý nội bộ của riêng biệt từng Chi bộ. Đảm bảo rằng Bí thư Chi bộ A không thể xem hay chỉnh sửa thông tin nhân sự của Chi bộ B.
+- Định danh cấp cơ sở: Cùng sử dụng nền tảng JWT và Bcrypt như SuperAdmin, tuy nhiên quá trình xác thực ở cấp Admin bổ sung thêm một lớp kiểm tra đối chiếu (Validation) với trường branch_id (Mã Chi bộ).
+- Ràng buộc luồng dữ liệu (Data Isolation): Toàn bộ các API truy vấn xuất phát từ tài khoản Admin sẽ bị ép buộc nhúng branch_id vào làm tham số lọc bắt buộc. Điều này cấu trúc hóa mô hình Multi-tenant (Đa khách thuê), giúp dữ liệu giữa các Chi bộ hoàn toàn độc lập và bảo mật.
+2.7.2. Phân hệ thống kê chi bộ tập trung
+Hình 2.22. Trang tổng quan hệ thống admin
+- Hỗ trợ chi ủy nắm bắt nhanh cấu trúc tổ chức nội bộ và sức khỏe hoạt động của Chi bộ. Nâng tầm công tác quản lý thông qua cơ chế dự báo và nhắc nhở chủ động.
+- Công cụ cảnh báo sớm (Early Warning Logic): Đây là một bước đột phá trong quản trị. Backend được lập trình một tập luật (Rule-engine) chạy ngầm để quét chéo các bảng dữ liệu. Ví dụ: Thuật toán sẽ lấy (Số tiền quỹ hiện tại / Tổng số Đảng viên) để ra tỷ lệ hoàn thành thu Đảng phí; hoặc tính toán hiệu số giữa Ngày hiện tại và Ngày kết nạp để tìm ra các đồng chí sắp hết thời gian Dự bị 12 tháng, nếu đã đến tháng 11 hệ thống sẽ xuất hiện cảnh báo sẽ được gắn nổi bật trên cùng Dashboard.
+- Kiến trúc thẻ chỉ số (Metric Widgets): Các tham số quan trọng (Tổng số Đảng viên, Đảng viên chính thức/dự bị, Số dư quỹ Chi bộ, Lịch họp sắp tới) được thiết kế dưới dạng các khối thông tin động. Dữ liệu được tính toán thông qua các truy vấn SQL Aggregation phức tạp để đảm bảo độ chính xác tuyệt đối.
+- Trực quan hóa dữ liệu đa chiều (Complex Visualization): Sử dụng thư viện Recharts để xử lý mảng dữ liệu định lượng và kết xuất ra các biểu đồ:
++ Biểu đồ tròn (Donut Chart): Phân tích cơ cấu giới tính và tỷ lệ Đảng viên dự bị/chính thức. 
++ Biểu đồ Bar Chart: Thể hiện phân bố quê quán (địa phương hóa dữ liệu).
++ Phân cụm nhân khẩu học (Age Distribution): Sử dụng thuật toán tính toán tuổi thực từ DB để phân phối Đảng viên vào các dải tần số độ tuổi, giúp đánh giá định  hướng phát triển nhân lực trẻ
+2.7.3.  Phân hệ quản trị hồ sơ đảng viên số
+ 
+Hình 2.23. Trang quản lý thông tin Đảng viên
+- Số hóa vòng đời nhân sự cấp cơ sở. Đây là kho lưu trữ hồ sơ "lý lịch trích ngang" phiên bản điện tử đầy đủ nhất của mỗi Đảng viên.
+- Danh sách chức năng: Thêm mới hồ sơ, cập nhật thông tin lý lịch, bộ lọc tìm kiếm nâng cao, xuất báo cáo danh sách Đảng viên.
+- Quản trị hồ sơ điện tử: Hỗ trợ nhập liệu nhiều trường thông tin chi tiết từ Họ tên, Quê quán, Ngày vào Đảng, Mã số sinh viên,…
+- Khi thêm mới một hồ sơ Đảng viên cũng đồng thời thêm một tài khoản Đảng viên mới được cấp, do trường email là bắt buộc có khi bấm “Lưu hồ sơ”, email này sẽ được dùng làm tài khoản cho Đảng viên mới được thêm vào hồ sơ, sau khi thêm hệ thống sẽ gửi thông tin tài khoản bao gồm “Tên đăng nhập” và “Mật khẩu” về Đảng viên giống như phía superadmin. Tuy nhiên, khác với chức năng thêm tài khoản bên phía superadmin có thêm phân quyền cấp 2 (Admin) và 3(User), ở đây việc thêm một tài khoản mặc định sẽ là quyền cấp 3.
+Hình 2.24. Form thêm hồ sơ Đảng viên có tích hợp AI phân tích và nhập liệu thông minh
+- Công nghệ lõi trí tuệ nhân tạo (NLP AI Data Parsing): Nhằm giải quyết điểm nghẽn về việc nhập liệu thủ công tốn kém thời gian, hệ thống tiên phong ứng dụng công nghệ trích xuất thông tin qua xử lý ngôn ngữ tự nhiên. Giao diện frontend kết nối API tới lõi LLM của Llama 3 (Groq API). Quản trị viên chỉ cần dán một đoạn mô tả thô (Ví dụ: "Đồng chí Nguyễn Xuân Thanh Phong sinh ngày 20/10/2004, quê ở Cần Thơ, học lớp KTPM2211..."). Trí tuệ nhân tạo sẽ thấu hiểu ngữ nghĩa, bóc tách chính xác các thực thể thông tin (Entities Extraction) và tự động lắp ráp (Mapping) chuẩn xác vào các ô trống trên Form, nâng hiệu suất làm việc lên gấp 5 lần so với phương pháp cũ.
+2.7.4. Phân hệ quản trị tài khoản và định danh
+ 
+Hình 2.25. Trang quản lý tài khoản Đảng viên
+- Quản lý quyền truy cập và bảo mật danh tính số cho Đảng viên. Nhiệm vụ chính là đảm bảo mọi cá nhân trong Chi bộ đều có định danh số an toàn và được phân cấp quyền hạn đúng quy định.
+Hình 2.26. Kết quả cấp lại mật khẩu được hiển thị trên hệ thống của admin
+- Quy trình khởi tạo bảo mật (Secure Provisioning): Admin cũng có thể cấp tài khoản cho Đảng viên mới thông qua việc tạo một hồ sơ Đảng viên mới như đã được trình bày ở mục “Phân hệ quản trị hồ sơ đảng viên số”. Tương tự bên phía superadmin thì bên admin hệ thống thay vì cho phép Admin tự đặt mật khẩu (gây mất bảo mật riêng tư), sẽ tự động kích hoạt thuật toán sinh mật khẩu ngẫu nhiên, mật khẩu mới này sẽ được gửi về email cảu người dùng, đồng thời bật một cờ logic buoc_doi_mat_khau = true trong cơ sở dữ liệu.
+- Để đảm bảo tính linh hoạt và tính sẵn sàng cao của hệ thống, quy trình khôi phục mật khẩu được thiết kế theo mô hình Song luồng (Dual-path Recovery). Bao gồm:
++ Luồng tự phục vụ trực tuyến thông qua cổng khôi phục mật khẩu tự động gửi về Email đăng ký.
++ Luồng can thiệp hành chính ngoại tuyến cấp lại bởi Quản trị viên cấp trên (SuperAdmin/Admin) đóng vai trò là phương án dự phòng (Fallback) khi người dùng mất quyền truy cập email hoặc gặp sự cố truyền thông."
+Hình 2.27. Trang bắt buộc thay đỏi mật khẩu cá nhân
+- Chính sách ép buộc khôi phục (Forced Reset): Khi Đảng viên nhận được mật khẩu tạm này để đăng nhập lần đầu tiên, hệ thống Frontend sẽ chặn mọi luồng truy cập. Sau khi nhận được mật khẩu tạm người dùng nhập vào sau đó hiển thị màn hình yêu cầu cá nhân hóa mật khẩu để đảm bảo tính an toàn.
+2.7.5. Hệ thống điểm danh kép thông minh
+Hình 2.28. Trang quản lý sinh hoạt và điểm danh
+- Xóa bỏ hoàn toàn văn hóa điểm danh hộ, điểm danh chéo bằng giấy tờ truyền thống. Đưa kỳ sinh hoạt Đảng vào khuôn khổ kỷ luật công nghệ cực kỳ nghiêm ngặt nhưng thao tác lại rất tiện lợi.
+Hình 2.29. Mã QR điểm danh sinh hoạt
+- Phát hành mã QR động (Dynamic QR code generation): Khi Admin bắt đầu phiên họp, màn hình máy chiếu sẽ hiện một mã QR. Mã này không phải là ảnh tĩnh mà được nhúng một chuỗi định danh duy nhất (UUID v4) kết nối với thời gian thực. Mỗi 100 giây mã sẽ tự động làm mới.
+- Bức tường lửa vị trí địa lý (Haversine Geofencing): Đối với hình thức sinh hoạt trực tiếp, khi thiết bị di động của Đảng viên quét mã QR, ứng dụng yêu cầu quyền truy cập GPS (Geolocation API). Backend sẽ lấy Tọa độ của người quét so khớp với Tọa độ trung tâm của Hội trường do Admin khai báo thông qua phương trình mặt cầu Haversine (tính quãng đường thẳng). Nếu tọa độ vượt quá bán kính quy định (Geofence 50m), dù có mã QR hợp lệ hệ thống vẫn thẳng thừng đánh rớt yêu cầu điểm danh. Còn đối với hình thức sinh hoạt trực tuyến (online) hệ thống sẽ bỏ qua phần kiểm tra về vị trí mà chỉ cần ghi nhận điểm danh khi quét mã QR.
+Hình 2.30. Danh sách ghi nhận kết quả điểm danh sinh hoạt
+Kết quả điểm danh từ phí Đảng viên (User) được ghi nhận bằng lại sau khi người dùng quét mã QR đề điểm danh, ngoài ra để khắc phục tình trạng người dùng bị lỗi hoặc không có mạng truy cập vào hệ thống, thì ở phía chi ủy có thể thực hiện điểm danh cho người Đảng viên gặp tình trạng trên. Đối với những tài khoản không thực hiện điểm danh sau khi kết thúc thời gian họp hệ thống sẽ tự động cập nhật trạng thái tài khoản Đảng viên đó là “Vắng họp”.
+2.7.6. Phân hệ quản trị tài chính
+Hình 2..31. Trang quản lý thu Đảng phí
+- Đảm bảo công khai, minh bạch tuyệt đối trong công tác quản lý tài chính thu nộp Đảng phí của đơn vị, xóa bỏ sổ sách đối soát thủ công phức tạp.
+- Bảng theo dõi thu phí ma trận (Matrix Tracking Table): Trực quan hóa danh sách nộp quỹ Đảng của từng Đảng viên theo 12 tháng trong năm. Trạng thái Đã nộp/Chưa nộp được cập nhật bằng giao diện Toggle Switch tiện lợi.
+Hình 2.32. Trang quản lý chi tiêu Đảng phí
+- Sổ nhật ký giao dịch (Transaction Ledger): Ghi nhận mọi biến động dòng tiền Thu-Chi nội bộ. Mọi thao tác đều được đóng dấu thời gian (Timestamp) và định danh người thực hiện nhằm phục vụ mục đích kiểm toán chéo về sau. Lưu vết toàn bộ lịch sử giao dịch Thu/Chi với các trường thông tin: Nội dung, Số tiền, Ngày thực hiện. Dữ liệu này được sử dụng để tái cấu trúc chỉ số "Tổng quỹ Chi bộ" hiển thị trên Dashboard.
+2.7.7. Phân hệ quản trị biểu mẫu nội bộ
+ 
+Hình 2.33. Trang quản lý biểu mẫu nội bộ
+- Xây dựng kho lưu trữ tài liệu và biểu mẫu chuẩn hóa, giúp Đảng viên dễ dàng tiếp cận các quy trình thủ tục hành chính Đảng mà không cần qua các bước trung gian thủ công.
+- Kiến trúc quản trị Tệp tin (File Management): Tích hợp với Google Drive API để lưu trữ các tệp tin biểu mẫu (.doc, .pdf). Khi Admin tải lên một biểu mẫu, hệ thống sẽ tự động ánh xạ ma_file_drive vào cơ sở dữ liệu, đảm bảo tính sẵn sàng cao và tốc độ tải xuống tối ưu.
+- Phân quyền quản trị (Admin Ownership): Chỉ những người dùng có thẩm quyền (Admin Chi bộ) mới được quyền quản lý (Thêm/Xóa) kho biểu mẫu của đơn vị, đảm bảo tính chính thống của tài liệu.
+- Danh sách chức năng: Tải lên biểu mẫu mới, Quản lý kho tài liệu nội bộ, Xóa/Cập nhật biểu mẫu hết hiệu lực. 
+2.7.8. Phân hệ thư viện ảnh và video chi bộ 
+Hình 2.34. Trang quản lý và lưu trữ ảnh chi bộ
+- Lưu trữ tư liệu truyền thống, ghi lại hình ảnh của những buổi sinh, hoạt động tình nguyện,… video hoạt động của Chi bộ, giúp xây dựng cơ sở dữ liệu truyền thống và tư liệu sinh hoạt trực quan dưới dạng kho lưu trữ đa phương tiện.
+- Cơ chế Rẽ nhánh Media (Branching Logic): Hệ thống phân tách rõ ràng luồng xử lý: Đối với hình ảnh (IMAGE), dữ liệu được đẩy lên Cloud Storage; Đối với video (VIDEO), hệ thống lưu trữ liên kết nhúng (YouTube URL) để tiết kiệm tài nguyên băng thông và máy chủ.
+Hình 2.35. Trang quản lý thư viện video
+- Media Proxying (Hiển thị qua Proxy): Sử dụng cơ chế Proxy URL để hiển thị hình ảnh từ Drive lên giao diện Web một cách mượt mà, vượt qua các rào cản về bảo mật liên kết trực tiếp của nhà cung cấp Cloud.
+- Danh sách chức năng: Tải lên ảnh hoạt động, Nhúng video sự kiện, Quản lý kho tư liệu hình ảnh đa phương tiện.
+2.7.9. Quản lý hoạt động và số hóa minh chứng
+ 
+Hình 2.36. Trang quản lý hoạt động chi bộ
+- Quy trình hóa việc đăng ký và ghi nhận thành tích hoạt động ngoại khóa thông qua việc số hóa các tài liệu minh chứng thực tế. Từ đó đánh giá mức độ tích cực tham gia phong trào thi đua của Đảng viên thông qua hệ thống phân tích hình ảnh minh chứng.
+- Tích hợp Cloud Storage API: Hệ thống kết nối trực tiếp với dịch vụ Google Drive API để lưu trữ và quản lý tệp tin. Giải pháp này giúp giảm tải băng thông server và đảm bảo tính bền vững, truy xuất nhanh cho các tệp tin hình ảnh dung lượng lớn.
+- Hệ thống hậu kiểm minh chứng (Evidence Workflow): Quản lý trạng thái phê duyệt minh chứng tham gia hoạt động do Đảng viên nộp (Chờ duyệt, Đồng ý, Từ chối). Admin có thể phóng to tài liệu ảnh để xác nhận bằng mắt thường.
+- Hệ thống phát hiện gian lận hình ảnh (Anti-Fraud EXIF Parser): Tránh trường hợp Đảng viên lười biếng lấy lại một tấm ảnh chụp từ năm ngoái nộp làm minh chứng cho sự kiện năm nay. Khi tệp hình ảnh được tải lên, thư viện lõi exif-parser ở Backend sẽ bóc tách sâu vào tập tin byte nhị phân của bức ảnh, lôi ra thông số ẩn DateTimeOriginal (Dấu ấn thời gian phần cứng camera lưu lại khi ấn nút chụp). Bằng cách đối chiếu thời gian chụp gốc này với mốc thời gian diễn ra sự kiện, thuật toán phát hiện gian lận lập tức từ chối tự động các hồ sơ tái sử dụng dữ liệu cũ, thắt chặt sự công bằng tuyệt đối.
+2.7.10. Phân hệ điều hành chỉ tiêu công tác
+ 
+Hình 2.37. Trang quản lý và nhận chỉ tiêu, nhiệm vụ từ superadmin
+- Phân rã và theo dõi việc thực hiện các chỉ tiêu mà Đảng ủy cấp trên giao phó, đảm bảo tính kỷ cương và tiến độ thực hiện nhiệm vụ. Admin Chi bộ tiếp nhận bộ chỉ tiêu, báo cáo tiến độ theo tỷ lệ phần trăm (%), kèm theo chức năng đính kèm tệp tin nghị quyết kết quả lên hệ thống để SuperAdmin dễ dàng rà soát và ghi nhận thành tích.
+- Cơ chế theo dõi định lượng (Quantitative Tracking): Hệ thống cho phép cập nhật số liệu thực tế so với chỉ tiêu kế hoạch. Logic Backend tự động tính toán tỷ lệ hoàn thành để hiển thị cảnh báo trạng thái tương ứng.
+- Tính năng đính kèm minh chứng: Hỗ trợ lưu trữ đường dẫn báo cáo hoặc bằng chứng số hóa cho từng chỉ tiêu, giúp quá trình nghiệm thu cuối kỳ trở nên minh bạch và dễ dàng.
+- Danh sách chức năng: Xem danh sách chỉ tiêu được giao, Cập nhật tiến độ số liệu, Đính kèm minh chứng thực hiện, Theo dõi trạng thái hoàn thành.
+2.7.11. Trung tâm thông báo tập trung
+Hình 2.38. Khung thông báo của admin
+- Đảm bảo luồng thông tin chỉ đạo truyền đạt đồng bộ và tức thời đến từng Đảng viên, đồng thời tự động nhắc nhở các nghĩa vụ định kỳ. 
+- Hệ thống thông báo về những chỉ tiêu, văn kiện,.. vừa được phía Đảng ủy trường gửi về hoặc các chỉnh sửa hay thay đổi về kế hoạch,...
+- Quản lý trạng thái tương tác: Sử dụng cơ chế đánh dấu Đã đọc/Chưa đọc (Read/Unread status) toàn phần, hỗ trợ tính năng "Đọc tất cả" để tối ưu hóa trải nghiệm người dùng Admin trong việc quản lý lượng tin nhắn lớn. 
+- Danh sách chức năng: Quản lý trung tâm thông báo, Nhận thông báo từ Đảng ủy trường, Gửi thông báo đến Đảng viên.
+2.8. HỆ THỐNG BÊN ĐẢNG VIÊN – USER
+2.8.1. Trang giới thiệu công khai
+Hình 2.39. Trang landingpage
+- Thiết lập giao diện tiếp cận đầu tiên cho người dùng vãng lai và Đảng viên, cung cấp cái nhìn tổng quan về cơ cấu tổ chức và các quy trình công tác Đảng. Trang này đóng vai trò là "Cổng thông tin đại chúng", số hóa việc công khai sơ đồ tổ chức và hướng dẫn nghiệp vụ một cách trực quan, minh bạch.
+- Trực quan hóa cơ cấu tổ chức (Organizational Visualization): Sử dụng các thành phần giao diện (Card) kết hợp với ảnh đại diện (Avatar) để hiển thị lớp dữ liệu về nhân sự quản trị. Các thông tin được truy xuất động qua Public API, đảm bảo tính cập nhật theo thời gian thực khi có sự thay đổi về nhân sự cấp cao.
+- Số hóa quy trình nghiệp vụ (Process Digitization): Tích hợp danh sách các quy trình công tác chuyên môn theo dạng danh sách tương tác. Mỗi quy trình được liên kết trực tiếp với dữ liệu tệp tin (Sơ đồ/Văn bản hướng dẫn) lưu trữ trên Cloud thông qua ID thư mục, cho phép người dùng truy cập nhanh mà không cần thao tác đăng nhập.
+- Kiến trúc động lực học Frontend (UI/UX Motion): Áp dụng thư viện Framer Motion để tạo các hiệu ứng chuyển động mượt mà (Fade-in, Scroll reveal), giúp tăng tính thẩm mỹ và tính hiện đại cho nền tảng.
+2.8.2. Chức năng đăng nhập
+Hình 2.40. Trang đăng nhập của user
+- Cung cấp giải pháp xác thực tập trung và điều hướng đa phân hệ. Phân hệ không chỉ xử lý truy cập cho Đảng viên mà còn đóng vai trò là trung tâm luân chuyển người dùng (Gateway) đến các không gian quản trị tương ứng (Admin Chi bộ, SuperAdmin Đảng bộ).
+- Cơ chế xác thực và phân quyền (Authentication & Authorization): Sử dụng giao thức xác thực JSON Web Token (JWT). Sau khi xác minh danh tính thành công, hệ thống lưu trữ trạng thái người dùng tại LocalStorage, cho phép duy trì phiên làm việc một cách bảo mật.
+- Kiến trúc cổng điều hướng (Navigation Portal): Tích hợp các nút điều hướng liên kết chéo (Cross-link buttons) giữa các hệ sinh thái ứng dụng. Điều này cho phép quản trị viên chuyển đổi nhanh chóng giữa cổng Đảng bộ và cổng Chi bộ mà không cần ghi nhớ nhiều địa chỉ định tuyến (URL) khác nhau.
+- Xử lý ngoại lệ và phản hồi (Exception Handling): Tích hợp các bộ lọc lỗi Axios để bóc tách và trả về thông báo cụ thể từ Backend (Sai tài khoản, Mật khẩu không đúng, Server bảo trì), giúp tối ưu hóa luồng tương tác và trải nghiệm của người dùng.
+Hình 2.41. Form khôi phục mật khẩu tự động
+- Xác thực JWT an toàn: Cơ chế băm mật khẩu bảo vệ tuyệt đối chuỗi định danh của người dùng.
+- Tự động hóa Khôi phục Mật khẩu (Automated Password Recovery): Quy trình xử lý lỗi "Quên mật khẩu" của người dùng. Khi User cung cấp Email hợp lệ, hệ thống Backend sẽ tạo lập thuật toán sinh chuỗi kỹ tự Password ngẫu nhiên cực mạnh. Chuỗi này được mã hóa, đẩy vào cơ sở dữ liệu và kích hoạt cờ buoc_doi_mat_khau. Ngay sau đó, thư viện Nodemailer được lệnh khởi tạo kết nối SMTP Server, tự động soạn thảo thư điện tử và phát hành email mật khẩu mới cấp tốc gửi đến hộp thư người dùng, thiết lập một quy trình Dịch vụ Tự phục vụ (Self-service) khép kín. Sau khi nhập mật khẩu tạm thời được hệ thống cấp từ email, người dùng cũng sẽ được chuyển đến trang bắt buộc đổi mật khẩu lại để đảm bảo tính an toàn như đã được trình bày ở mục “Phân hệ quản trị tài khoản và định danh” phía admin.
+2.8.3. Trang chủ và hệ thống tin tức
+Hình 2.42. Trang chủ - trang tin tin tức
+- Là trung tâm tiếp nhận thông tin hàng ngày của Đảng viên. Phân hệ tổng hợp các tin tức nổi bật, sự kiện sắp diễn ra và các chỉ đạo mới nhất từ cấp ủy thông qua các công cụ trực quan hóa hiện đại.
+- Hệ thống trình chiếu động (Dynamic Carousel): Sử dụng linh kiện Carousel của thư viện Ant Design để trình chiếu các biểu ngữ, tin tức tiêu điểm. Hình ảnh được xử lý qua hàm định tuyến (getImageUrl) để tương thích với nhiều nguồn lưu trữ phân tán (Local, Google Drive Proxy).
+- Phân cụm dữ liệu bản tin (News Summarization): Danh sách bản tin được hiển thị theo kiến trúc "Ảnh thu nhỏ - Tiêu đề - Tóm tắt" (Thumbnail - Title - Summary). Hệ thống hỗ trợ xem chi tiết qua cửa sổ Modal, giúp giữ chân người dùng ở lại trang chủ mà vẫn tiếp cận được đầy đủ khối lượng nội dung văn bản.
+-  Đồng bộ hóa thời gian (Time-stamp Synchronization): Tích hợp thư viện Dayjs để chuẩn hóa định dạng thời gian hiển thị (Giờ, phút, ngày, tháng, năm) theo đúng quy chuẩn báo cáo hành chính Việt Nam.
+2.8.4. Trang hồ sơ đảng viên và quản trị định danh
+ 
+Hình 2.43. Trang hồ sơ của Đảng viên
+- Cho phép Đảng viên tự quản lý và cập nhật thông tin cá nhân trong phạm vi thẩm quyền. Đây là cơ sở dữ liệu đầu vào quan trọng giúp hệ thống tự động hóa quá trình kết xuất các báo cáo thống kê nhân sự.
+- Kiến trúc phân tách dữ liệu (Data Separation Layout): Giao diện được chia thành 2 cột chức năng tối ưu:
++ Cột Truyền thông: Chuyên trách hiển thị và xử lý cập nhật ảnh định danh (Avatar) thông qua Google Drive API.
++ Cột Thông tin: Sử dụng cấu trúc biểu mẫu (Ant Design Form) để quản lý các trường dữ liệu, phân tách rõ ràng giữa thông tin nội bộ (Chỉ đọc) và thông tin cá nhân (Có thể chỉnh sửa).
++ Cơ chế kiểm soát dữ liệu đầu vào (Form Validation): Thiết lập các tập luật (Rules) nhằm kiểm tra định dạng email, số điện thoại, định dạng ngày tháng và giới hạn ký tự căn cước công dân (CCCD), qua đó đảm bảo tính chuẩn xác và toàn vẹn của cơ sở dữ liệu PostgreSQL.
+2.8.5. Trang tổng quan và thống kê cá nhân
+ 
+Hình 2.44. Trang tổng quan về Đảng viên
+- Giao diện Trang Tổng quan Cá nhân của Đảng viên được thiết kế theo nguyên lý Tập trung hóa dữ liệu (Data Aggregation) nhằm tối ưu hóa trải nghiệm người dùng (UX). Hệ thống tổng hợp các luồng dữ liệu nghiệp vụ quan trọng nhất của một Đảng viên và hiển thị trực quan thông qua ba phân vùng thẻ (Card Components) độc lập trên cùng một màn hình thời gian thực:
+- Phân hệ Hồ sơ Đảng viên (Profile Card): Quản lý và hiển thị toàn bộ hồ sơ định danh của Đảng viên bao gồm: Họ và tên, mã số sinh viên, lớp, ngành học, chức vụ Đảng, đơn vị Chi bộ trực thuộc, ngày kết nạp và ngày chuyển chính thức. Trạng thái sinh hoạt Đảng được trực quan hóa thông qua nhãn chuyên biệt.
+- Phân hệ Lịch sinh hoạt (Meeting Schedule Card): Kết nối trực tiếp với cơ sở dữ liệu lịch họp của Chi bộ. Thẻ hiển thị rõ ràng thông tin về cuộc họp định kỳ gần nhất (tên cuộc họp, khung giờ diễn ra, hình thức họp trực tiếp, địa điểm phòng họp).
+- Phân hệ Trạng thái Đảng phí (Membership Fee Card): Minh bạch hóa nghĩa vụ tài chính của Đảng viên. Hệ thống tự động tính toán mức đóng đảng phí hàng tháng dựa trên cấu hình đối tượng, đồng thời cung cấp nút liên kết chuyển hướng nhanh giúp Đảng viên tra cứu lịch sử và tiến trình đóng đảng phí qua các kỳ sinh hoạt.
+Hình 2.45. Kết quả điểm danh mã QR thành công
+Quy trình điểm danh được kiểm soát chặt chẽ thông qua sự phối hợp giữa hai lớp bảo mật: Lớp xác thực định vị vị trí (sử dụng Thuật toán Haversine để tính toán khoảng cách GPS trong bán kính cho phép dưới 50m) và Lớp xác thực thời gian thực (quét mã QR động tích hợp mã hóa UUID biến đổi liên tục). Tuy nhiên việc rà soát về vị trí chỉ áp dụng đối với các buổi sinh hoạt trực tiếp (offline) còn đối với hình thực trực tuyến (online) thì quy trình điểm đanh bỏ qua bước xác thực trên.
+Khi Đảng viên thực hiện quét mã QR động thông qua camera thiết bị cầm tay, hệ thống sẽ gửi gói tin chứa tọa độ và mã định danh buổi họp về Server. Khi Backend xác thực các điều kiện đều thỏa mãn, giao diện người dùng sẽ ngay lập tức kích hoạt phản hồi và trả về kết quả.
+2.8.6. Phân hệ quản lý hoạt động và sự kiện
+ 
+Hình 2.46. Trang tham gia hoạt động
+- Số hóa toàn diện công tác quản lý phong trào: Thay thế hoàn toàn quy trình đăng ký thủ công qua biểu mẫu giấy hoặc các bảng tính Excel rời rạc, tránh thất lạc thông tin đăng ký của Đảng viên.
+- Quản lý minh chứng số tập trung (Digital Evidence Management): Cung cấp giải pháp cho phép Đảng viên tự tải lên và quản lý các minh chứng số (hình ảnh chụp thực tế, chứng nhận điện tử) trực tiếp trên hệ thống, liên kết chặt chẽ với cơ sở dữ liệu hoạt động.
+- Đảm bảo tính công bằng và chống gian lận thành tích: Kết hợp chặt chẽ với công nghệ phân tích siêu dữ liệu hình ảnh (EXIF Metadata Parser) phía Backend để tự động kiểm tra thời gian chụp ảnh thực tế của minh chứng, ngăn chặn việc sử dụng lại ảnh cũ hoặc ảnh giả mạo.
+- Tối ưu hóa nguồn lực tổ chức: Giúp Chi bộ nắm bắt kịp thời số lượng Đảng viên đăng ký tham gia theo thời gian thực để chuẩn bị cơ sở vật chất, hậu cần chu đáo cho từng sự kiện.
+2.8.7. Kho tài liệu và ngân hàng biểu mẫu điện tử
+Hình 2. 47. Kho tài liệu về biểu mẫu chi bộ
+- Xây dựng thư viện tài nguyên số tập trung, hỗ trợ Đảng viên tra cứu nhanh văn bản pháp lý, hướng dẫn nghiệp vụ và các biểu mẫu. Phân hệ giúp chuẩn hóa hệ thống văn bản, tránh tình trạng sử dụng sai mẫu hoặc tài liệu hết hiệu lực và giải quyết tình trạng lúng túng của Đảng viên sinh viên khi tìm kiếm các mẫu giấy tờ thủ tục hành chính, nghị quyết.
+- Kiến trúc phân cấp tài nguyên (Tiered Resource Architecture): Tài liệu được phân loại theo hai cấp độ: Cổng văn bản cấp Trường (SuperAdmin quản trị) và Kho biểu mẫu cấp Chi bộ (Admin Chi bộ quản trị). Sự phân cấp này được thực thi thông qua tham số lọc party_cell_id tại tầng truy vấn cơ sở dữ liệu.
+Hình 2.48. Trang kho tài liệu và biểu mẫu
+Hệ thống tương tác tệp tin (File Interaction): Tích hợp khả năng xem trực tuyến và tải xuống trực tiếp từ hệ sinh thái Google Drive. Cơ chế Proxy URL được sử dụng để vượt qua các rào cản truy cập từ trình duyệt (CORS) và bảo mật danh tính nguồn lưu trữ gốc.
+2.8.8. Thư viện tư liệu và hình ảnh
+ 
+Hình 2.49. Trang thư viện ảnh
+- Lưu trữ và tái hiện khoảnh khắc sinh hoạt của Chi bộ, phục vụ công tác tuyên truyền. Phân hệ đóng vai trò là một kho lưu trữ đa phương tiện sinh động, tăng cường tinh thần gắn kết trong tổ chức.
+- Kiến trúc lưới hiển thị (Responsive Grid Gallery): Hình ảnh được sắp xếp theo bố cục lưới linh hoạt, tự động tinh chỉnh theo kích thước màn hình (Desktop, Tablet, Mobile). Thuật toán Lazy Loading được áp dụng để tối ưu hóa hiệu suất, chỉ tải dữ liệu ảnh khi khung nhìn (Viewport) cuộn tới vị trí tương ứng.
+Hình 2.50. Trang thư viện hình video
+- Trình xem ảnh tiêu điểm (Image Focus View): Tích hợp bộ thư viện giao diện cho phép phóng to ảnh ở chế độ toàn màn hình (Full-screen Lightbox), hỗ trợ quan sát chi tiết tư liệu mà không làm mất ngữ cảnh trang hiện tại.
+- Nhằm nâng cao hiệu quả công tác tuyên truyền giáo dục chính trị, phổ biến Nghị quyết và truyền thông các hoạt động lớn của Đảng bộ, hệ thống tích hợp phân hệ Thư viện Video trực quan.
+- Về mặt giải pháp kỹ thuật, thay vì lưu trữ trực tiếp các tệp tin video dung lượng lớn trên máy chủ (gây tốn kém chi phí lưu trữ và nghẽn băng thông truyền tải), hệ thống áp dụng phương thức Nhúng luồng phát trực tiếp (Embedded Integration) thông qua YouTube iframe Player API.
+- Các video được tổ chức dưới dạng danh sách thẻ (Grid Layout) khoa học, hiển thị đầy đủ hình thu nhỏ (Thumbnail), tiêu đề và mô tả ngắn. Giải pháp này giúp tối ưu hóa 100% dung lượng lưu trữ của hệ thống, tận dụng công nghệ truyền tải thích ứng (Adaptive Streaming) của YouTube để đảm bảo tốc độ tải trang nhanh và trải nghiệm xem video độ phân giải cao mượt mà trên mọi thiết bị của Đảng viên.
+2.8.9. Cổng tra cứu nghiệp vụ Đảng
+- Cung cấp công cụ tra cứu thông minh liên quan đến quy định và văn bản quy phạm nghiệp vụ Đảng. Phân hệ giúp Đảng viên chủ động tìm kiếm câu trả lời, giảm tải công tác giải đáp thắc mắc cho Ban cán sự Chi bộ. 
+Hình 2.51. Trang tra cứu lịch sử đóng Đảng phí
+- Nâng cao tinh thần tự giác, ý thức trách nhiệm của Đảng viên đối với các buổi sinh hoạt tập thể; đồng thời cung cấp bằng chứng dữ liệu số hóa xác thực giúp Ban Chi ủy thực hiện đánh giá xếp loại Đảng viên cuối năm một cách công tâm, khách quan và khoa học.
+- Thực hiện nghĩa vụ đóng Đảng phí hàng tháng là trách nhiệm bắt buộc của mỗi Đảng viên. Phân hệ Tra cứu Lịch sử đóng Đảng phí được thiết kế nhằm mục đích minh bạch hóa dòng tài chính và hỗ trợ Đảng viên tự kiểm tra, đối soát trạng thái đóng phí cá nhân mà không cần thông qua thủ quỹ Chi bộ.
++ Cơ chế hoạt động: Hệ thống liên kết dữ liệu thời gian thực (Real-time data queries) với bảng quản lý tài chính phía Backend. Khi Đảng viên truy cập, hệ thống tự động lọc và hiển thị danh sách các kỳ đóng phí của cá nhân dựa trên mã định danh Đảng viên (ma_dang_vien).
++ Giao diện hiển thị: Dữ liệu được cấu trúc hóa dưới dạng bảng (Table Layout) trực quan, hiển thị đầy đủ các trường thông tin
+Hình 2.52. Trang tra cứu lịch sinh hoạt
+- Tần suất tham gia sinh hoạt Đảng định kỳ là một trong những chỉ số cốt lõi để xếp loại mức độ hoàn thành nhiệm vụ của Đảng viên vào cuối năm. Phân hệ Lịch sử tham gia Sinh hoạt hỗ trợ Đảng viên theo dõi chi tiết quá trình hiện diện vật lý hoặc trực tuyến của mình tại tất cả các buổi họp Chi bộ.
+- Cơ chế liên kết cơ sở dữ liệu: Phân hệ thực hiện các câu lệnh truy vấn phức tạp (SQL JOIN) liên kết giữa bảng điểm danh (diemdanh) và bảng thông tin lịch họp (lichsinhhoat) dựa trên mã số Đảng viên đăng nhập.
+2.8.10. Trợ lý AI chi bộ (chatbot)
+Hình 2.53. Giao diện Chatbot AI Trợ lý Chi bộ
+- Trợ lý ảo được phát triển nhằm tự động hóa công tác hỗ trợ Đảng viên trong việc tra cứu thông tin nghiệp vụ Đảng, cơ cấu tổ chức và các quy trình công tác hành chính. Tính năng này giúp Đảng viên nhanh chóng tiếp cận nguồn thông tin chính thống, giảm thiểu tối đa thời gian giải đáp các thắc mắc phổ biến của Ban Chi ủy và nâng cao hiệu quả tương tác trực tuyến trong Chi bộ.
+- Nguồn dữ liệu và cơ chế hoạt động: Để đảm bảo tính chính xác và tin cậy của thông tin phản hồi, trợ lý ảo không tự sinh câu trả lời dựa trên kiến thức chung mà được liên kết trực tiếp với cơ sở dữ liệu PostgreSQL của hệ thống. Khi nhận được yêu cầu từ Đảng viên, hệ thống sẽ tự động thực hiện các câu lệnh truy vấn dữ liệu thực tế theo thời gian thực từ các bảng lưu trữ, bao gồm:
++ Thông tin liên hệ và chức vụ của các đồng chí trong Ban Chi ủy thuộc Chi bộ trực thuộc của Đảng viên đang thực hiện câu hỏi (truy xuất từ bảng dangvien).
++ Các tài liệu hướng dẫn và quy trình công tác Đảng đang được ban hành (truy xuất từ bảng quytrinhdang).
+- Toàn bộ dữ liệu thực tế thu thập được từ cơ sở dữ liệu sẽ được chuyển tiếp vào mô hình ngôn ngữ lớn Llama 3.3 thông qua cổng kết nối Groq API. Mô hình sẽ xử lý ngữ cảnh và đưa ra câu trả lời chuẩn xác nhất cho Đảng viên. Trong trường hợp cơ sở dữ liệu hệ thống chưa cập nhật thông tin được yêu cầu, trợ lý ảo sẽ phản hồi trung thực và hướng dẫn Đảng viên liên hệ trực tiếp với người quản lý, đảm bảo tuyệt đối không xảy ra tình trạng cung cấp sai thông tin hoặc dữ liệu không có thực.
+CHƯƠNG 3: KẾT QUẢ VÀ THẢO LUẬN
+3.1. KẾT QUẢ ĐẠT ĐƯỢC 
+- Trong quá trình triển khai và hoàn thiện, đề tài đã đáp ứng các mục tiêu nghiên cứu cụ thể như sau:
+- Xây dựng thành công kiến trúc phần mềm đa phân quyền (Multi-Actor Architecture): Hệ thống được triển khai với 3 phân hệ độc lập tương ứng với 3 nhóm người dùng: SuperAdmin (cấp quản trị cao nhất/Đảng ủy), Admin (cấp Chi ủy/Bí thư chi bộ), và User (Đảng viên). Kiến trúc này giúp chuyên môn hóa luồng nghiệp vụ, phân tách dữ liệu và đảm bảo an toàn thông tin.
+- Số hóa toàn diện dữ liệu nhân sự và tổ chức: Ứng dụng hệ quản trị cơ sở dữ liệu quan hệ (PostgreSQL), hệ thống đã đồng bộ hóa việc lưu trữ hồ sơ cá nhân, sơ đồ tổ chức và tiến trình kết nạp. Qua đó, tối ưu hóa quy trình lưu trữ, đảm bảo tính minh bạch và giảm thiểu các rủi ro từ phương pháp quản lý hồ sơ vật lý.
+- Tự động hóa công tác tổ chức sinh hoạt: Phân hệ quản lý lịch sinh hoạt và điểm danh đã được vận hành, hỗ trợ khởi tạo phiên họp, quản lý tài liệu đính kèm và thống kê tỷ lệ chuyên cần theo thời gian thực.
+- Quản lý tài chính và thành tích hoạt động: Cung cấp bộ công cụ quản lý thu chi và đóng Đảng phí. Đồng thời, phân hệ quản lý hoạt động cho phép Đảng viên tải lên minh chứng điện tử, hỗ trợ Ban chi ủy đánh giá và xét chuẩn một cách khách quan, công bằng.
+3.2. THẢO LUẬN VÀ NHẬN XÉT KẾT QUẢ 
+- So với phương pháp quản lý truyền thống và việc ứng dụng các phần mềm bảng tính cơ bản, giải pháp "Hệ thống quản lý chi bộ" mang lại những cải tiến rõ rệt về tính đồng bộ và bảo mật dữ liệu.
+- Tính ưu việt: Việc kết hợp hệ quản trị cơ sở dữ liệu quan hệ với kiến trúc dịch vụ phân cấp giúp khắc phục triệt để tình trạng phân mảnh thông tin, đồng thời duy trì khả năng giám sát toàn diện từ cấp quản lý cao nhất.
+- Cơ sở kỹ thuật: Kết quả này đạt được nhờ việc ứng dụng hiệu quả nền tảng ReactJS ở lớp giao diện (Frontend) và môi trường thực thi NodeJS ở lớp xử lý logic (Backend). Giải pháp đảm bảo trải nghiệm người dùng thân thiện, trực quan, đồng thời duy trì hiệu suất phản hồi cao và độ trễ thấp.
+KẾT LUẬN VÀ KIẾN NGHỊ
+1. Kết luận 
+Nghiên cứu đã hoàn thành các mục tiêu đề ra trong việc phân tích, thiết kế và phát triển "Hệ thống quản lý chi bộ". Đóng góp cốt lõi của đề tài là việc xây dựng một hệ sinh thái chuyển đổi số chuyên biệt cho nghiệp vụ Đảng vụ, với kiến trúc phân tầng minh bạch và tuân thủ các nguyên tắc bảo mật. Sản phẩm nghiên cứu có tính ứng dụng thực tiễn cao, giao diện tối ưu và sẵn sàng phục vụ triển khai. Giải pháp kỳ vọng sẽ đóng góp tích cực vào tiến trình chuyển đổi số tại các cơ quan quản lý và cơ sở giáo dục đại học.
+2. Kiến nghị 
+- Dựa trên các kết quả đạt được, nhóm nghiên cứu sẽ đề xuất một số định hướng như sau:
+- Khả năng ứng dụng thực tiễn: Khuyến nghị triển khai thử nghiệm nghiệm thu (Beta testing) tại một số Chi bộ cơ sở trong nhà trường. Các phản hồi từ thực tiễn vận hành của Chi ủy và Đảng viên sẽ là cơ sở để tinh chỉnh và tối ưu hóa hệ thống trước khi nhân rộng quy mô triển khai toàn trường.
+- Hướng nghiên cứu mở rộng:
++ Nghiên cứu tích hợp các mô hình Trí tuệ nhân tạo (AI) và Nhận dạng ký tự quang học (OCR) nhằm tự động hóa quá trình trích xuất và kiểm duyệt hình ảnh minh chứng, giảm tải khối lượng công việc cho Ban chi ủy.
++ Ứng dụng Chữ ký số (Digital Signature) vào quy trình phê duyệt văn bản, biên bản nhằm số hóa toàn diện và đảm bảo giá trị pháp lý cho hồ sơ điện tử.
++ Phát triển các ứng dụng đa nền tảng (Mobile App trên iOS/Android) tích hợp cơ chế thông báo đẩy (Push Notifications) để tối ưu hóa khả năng tiếp cận thông tin của Đảng viên.
+- Về cơ sở hạ tầng và chính sách: Đề xuất cấp phát máy chủ nội bộ (On-premises Server) được trang bị hệ thống tường lửa (Firewall) bảo mật, hoặc thuê bao máy chủ chuyên dụng nhằm tuân thủ các tiêu chuẩn an toàn thông tin khắt khe đối với dữ liệu tổ chức Đảng.
+TÀI LIỆU THAM KHẢO
+[1] 
+S. Springer, Node.js: The Comprehensive Guide: Build and Deploy Scalable Web Applications, Boston: Rheinwerk Computing, 2024. 
+[2] 
+R. T. Fielding, "Architectural Styles and the Design of Network-based Software Architectures," in Doctoral dissertation, University of California, Irvine, 2000, pp. 1-162.
+[3] 
+J. Duckett, HTML and CSS: Design and Build Websites, Indianapolis: John Wiley & Sons, 2011, p. 126 – 144.
+[4] 
+J. Duckett, HTML and CSS: Design and Build Websites, Indianapolis: John Wiley & Sons, 2011, p. 176 – 450.
+[5] 
+J. Duckett, JavaScript and JQuery: Interactive Front-End Web Development, Indianapolis: John Wiley & Sons, 2014, p. 20 – 90.
+[6] 
+. M. Jones, J. Bradley and N. Sakimura, JSON Web Token (JWT) - RFC 7519, Internet Engineering Task Force (IETF), 2015. 
+[7] 
+B. Momjian, "PostgreSQL: Yesterday, Today, and Tomorrow," Linux Journal, 2019-2021. 
+[8] 
+E. Brown, Web Development with Node and Express: Leveraging the JavaScript Stack, Sebastopol, CA: O'Reilly Media, 2019 (Bản 2nd Edition), p. 25 – 60.
+[9] 
+R. Miles and . K. Hamilton, Learning UML 2.0, O'Reilly Media, 2006. 
+[10] 
+P. Bell and B. Beer, Introducing GitHub: A Non-Technical Guide, O'Reilly Media, 2014. 
+[11] 
+S. Chacon and . B. Straub, Pro Git, New York: Apress, 2014 (Bản 2nd Edition), p. 15 – 50.
+[12] 
+S. Gowtham, Full-Stack Web Development with Supabase: Build scalable and secure applications with ease, Birmingham: Packt Publishing, 2023, p. 15 – 45.
+[13] 
+. A. Banks and E. Porcello, Learning React: Modern Patterns for Developing React Apps, Sebastopol: O'Reilly Media, 2020 (Bản 2nd Edition). 
+[14] 
+A. DelSole, Visual Studio Code Distilled: Evolved Code Editing for Windows, macOS, and Linux, New York,: Apress, 2019, p. 1 – 25.
+[15] 
+G. Developers, "Google Drive API Overview," Google LLC, 2024.
+[16] 
+J. Richer and A. Sanso, OAuth 2 in Action, Manning Publications, 2017, p. 20 – 45.
+[17] 
+R. Camacho and J. Roldan, Jamstack Modern Web Development: Build faster, more secure, and scalable websites, Birmingham: Packt Publishing, 2022. 
+[18] 
+J. Bruno, Node.js Microservices: Deploying Applications to the Cloud, Birmingham: Packt Publishing, 2022, p. 80 – 110.
+[19] 
+S. Sebastian, Node.js: The Comprehensive Guide: Build and Deploy Scalable Web Applications, Boston: Rheinwerk Computing, 2024. 

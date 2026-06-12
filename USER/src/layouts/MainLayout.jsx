@@ -24,8 +24,6 @@ import dayjs from 'dayjs'; // [NEW] DayJS format
 
 // 👇 THAY THẾ LINK NGOÀI BẰNG IMPORT FILE LOCAL (Vite sẽ xử lý)
 // ❗ Đảm bảo 2 file này nằm trong thư mục src/assets
-import QuocKyImg from '../assets/co-to-quoc.png'; 
-import DangKyImg from '../assets/co-dang.png'; 
 
 
 import NotificationPopover from '../components/Header/NotificationPopover';
@@ -100,22 +98,16 @@ const MainLayout = () => {
       >
         <div className="flex items-center space-x-4">
           <div className="flex space-x-2">
-            {/* 👇 SỬ DỤNG IMPORT LOCAL (Dùng biến đã import) */}
             <img 
-              src={QuocKyImg} 
-              alt="Cờ Tổ quốc" 
-              className="h-10 w-14 object-cover shadow-sm border border-red-600/20"
-            />
-            <img 
-              src={DangKyImg} 
-              alt="Cờ Đảng" 
-              className="h-10 w-14 object-cover shadow-sm border border-red-600/20"
+              src="/logo-flags.png" 
+              alt="Logo" 
+              className="h-10 w-auto object-contain"
             />
           </div>
           
           <div className="hidden lg:block">
             <h1 className="font-bold text-lg leading-tight uppercase m-0" style={{ color: '#a91f23' }}>
-              ĐẢNG CỘNG SẢN VIỆT NAM
+              ĐẢNG BỘ TRƯỜNG ĐẠI HỌC KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
             </h1>
             <div className="text-sm font-semibold opacity-90" style={{ color: '#a91f23' }}>
               {user.ten_chi_bo ? user.ten_chi_bo.toUpperCase() : 'CHI BỘ ...'}

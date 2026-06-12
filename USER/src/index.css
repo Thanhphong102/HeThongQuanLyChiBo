@@ -211,6 +211,11 @@ body {
     transition: all 0.2s ease !important;
 }
 
+.ant-input-affix-wrapper .ant-input {
+    border: none !important;
+    box-shadow: none !important;
+}
+
 .ant-input:focus,
 .ant-input-affix-wrapper:focus,
 .ant-input-affix-wrapper-focused {

@@ -1,6 +1,7 @@
 // src/pages/Lookup/LookupPage.jsx
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Card, Tabs, message } from 'antd';
+import { Table, Tag, Card, Tabs, message, Input, Select, Space, DatePicker } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import userApi from '../../api/userApi';
 
@@ -8,6 +9,13 @@ const LookupPage = () => {
   const [fees, setFees] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // States cho tìm kiếm và bộ lọc
+  const [feeSearch, setFeeSearch] = useState('');
+  const [feeMonthFilter, setFeeMonthFilter] = useState(null);
+  
+  const [attSearch, setAttSearch] = useState('');
+  const [attStatusFilter, setAttStatusFilter] = useState('ALL');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +78,10 @@ const LookupPage = () => {
   ];
 
 
+  const STATUS_MAP = {
+    'Co mat': 'Đã điểm danh'
+  };
+
   // Cột cho bảng Điểm danh (ĐÃ SỬA dataIndex)
   const attCols = [
       { 
@@ -87,25 +99,91 @@ const LookupPage = () => {
         title: 'Trạng thái', 
         dataIndex: 'trang_thai_tham_gia', 
         key: 'status', 
-        render: t => (
-          <Tag color={t === 'Co mat' ? 'blue' : t === 'Vang co phep' ? 'orange' : 'red'}>
-              {t}
-          </Tag>
-      )},
+        render: t => {
+          const isPresent = t === 'Co mat';
+          const displayStatus = isPresent ? 'Đã điểm danh' : 'Vắng họp';
+          const color = isPresent ? 'green' : 'red';
+          return <Tag color={color} className="font-semibold px-2 py-1 rounded">{displayStatus}</Tag>;
+        }
+      },
       { title: 'Ghi chú', dataIndex: 'ghi_chu', key: 'note' }
   ];
+
+  // Bộ lọc Đảng phí
+  const filteredFees = fees.filter(f => {
+    const matchSearch = f.noi_dung_giao_dich?.toLowerCase().includes(feeSearch.toLowerCase());
+    const matchMonth = feeMonthFilter ? dayjs(f.ngay_giao_dich).format('MM/YYYY') === feeMonthFilter.format('MM/YYYY') : true;
+    return matchSearch && matchMonth;
+  });
+
+  // Bộ lọc Điểm danh
+  const filteredAttendance = attendance.filter(a => {
+    const matchSearch = a.tieu_de?.toLowerCase().includes(attSearch.toLowerCase()) || a.ghi_chu?.toLowerCase().includes(attSearch.toLowerCase());
+    
+    let matchStatus = true;
+    if (attStatusFilter === 'Co mat') {
+      matchStatus = a.trang_thai_tham_gia === 'Co mat';
+    } else if (attStatusFilter === 'Vang hop') {
+      matchStatus = a.trang_thai_tham_gia !== 'Co mat';
+    }
+    
+    return matchSearch && matchStatus;
+  });
 
   const items = [
     {
       key: '1',
       label: 'LỊCH SỬ ĐÓNG ĐẢNG PHÍ',
-      // Quan trọng: dataSource phải là fees (đảm bảo là mảng ở trên rồi)
-      children: <Table dataSource={fees} columns={feeCols} rowKey="ma_giao_dich" loading={loading} pagination={{ pageSize: 5 }} />
+      children: (
+        <div className="space-y-4 pt-2">
+          <Space wrap>
+            <Input 
+              prefix={<SearchOutlined className="text-gray-400" />}
+              placeholder="Tìm kiếm nội dung..." 
+              allowClear 
+              onChange={e => setFeeSearch(e.target.value)} 
+              style={{ width: 400, borderRadius: 8 }} 
+            />
+            <DatePicker 
+              picker="month" 
+              placeholder="Tháng / Năm" 
+              format="MM/YYYY"
+              style={{ width: 180, borderRadius: 8 }} 
+              onChange={date => setFeeMonthFilter(date)}
+              allowClear
+            />
+          </Space>
+          <Table dataSource={filteredFees} columns={feeCols} rowKey="ma_giao_dich" loading={loading} pagination={{ pageSize: 5 }} />
+        </div>
+      )
     },
     {
       key: '2',
       label: 'LỊCH SỬ ĐIỂM DANH',
-      children: <Table dataSource={attendance} columns={attCols} rowKey="id" locale={{ emptyText: 'Chưa có dữ liệu điểm danh' }} />
+      children: (
+        <div className="space-y-4 pt-2">
+          <Space wrap>
+            <Input 
+              prefix={<SearchOutlined className="text-gray-400" />}
+              placeholder="Tìm kiếm cuộc họp..." 
+              allowClear 
+              onChange={e => setAttSearch(e.target.value)} 
+              style={{ width: 400, borderRadius: 8 }} 
+            />
+            <Select 
+              value={attStatusFilter} 
+              style={{ width: 200, borderRadius: 8 }} 
+              onChange={value => setAttStatusFilter(value)}
+              options={[
+                { value: 'ALL', label: 'Tất cả trạng thái' },
+                { value: 'Co mat', label: 'Đã điểm danh' },
+                { value: 'Vang hop', label: 'Vắng họp' }
+              ]}
+            />
+          </Space>
+          <Table dataSource={filteredAttendance} columns={attCols} rowKey="id" locale={{ emptyText: 'Chưa có dữ liệu điểm danh' }} pagination={{ pageSize: 5 }} />
+        </div>
+      )
     }
   ];
 

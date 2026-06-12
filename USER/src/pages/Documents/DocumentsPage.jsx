@@ -1,7 +1,7 @@
 // src/pages/Documents/DocumentsPage.jsx
 import React, { useEffect, useState } from 'react';
-import { Tabs, Table, Button, Card, message, Tag } from 'antd';
-import { DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { Tabs, Table, Button, Card, message, Tag, Input, Select, Space } from 'antd';
+import { DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, SearchOutlined } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
 
@@ -9,6 +9,11 @@ const DocumentsPage = () => {
   const [branchForms, setBranchForms] = useState([]); // Tab 1: Biểu mẫu chi bộ
   const [schoolDocs, setSchoolDocs] = useState([]);   // Tab 2: Văn bản trường
   const [loading, setLoading] = useState(false);
+
+  // States cho tìm kiếm và bộ lọc
+  const [formSearch, setFormSearch] = useState('');
+  const [schoolSearch, setSchoolSearch] = useState('');
+  const [schoolTypeFilter, setSchoolTypeFilter] = useState('ALL');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,16 +105,66 @@ const DocumentsPage = () => {
     },
   ];
 
+  // Lọc dữ liệu Biểu mẫu chi bộ
+  const filteredForms = branchForms.filter(f => 
+    f.tieu_de?.toLowerCase().includes(formSearch.toLowerCase())
+  );
+
+  // Lọc dữ liệu Văn bản trường
+  const filteredSchoolDocs = schoolDocs.filter(d => {
+    const matchSearch = d.ten_tai_lieu?.toLowerCase().includes(schoolSearch.toLowerCase());
+    const matchType = schoolTypeFilter === 'ALL' ? true : d.loai_tai_lieu === schoolTypeFilter;
+    return matchSearch && matchType;
+  });
+
+  const DOC_TYPES = [
+    'Nghị quyết', 'Quyết định', 'Thông báo', 'Báo cáo', 'Kế hoạch',
+    'Hướng dẫn', 'Công văn', 'Biên bản', 'Tờ trình', 'Chương trình', 'Khác'
+  ];
+
   const items = [
     {
       key: '1',
       label: 'BIỂU MẪU CHI BỘ',
-      children: <Table dataSource={branchForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5 }} />,
+      children: (
+        <div className="space-y-4 pt-2">
+          <Input 
+            prefix={<SearchOutlined className="text-gray-400" />}
+            placeholder="Tìm kiếm biểu mẫu..." 
+            allowClear 
+            onChange={e => setFormSearch(e.target.value)} 
+            style={{ width: 400, borderRadius: 8 }} 
+          />
+          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5 }} />
+        </div>
+      ),
     },
     {
       key: '2',
       label: 'VĂN BẢN CẤP TRƯỜNG',
-      children: <Table dataSource={schoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5 }} />,
+      children: (
+        <div className="space-y-4 pt-2">
+          <Space wrap>
+            <Input 
+              prefix={<SearchOutlined className="text-gray-400" />}
+              placeholder="Tìm kiếm văn bản..." 
+              allowClear 
+              onChange={e => setSchoolSearch(e.target.value)} 
+              style={{ width: 400, borderRadius: 8 }} 
+            />
+            <Select 
+              value={schoolTypeFilter} 
+              style={{ width: 220, borderRadius: 8 }} 
+              onChange={value => setSchoolTypeFilter(value)}
+              options={[
+                { value: 'ALL', label: 'Tất cả loại văn bản' },
+                ...DOC_TYPES.map(t => ({ value: t, label: t }))
+              ]}
+            />
+          </Space>
+          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5 }} />
+        </div>
+      ),
     },
   ];
 

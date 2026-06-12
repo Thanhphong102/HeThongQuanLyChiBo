@@ -52,7 +52,7 @@ exports.createTarget = async (req, res) => {
 
         // --- Task 9 & 10: Tự động đẩy thông báo cho Chi bộ ---
         const notifySql = `
-            INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type)
+            INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, tieu_de, noi_dung, loai_thong_bao)
             VALUES ($1, $2, $3, $4, $5)
         `;
         await db.query(notifySql, [
@@ -83,7 +83,7 @@ exports.deleteTarget = async (req, res) => {
         // --- Gửi Thông báo Xóa ---
         try {
             await db.query(
-                `INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type) VALUES ($1, 'Admin', $2, $3, 'TARGET')`,
+                `INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, tieu_de, noi_dung, loai_thong_bao) VALUES ($1, 'Admin', $2, $3, 'TARGET')`,
                 [target.ma_chi_bo, `❌ Hủy chỉ tiêu: ${target.ten_chi_tieu}`, `Chỉ tiêu "${target.ten_chi_tieu}" đã bị ban giám hiệu rút/hủy bỏ khỏi hệ thống.`]
             );
         } catch(e) { console.error(e); }
@@ -120,7 +120,7 @@ exports.updateTarget = async (req, res) => {
         // --- Gửi Thông báo Cập nhật ---
         try {
             await db.query(
-                `INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type) VALUES ($1, 'Admin', $2, $3, 'TARGET')`,
+                `INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, tieu_de, noi_dung, loai_thong_bao) VALUES ($1, 'Admin', $2, $3, 'TARGET')`,
                 [target.ma_chi_bo, `🎯 Chỉ tiêu cập nhật: ${target.ten_chi_tieu}`, `Chỉ tiêu "${target.ten_chi_tieu}" vừa có thay đổi về thông tin. Tình trạng: ${target.trang_thai}.`]
             );
         } catch(e) { console.error(e); }

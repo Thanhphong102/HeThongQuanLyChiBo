@@ -88,7 +88,17 @@ const ImageGallery = () => {
     } catch { message.error('Lỗi xóa'); }
   };
 
-  const getDriveImage = (fileId) => `https://lh3.googleusercontent.com/d/${fileId}`;
+  const getDriveImage = (img) => {
+    if (img.ma_file_drive) {
+      return `https://lh3.googleusercontent.com/d/${img.ma_file_drive}`;
+    }
+    // Fallback cho các ảnh cũ bị lưu thiếu ma_file_drive
+    if (img.duong_dan) {
+      const idMatch = img.duong_dan.match(/[-\w]{25,}/);
+      if (idMatch) return `https://lh3.googleusercontent.com/d/${idMatch[0]}`;
+    }
+    return '';
+  };
 
   return (
     <div>
@@ -144,7 +154,7 @@ const ImageGallery = () => {
                 <div style={{ position: 'relative', height: 155, overflow: 'hidden', background: '#f3f4f6' }}>
                   <Image
                     height={155} width="100%"
-                    src={getDriveImage(img.ma_file_drive)}
+                    src={getDriveImage(img)}
                     style={{ objectFit: 'cover' }}
                     fallback="https://placehold.co/200x155?text=Ảnh"
                     referrerPolicy="no-referrer"

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Card, Table, Button, Modal, Form, Input, Upload, message, Space, Popconfirm, Image, DatePicker, Row, Col
+  Card, Table, Button, Modal, Input, message, Space, Popconfirm, Image, DatePicker, Row, Col
 } from 'antd';
 import { 
-  PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, FileImageOutlined, SearchOutlined 
+  PlusOutlined, EditOutlined, DeleteOutlined, FileImageOutlined, SearchOutlined 
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import axios from '../services/axiosConfig';
+import NewsForm from '../components/NewsForm';
 
 const { RangePicker } = DatePicker;
 
@@ -19,9 +20,6 @@ const NewsManager = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
-  const [fileList, setFileList] = useState([]); 
-  
-  const [form] = Form.useForm();
 
   const fetchNews = async () => {
     setLoading(true);
@@ -49,24 +47,13 @@ const NewsManager = () => {
 
   const openModal = (record = null) => {
     setEditingNews(record);
-    setFileList([]); 
-    if (record) {
-      form.setFieldsValue({ tieu_de: record.tieu_de, content: record.noi_dung });
-    } else {
-      form.resetFields();
-    }
     setIsModalOpen(true);
   };
 
-  const handleSave = async (values) => {
-    const formData = new FormData();
-    formData.append('tieu_de', values.tieu_de);
-    formData.append('content', values.noi_dung || '');
-    if (fileList.length > 0) formData.append('image', fileList[0]);
-
+  const handleSave = async (formData) => {
     try {
       if (editingNews) {
-        await axios.put(`/news/${editingNews.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+        await axios.put(`/news/${editingNews.ma_tin_tuc}`, formData, { headers: { 'Content-Type': 'multipart/form-data' }});
         message.success('Cập nhật tin tức thành công');
       } else {
         await axios.post('/news/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
@@ -85,14 +72,6 @@ const NewsManager = () => {
       message.success('Đã xóa tin tức');
       fetchNews();
     } catch (error) { message.error('Xóa thất bại'); }
-  };
-
-  const uploadProps = {
-    onRemove: () => setFileList([]),
-    beforeUpload: (file) => { setFileList([file]); return false; },
-    fileList,
-    maxCount: 1,
-    listType: "picture"
   };
 
   const getDriveImage = (fileId) => `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`; 
@@ -159,7 +138,7 @@ const NewsManager = () => {
         <Table 
             columns={columns} 
             dataSource={newsList} 
-            rowKey="id" 
+            rowKey="ma_tin_tuc" 
             loading={loading} 
             pagination={{ pageSize: 5, className: "custom-pagination" }} 
             className="border-t border-gray-100 mt-2"
@@ -168,38 +147,20 @@ const NewsManager = () => {
       </Card>
 
       <Modal
-        tieu_de={<span className="text-lg font-bold">{editingNews ? "Chỉnh sửa tin tức" : "Đăng tin mới"}</span>}
+        title={<span className="text-lg font-bold">{editingNews ? "Chỉnh sửa tin tức" : "Đăng tin mới"}</span>}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        destroyOnHidden={true}
+        destroyOnClose={true}
         width={700}
         className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']"
       >
-        <Form form={form} layout="vertical" onFinish={handleSave} className="mt-4">
-          <Form.Item name="tieu_de" label={<span className="font-semibold">Tiêu đề tin</span>} rules={[{ required: true, message: 'Nhập tiêu đề!' }]}>
-            <Input size="large" placeholder="Ví dụ: Lễ kết nạp Đảng viên mới..." className="rounded-lg" />
-          </Form.Item>
-          
-          <Form.Item name="content" label={<span className="font-semibold">Nội dung chi tiết</span>}>
-            <Input.TextArea rows={6} placeholder="Nhập nội dung bài viết..." className="rounded-lg" />
-          </Form.Item>
-
-          <Form.Item label={<span className="font-semibold">Ảnh bìa (Thumbnail)</span>}>
-            <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />} className="rounded-lg h-10 px-4">Chọn ảnh (JPG/PNG)</Button>
-            </Upload>
-            {editingNews?.duong_dan_anh && fileList.length === 0 && (
-                <div className="mt-2 text-gray-500 text-sm">
-                    * Hiện tại đang dùng ảnh cũ. Chọn ảnh mới để thay thế.
-                </div>
-            )}
-          </Form.Item>
-
-          <Button type="primary" htmlType="submit" block size="large" className="rounded-xl h-12 font-bold text-base bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200 mt-4">
-            {editingNews ? "Lưu thay đổi" : "Đăng xuất bản"}
-          </Button>
-        </Form>
+        <NewsForm 
+          isEditMode={!!editingNews}
+          initialData={editingNews}
+          onSubmit={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
       </Modal>
     </motion.div>
   );

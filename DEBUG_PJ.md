@@ -1,1 +1,0 @@
-Hệ thống cho phép Đảng viên tự tải ảnh lên. Tuy nhiên, về mặt kỹ thuật, báo cáo không đề cập đến việc kiểm tra Metadata (EXIF) của ảnh để xác nhận thời gian và địa điểm chụp thực tế, dẫn đến việc Đảng viên có thể sử dụng ảnh cũ hoặc ảnh trên mạng để gian lận thành tích

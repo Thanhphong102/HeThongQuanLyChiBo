@@ -36,12 +36,21 @@ exports.createBranch = async (req, res) => {
     }
 
     try {
+        // Kiểm tra trùng lặp tên chi bộ (không phân biệt hoa thường và khoảng trắng, chỉ tính chi bộ đang hoạt động)
+        const checkDuplicate = await db.query(
+            'SELECT ma_chi_bo FROM "chibo" WHERE LOWER(TRIM(ten_chi_bo)) = LOWER(TRIM($1)) AND trang_thai = true',
+            [ten_chi_bo]
+        );
+        if (checkDuplicate.rows.length > 0) {
+            return res.status(400).json({ message: 'Tên chi bộ đã tồn tại trong hệ thống!' });
+        }
+
         const sql = `
             INSERT INTO "chibo" (ten_chi_bo, mo_ta, ngay_thanh_lap, trang_thai)
             VALUES ($1, $2, COALESCE($3, CURRENT_DATE), true)
             RETURNING *
         `;
-        const newBranch = await db.query(sql, [ten_chi_bo, mo_ta, ngay_thanh_lap || null]);
+        const newBranch = await db.query(sql, [ten_chi_bo.trim(), mo_ta, ngay_thanh_lap || null]);
         
         res.status(201).json({ 
             message: 'Tạo chi bộ thành công', 
@@ -59,13 +68,24 @@ exports.updateBranch = async (req, res) => {
     const { ten_chi_bo, mo_ta } = req.body;
 
     try {
+        // Kiểm tra trùng lặp tên chi bộ (không phân biệt hoa thường và loại trừ chính nó, chỉ tính chi bộ đang hoạt động)
+        if (ten_chi_bo) {
+            const checkDuplicate = await db.query(
+                'SELECT ma_chi_bo FROM "chibo" WHERE LOWER(TRIM(ten_chi_bo)) = LOWER(TRIM($1)) AND ma_chi_bo != $2 AND trang_thai = true',
+                [ten_chi_bo, id]
+            );
+            if (checkDuplicate.rows.length > 0) {
+                return res.status(400).json({ message: 'Tên chi bộ đã tồn tại trong hệ thống!' });
+            }
+        }
+
         const sql = `
             UPDATE "chibo" 
-            SET ten_chi_bo = $1, mo_ta = $2 
+            SET ten_chi_bo = COALESCE($1, ten_chi_bo), mo_ta = COALESCE($2, mo_ta) 
             WHERE ma_chi_bo = $3
             RETURNING *
         `;
-        const result = await db.query(sql, [ten_chi_bo, mo_ta, id]);
+        const result = await db.query(sql, [ten_chi_bo ? ten_chi_bo.trim() : null, mo_ta, id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Chi bộ không tồn tại' });

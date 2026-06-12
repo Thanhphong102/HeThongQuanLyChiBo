@@ -57,7 +57,7 @@ exports.createMedia = async (req, res) => {
             
             const driveData = await uploadFileToDrive(file);
             finalUrl = driveData.webViewLink; 
-            driveFileId = driveData.ma_hinh_anh;
+            driveFileId = driveData.id;
         } 
         // CASE 2: VIDEO (Lưu link Youtube)
         else if (loai_hinh_anh === 'VIDEO') {

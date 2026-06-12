@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Typography, Row, Col, Avatar, Tooltip } from 'antd';
-import {
-  AppstoreOutlined, KeyOutlined, TeamOutlined,
-  UserOutlined, FileImageOutlined, ArrowRightOutlined
+import { 
+  AppstoreOutlined, KeyOutlined, TeamOutlined, 
+  UserOutlined, ArrowRightOutlined, DownloadOutlined 
 } from '@ant-design/icons';
+import { Timeline } from 'antd';
 import userApi from '../../api/userApi';
-
-const { Title, Paragraph } = Typography;
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -31,32 +29,11 @@ const LandingPage = () => {
     fetchLandingData();
   }, []);
 
-  const features = [
-    {
-      icon: <TeamOutlined className="text-4xl text-red-dang mb-4" />,
-      title: "Quản Lý Đảng Viên",
-      desc: "Theo dõi, số hóa hồ sơ Đảng viên và quản lý sinh hoạt thuận tiện, minh bạch."
-    },
-    {
-      icon: <AppstoreOutlined className="text-4xl text-red-dang mb-4" />,
-      title: "Hồ Sơ & Tài Liệu",
-      desc: "Lưu trữ văn bản, biểu mẫu trực tuyến, dễ dàng tra cứu và tải xuống."
-    },
-    {
-      icon: <KeyOutlined className="text-4xl text-red-dang mb-4" />,
-      title: "Bảo Mật Cao",
-      desc: "Cấp quyền rõ ràng giữa Bí thư, Quản trị viên và người dùng cơ bản."
-    }
-  ];
-
-  // Helper convert Drive Link -> Proxy Link cho màn Landing (Dành cho ảnh cũ lẫn mới)
   const getDirectImageUrl = (url) => {
     if (!url) return '';
     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
     const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const id = (match && match[1]) || (idParamMatch && idParamMatch[1]);
-
-    // axiosClient.js default baseURL là VITE_API_URL hoặc http://localhost:5001/api
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
     if (id) {
       return `${apiBaseUrl}/media/proxy/${id}`;
@@ -64,204 +41,217 @@ const LandingPage = () => {
     return url;
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 font-sans overflow-x-hidden flex flex-col">
-      {/* Navbar đơn giản */}
-      <motion.nav
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white shadow-md py-4 px-8 flex justify-between items-center z-10 sticky top-0"
-      >
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo Trường" className="w-12 h-12 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-          <div className="font-bold text-red-dang text-sm uppercase hidden sm:block leading-tight">
-            <div>ĐẢNG BỘ TRƯỜNG</div>
-            <div>ĐẠI HỌC KỸ THUẬT CÔNG NGHỆ - CẦN THƠ</div>
-          </div>
-        </div>
-        <Button
-          type="primary"
-          className="bg-red-dang hover:!bg-red-dam border-none shadow-md text-yellow-sao font-semibold"
-          onClick={() => navigate('/login')}
-        >
-          Đăng Nhập
-        </Button>
-      </motion.nav>
+  // Build Org Chart structure dynamically based on 'thu_tu'
+  const groupedOrgData = orgData.reduce((acc, person) => {
+    const level = person.thu_tu || 99;
+    if (!acc[level]) acc[level] = [];
+    acc[level].push(person);
+    return acc;
+  }, {});
+  const sortedLevels = Object.keys(groupedOrgData).sort((a, b) => Number(a) - Number(b));
 
-      {/* Hero Section */}
-      <div className="py-20 flex flex-col items-center justify-center px-4 relative bg-white">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7 }}
-          className="text-center z-10 mb-12"
-        >
-          <div className="inline-block px-4 py-1 bg-yellow-sao/20 text-red-dang rounded-full text-sm font-semibold mb-6 border border-yellow-sao/50">
-            Công Tác Đảng Trực Tuyến
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-red-dang mb-6 leading-tight">
-            Hệ Thống Quản Lý Chi Bộ <br />
-            <span className="text-4xl md:text-5xl">Trường Đại học Kỹ thuật - Công nghệ Cần Thơ</span>
-          </h1>
-          <Paragraph className="text-lg text-gray-500 max-w-2xl mx-auto mb-10">
-            Nền tảng số hoá quy trình hoạt động công tác Đảng dành cho Chi bộ Sinh viên. Đồng bộ, trực quan, bảo mật và thân thiện với thế hệ trẻ.
-          </Paragraph>
-
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              type="primary"
-              size="large"
-              className="bg-red-dang hover:!bg-red-dam hover:!text-white border-none shadow-xl h-14 px-10 text-lg text-yellow-sao font-bold transition-all duration-300 rounded-full"
-              onClick={() => navigate('/login')}
-            >
-              Vào Hệ Thống
-            </Button>
-          </motion.div>
-        </motion.div>
-
-        {/* Feature Cards */}
-        <div className="container mx-auto z-10 max-w-5xl">
-          <Row gutter={[24, 24]} justify="center">
-            {features.map((item, index) => (
-              <Col xs={24} md={8} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className="h-full rounded-2xl shadow-lg hover:shadow-2xl border-none transition-all duration-300 flex flex-col items-center text-center px-4 py-6 group bg-white/80 backdrop-blur-sm">
-                    <div className="transform group-hover:-translate-y-2 transition-transform duration-300">
-                      {item.icon}
-                    </div>
-                    <Title level={4} className="!mt-4 !font-bold !text-gray-800">{item.tieu_de}</Title>
-                    <Paragraph className="text-gray-500 text-base">{item.desc}</Paragraph>
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-
-        {/* Decorative Background Elements */}
-        <div className="absolute top-1/4 left-10 w-64 h-64 bg-red-dang/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-10 w-80 h-80 bg-yellow-sao/10 rounded-full blur-3xl pointer-events-none"></div>
+  const OrgNode = ({ person }) => (
+    <div className="flex flex-col items-center group relative z-10 mx-4">
+      <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden mb-3 bg-zinc-100 relative transition-transform hover:scale-105 duration-300">
+        {person.anh_the ? (
+          <img src={getDirectImageUrl(person.anh_the)} alt={person.ho_ten} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-zinc-400"><UserOutlined className="text-3xl" /></div>
+        )}
       </div>
+      <div className="bg-white px-4 py-2 rounded-xl shadow-sm text-center border border-zinc-100 min-w-[140px] transition-all hover:shadow-md hover:border-[#a91f23]/30">
+        <h3 className="text-sm font-bold text-zinc-900">{person.ho_ten}</h3>
+        <p className="text-xs font-semibold text-[#a91f23] mt-1">{person.chuc_vu}</p>
+      </div>
+    </div>
+  );
 
-      {/* SECTION 2: SƠ ĐỒ CƠ CẤU TỔ CHỨC */}
-      {orgData.length > 0 && (
-        <div className="py-20 bg-gray-50 px-4 relative">
-          <div className="container mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
+  return (
+    <div className="min-h-[100dvh] bg-[#fdfdfc] font-sans text-zinc-900 selection:bg-[#a91f23] selection:text-white">
+      {/* Navigation */}
+      <header className="relative bg-[#fffbeb] shadow-sm overflow-hidden z-20 border-b border-yellow-200">
+        <div 
+          className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none mix-blend-multiply"
+          style={{
+            backgroundImage: 'url(/trong-dong.png)',
+            backgroundSize: '200px',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'repeat',
+          }}
+        />
+        <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto relative z-10">
+          <div className="flex items-center gap-3">
+            <img src="/logo-flags.png" alt="Logo" className="w-auto h-12 object-contain" onError={(e) => e.target.style.display = 'none'} />
+            <span className="font-bold tracking-tight text-[#a91f23] text-sm md:text-base uppercase">
+              ĐẢNG BỘ TRƯỜNG ĐẠI HỌC KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+            </span>
+          </div>
+          <button 
+            onClick={() => navigate('/login')}
+            className="text-sm font-semibold bg-[#a91f23] text-white px-6 py-2.5 rounded-full hover:bg-[#8b1517] transition-colors shadow-lg"
+          >
+            Đăng nhập
+          </button>
+        </nav>
+      </header>
+
+      {/* Hero Section with Parallax Bronze Drum */}
+      <main className="relative overflow-hidden pt-10 pb-16">
+        {/* Bronze drum background */}
+        <div 
+          className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none mix-blend-multiply"
+          style={{
+            backgroundImage: 'url(/trong-dong.png)',
+            backgroundSize: '800px',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'repeat',
+            animation: 'spin 200s linear infinite',
+          }}
+        />
+        <style>{`
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+        `}</style>
+        
+        <div className="max-w-5xl mx-auto px-6 relative z-10 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#a91f23]/10 text-[#a91f23] text-xs font-bold uppercase tracking-widest mb-8 border border-[#a91f23]/20">
+              Công Tác Đảng Trực Tuyến
+            </div>
+            <h1 className="text-3xl md:text-4xl lg:text-[42px] font-bold tracking-tight leading-tight text-[#a91f23] mb-6 drop-shadow-sm">
+              Hệ thống quản lý công tác đảng tại chi bộ <br />
+              <span className="text-zinc-900 text-2xl md:text-3xl lg:text-[32px] block mt-2">Trường Đại học Kỹ thuật - Công nghệ Cần Thơ</span>
+            </h1>
+            <p className="text-lg text-zinc-600 leading-relaxed max-w-2xl mx-auto mb-12">
+              Nền tảng số hoá quy trình hoạt động công tác Đảng. Đồng bộ, trực quan, bảo mật và thân thiện với thế hệ trẻ.
+            </p>
+            <button 
+              onClick={() => navigate('/login')}
+              className="group inline-flex items-center gap-3 bg-[#a91f23] text-white px-10 py-4 rounded-full font-bold hover:bg-[#8b1517] hover:shadow-xl hover:-translate-y-1 transition-all"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Cơ cấu Tổ chức Chi bộ</h2>
-              <div className="w-24 h-1 bg-red-dang mx-auto rounded-full"></div>
-            </motion.div>
+              Vào hệ thống
+              <ArrowRightOutlined className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </motion.div>
+        </div>
+      </main>
 
-            <Row gutter={[24, 32]} justify="center">
-              {orgData.map((person, index) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={person.ma_so_do}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="h-full"
-                  >
-                    <Card className="h-full rounded-2xl shadow-sm hover:shadow-xl border-t-4 border-t-red-dang text-center transition-all bg-white relative overflow-hidden group">
-                      <div className="flex flex-col items-center">
-                        <Avatar
-                          size={100}
-                          src={getDirectImageUrl(person.anh_the)}
-                          icon={<UserOutlined />}
-                          className="border-4 border-white shadow-md mb-4 bg-gray-200"
-                        />
-                        <h3 className="text-lg font-bold text-gray-800 mb-1">{person.ho_ten}</h3>
-                        <div className="text-sm font-semibold text-red-dang bg-red-50 px-3 py-1 rounded-full">
-                          {person.chuc_vu}
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                </Col>
-              ))}
-            </Row>
+      {/* Feature Grid */}
+      <section className="bg-white border-y border-zinc-100 py-24 relative z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              {
+                icon: <TeamOutlined className="text-3xl text-[#a91f23]" />,
+                title: "Quản Lý Đảng Viên",
+                desc: "Theo dõi, số hóa hồ sơ Đảng viên và quản lý sinh hoạt thuận tiện, minh bạch."
+              },
+              {
+                icon: <AppstoreOutlined className="text-3xl text-[#a91f23]" />,
+                title: "Hồ Sơ & Tài Liệu",
+                desc: "Lưu trữ văn bản, biểu mẫu trực tuyến, dễ dàng tra cứu và tải xuống."
+              },
+              {
+                icon: <KeyOutlined className="text-3xl text-[#a91f23]" />,
+                title: "Bảo Mật Tối Đa",
+                desc: "Cấp quyền rõ ràng giữa Bí thư, Quản trị viên và người dùng cơ bản."
+              }
+            ].map((f, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center text-center p-8 rounded-[2rem] hover:bg-zinc-50 transition-colors"
+              >
+                <div className="w-20 h-20 rounded-full bg-[#a91f23]/5 flex items-center justify-center mb-6">
+                  {f.icon}
+                </div>
+                <h3 className="text-xl font-bold text-zinc-900 mb-4">{f.title}</h3>
+                <p className="text-zinc-600 leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      )}
+      </section>
 
-      {/* SECTION 3: QUY TRÌNH CÔNG TÁC ĐẢNG */}
-      {processData.length > 0 && (
-        <div className="py-20 bg-white px-4 relative">
-          <div className="container mx-auto max-w-5xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Quy trình Công tác Đảng</h2>
-              <div className="w-24 h-1 bg-yellow-sao mx-auto rounded-full"></div>
-            </motion.div>
+      {/* Org Chart Tree */}
+      {orgData.length > 0 && (
+        <section className="py-16 bg-[#fdfdfc] relative overflow-hidden">
+          {/* Decorative Red Drum */}
+          <img src="/trong-dong-red.png" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] opacity-[0.12] pointer-events-none" alt="" />
+          
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900">Cơ cấu tổ chức</h2>
+              <div className="w-16 h-1 bg-[#a91f23] mx-auto mt-6 rounded-full"></div>
+            </div>
 
-            <div className="space-y-8">
-              {processData.map((process, index) => (
-                <motion.div
-                  key={process.ma_quy_trinh}
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                >
-                  <Card className="rounded-2xl shadow-md hover:shadow-xl transition-all border border-gray-100 overflow-hidden">
-                    <Row align="middle" gutter={24}>
-                      <Col xs={24} md={16} className="mb-4 md:mb-0">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 shrink-0 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xl">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">{process.tieu_de}</h3>
-                            <p className="text-gray-500 text-base m-0">{process.mo_ta || "Ban hành quy định biểu mẫu chi tiết trong công tác chuyên môn."}</p>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col xs={24} md={8} className="text-left md:text-right">
-                        <Button
-                          size="large"
-                          icon={<FileImageOutlined />}
-                          href={getDirectImageUrl(process.duong_dan_file)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-xl font-bold"
-                          style={{
-                            background: 'linear-gradient(135deg, #a91f23 0%, #8b1517 100%)',
-                            color: '#fff1aa',
-                            border: 'none',
-                            boxShadow: '0 4px 14px rgba(169,31,35,0.4)'
-                          }}
-                        >
-                          Xem Sơ đồ / Tài liệu
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Card>
-                </motion.div>
+            <div className="flex flex-col items-center relative org-tree-wrapper gap-y-10 w-full">
+              {sortedLevels.map((level) => (
+                <div key={level} className="flex justify-center flex-wrap gap-8 md:gap-12 w-full max-w-5xl">
+                  {groupedOrgData[level].map((p) => <OrgNode key={p.ma_so_do} person={p} />)}
+                </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
+      )}
+
+      {/* Processes Timeline */}
+      {processData.length > 0 && (
+        <section className="bg-white py-16 relative overflow-hidden border-t border-zinc-100">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white to-red-50/50 opacity-50 pointer-events-none"></div>
+          
+          {/* Decorative Chim Lac */}
+          <img src="/chim-lac.png" className="absolute top-1/4 left-0 md:left-4 w-48 md:w-72 opacity-30 pointer-events-none transform -scale-x-100" alt="Chim Lac" />
+          <img src="/chim-lac.png" className="absolute top-1/4 right-0 md:right-4 w-48 md:w-72 opacity-30 pointer-events-none" alt="Chim Lac" />
+          
+          <div className="max-w-2xl mx-auto px-6 relative z-10">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#a91f23]">Quy trình công tác</h2>
+              <div className="w-16 h-1 bg-[#fdb913] mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <Timeline 
+              mode="start"
+              items={processData.map((process, idx) => ({
+                color: '#a91f23',
+                content: (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6 }}
+                    className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 hover:shadow-md hover:border-red-200 transition-all text-left"
+                  >
+                    <h3 className="text-xl font-bold text-zinc-900 mb-2">{process.tieu_de}</h3>
+                    <p className="text-zinc-600 text-sm leading-relaxed mb-4">
+                      {process.mo_ta || "Ban hành quy định biểu mẫu chi tiết trong công tác chuyên môn."}
+                    </p>
+                    <a 
+                      href={getDirectImageUrl(process.duong_dan_file)} 
+                      target="_blank" rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#a91f23] hover:text-[#8b1517] transition-colors"
+                    >
+                      Tải tài liệu <DownloadOutlined />
+                    </a>
+                  </motion.div>
+                )
+              }))}
+            />
+          </div>
+        </section>
       )}
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 text-center text-sm">
-        <div className="container mx-auto">
-          <p className="mb-2">© 2026 Hệ thống Quản lý Chi bộ Sinh viên.</p>
+      <footer className="bg-zinc-950 border-t border-white/10 text-zinc-500 py-12 text-sm text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="mb-1">© {new Date().getFullYear()} Hệ thống Quản lý Chi bộ Sinh viên.</p>
           <p>Thiết kế tinh gọn, bảo mật và thông minh.</p>
         </div>
       </footer>
@@ -269,4 +259,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default LandingPage; // Trigger Vite HMR

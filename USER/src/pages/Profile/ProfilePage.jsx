@@ -3,12 +3,14 @@ import { Card, Row, Col, Typography, Form, Input, Button, DatePicker, Select, me
 import { UserOutlined, LockOutlined, SaveOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, CameraOutlined, IdcardOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import userApi from '../../api/userApi';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
 const ProfilePage = () => {
     const [profileForm] = Form.useForm();
     const [passwordForm] = Form.useForm();
+    const navigate = useNavigate();
     
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -92,8 +94,13 @@ const ProfilePage = () => {
         setSubmitting(true);
         try {
             await userApi.resetPassword(user.ma_dang_vien, values.new_password);
-            message.success('Đổi mật khẩu thành công. Vui lòng ghi nhớ mật khẩu mới!');
+            message.success('Đổi mật khẩu thành công. Hệ thống sẽ tự động đăng xuất sau 2 giây...', 2);
             passwordForm.resetFields();
+            setTimeout(() => {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_info');
+                navigate('/login');
+            }, 2000);
         } catch (error) {
             console.error(error);
             message.error('Đổi mật khẩu thất bại.');

@@ -1,0 +1,164 @@
+UBND THÀNH PHỐ CẦN THƠ
+TRƯỜNG ĐẠI HỌC
+ KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc lập - Tự do - Hạnh phúc
+SV04-ĐTSV
+SV04-ĐTSV
+QUY ĐỊNH HÌNH THỨC TRÌNH BÀY BÁO CÁO TỔNG KẾT 
+ĐỀ TÀI NGHIÊN CỨU KHOA HỌC CỦA SINH VIÊN 
+I. Trình tự báo cáo tổng kết đề tài
+Báo cáo tổng kết đề tài được trình bày theo trình tự sau: 
+Trang bìa (mẫu 1); 
+Lời cảm ơn
+Thông tin kết quả nghiên cứu của đề tài (mẫu 2); 
+Thông tin về sinh viên chịu trách nhiệm chính thực hiện đề tài (mẫu 3); 
+Mục lục;  
+Danh mục bảng, biểu đồ, hình vẽ, đồ thị
+Danh mục những từ viết tắt (xếp theo thứ tự bảng chữ cái);
+ĐẶT VẤN ĐỀ
+Chương 1. TỔNG QUAN TÀI LIỆU
+Chương 2. ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP NGHIÊN CỨU
+Chương 3. KẾT QUẢ VÀ THẢO LUẬN
+KẾT LUẬN VÀ KIẾN NGHỊ
+TÀI LIỆU THAM KHẢO
+ PHỤ LỤC (nếu có) bao gồm các bảng biểu, sơ đồ, hình vẽ, bảng liệt kê các tư liệu... để minh họa cho báo cáo tổng kết đề tài.
+Bản sao Thuyết minh đề tài đã được phê duyệt;
+Minh chứng sản phẩm bài báo (nếu có): copy bài báo đã được đăng hoặc giấy xác nhận bài báo sẽ được đăng.
+II. Quy định hình thức trình bày báo cáo tổng kết đề tài
+2.1. Soạn thảo văn bản
+- Nội dung báo cáo phải được trình bày ngắn gọn, rõ ràng mạch lạc, sạch sẽ. Không được tẩy xóa, có đánh số trang, đánh số bảng biểu, hình vẽ, đồ thị. 
+- Sử dụng Font chữ Times New Roman, cỡ chữ 13, mật độ chữ bình thường (ngoại trừ các tiêu đề), paragraph 1,3 - 1,5 line; lề trái 3cm; lề trên, lề dưới, lề phải 2cm. Số trang được đánh ở giữa phía dưới mỗi trang giấy. Nội dung nghiệm thu được in trên một mặt giấy khổ A4 (210 x 297 mm) dày từ 50 -100 trang (không tính mục lục, tài liệu tham khảo và phụ lục).
+- Các tiểu mục trong báo cáo tổng kết đề tài được trình bày và đánh chữ số thường thành nhóm chữ số, tối đa là 4 chữ số với chữ số thứ nhất chỉ số chương. Ví dụ: 4.1.2.1. chỉ tiểu mục 1, nhóm tiểu mục 2, mục số 1, chương 4. (Lưu ý: mỗi nhóm tiểu mục phải có ít nhất 2 tiểu mục, nghĩa là không thể có tiểu mục 2.1.1 mà không có tiểu mục 2.1.2.
+- Bảng biểu, hình vẽ, đồ thị, phương trình, công thức toán học:
++ Việc đánh số bảng biểu, hình vẽ, đồ thị phương trình, công thức toán học phải gắn với số chương. Ví dụ: hình 3.4. nghĩa là hình số 4 của chương 3.
++ Mọi bảng, biểu, đồ thị lấy từ các nguồn khác (không phải của tác giả) phải được trích dẫn nguồn gốc đầy đủ và phải được liệt kê trong tài liệu tham khảo.
++ Tiêu đề của bảng ghi phía trên bảng, tiêu đề của hình vẽ, đồ thị, biểu đồ ghi phía dưới hình vẽ, đồ thị, biểu đồ.
++ Các bảng, biểu, hình vẽ, đồ thị… phải đi liền với phần nội dung trình bày liên quan đến các bảng, biểu, hình vẽ, đồ thị đó. Các bảng, hình quá lớn sẽ được liệt kê trong phần phụ lục và chú thích tại phần nội dung có liên quan.
++ Các ký hiệu, đơn vị tính trong các phương trình, công thức toán học phải được chú thích và giải thích đầy đủ.
+- Chữ viết tắt: Không nên lạm dụng chữ viết tắt trong quyển nghiệm thu đề tài. Chỉ sử dụng chữ viết tắt cho những từ, cụm từ hoặc thuật ngữ được lập lại nhiều lần trong quyển đề tài nghiệm thu. Không viết tắt những mệnh đề dài, những cụm từ ít xuất hiện trong quyển đề tài nghiệm thu. Những từ, thuật ngữ, tên các cơ quan, tổ chức… quá dài, nếu cần viết tắt thì chữ viết tắt phải đi liền sau từ đó và nằm trong ngoặc đơn). Nếu trong nội dung có quá nhiều chữ viết tắt thì phải có bảng danh mục các chữ viết tắt để tiện tra cứu.
+- Tài liệu tham khảo
++ Mọi ý kiến, khái niệm không phải của riêng tác giả và mọi trích dẫn tài liệu khác trong quyển đề tài nghiệm thu đều phải được chú thích số tài liệu tham khảo và tài liệu đó phải được ghi rõ nguồn gốc trong danh mục các tài liệu tham khảo.
++ Nếu không có điều kiện tiếp cận với tài liệu gốc mà phải trích dẫn thông qua một tài liệu khác thì phải ghi rõ: “ trích dẫn từ…. “ và tài liệu gốc đó không được liệt kê trong danh mục tài liệu tham khảo.
++ Khi trích dẫn một đoạn ít hơn 2 câu thì phần trích dẫn đặt trong ngoặc kép. Nếu phần trích dẫn dài hơn 4 dòng đánh máy thì phải tách phần này thành đoạn riêng với lề trái lùi thêm vào 2cm và không cần phải sử dụng dấu ngoặc kép.
++ Số thứ tự của tài liệu tham khảo đặt trong ngoặc vuông. Vd: [15], [20]…Đối với những phần có nhiều tài liệu trích dẫn khác nhau thì mỗi tài liệu đặt trong một ngoặc vuông và được sắp xếp theo thứ tự tăng dần. Vd: [5], [9]. [10], [15], [20]…
+- Phụ lục của quyển đề tài nghiệm thu: Một số nội dung cần thiết nhằm minh họa, hỗ trợ cho nội dung của quyển đề tài nghiệm thu như bảng câu hỏi, danh sách bệnh nhân NC, hình ảnh minh họa, phiếu điều tra… sẽ được đưa vào phần phụ lục nhằm làm nhẹ bớt phần nội dung quyển đề tài nghiệm thu. Chú ý: phần phụ lục không được dày quá số trang của quyển đề tài nghiệm thu.
+2.2. Cách viết báo cáo tổng kết đề tài
+Tương tự như một luận văn hay một luận án khoa học, quyển nghiệm thu đề tài là một công trình nghiên cứu ở một phạm vi nhỏ thuộc một lĩnh vực khoa học nhất định 
+2.2.1. PHẦN ĐẶT VẤN ĐỀ
+Phần này cần làm rõ một số ý sau:
+Lý do chọn đề tài:
+- Cơ sở khoa học: 
+- Cơ sở thực tiễn ngành, chuyên khoa, địa phương.
+Từ đó, cho biết mục đích nghiên cứu của đề tài: nhằm làm gì? Phục vụ, giúp ích gì?
+Mục tiêu nghiên cứu
+- Để đạt được mục đích nêu trên, cần phải làm gì?
+- Mục tiêu tổng quát: Nêu toàn bộ công việc một cách chung nhất của đề tài (thường trùng lắp với tên đề tài)
+- Mục tiêu chuyên biệt: Nêu các công việc cụ thể cần thực hiện nhằm đạt đến mục đích nghiên cứu của đề tài.
+2.2.2. TỔNG QUAN TÀI LIỆU
+- Nêu những kiến thức cơ bản, liên quan đến vấn đề tác giả nghiên cứu và những vấn đề cần thiết phục vụ cho việc nghiên cứu đề tài.
+- Phân tích, đánh giá các công trình nghiên cứu đã có của các tác giả trong và ngoài nước liên quan mật thiết đến đề tài nghiên cứu. Chỉ ra những vấn đề còn tồn tại mà đề tài cần tập trung giải quyết.
+2.2.3. ĐỐI TƯỢNG VÀ PHƯƠNG PHÁP NGHIÊN CỨU
+2.2.3.1. Đối tượng nghiên cứu: Cần nêu:
+- Đối tượng nghiên cứu là ai? Số lượng? tuổi? giới? ….
+- Tiêu chuẩn chọn đối tượng nghiên cứu
+- Tiêu chuẩn loại trừ
+2.2.3.2. Phương pháp nghiên cứu
+- Thiết kế nghiên cứu gì?
+- cách chọn đối tượng nghiên cứu?
+- Nội dung nghiên cứu của đề tài
+- Cách tiến hành nghiên cứu?
+- Các kỹ thuật cần thiết khi tiến hành nghiên cứu: Vd: cách điều tra? cách phỏng vấn? Nếu là các xét nghiệm thì nêu tiến hành xét nghiệm theo kỹ thuật gì? Máy móc? Nguyên lý vận hành, kỹ thuật xét nghiệm? cách đọc, diễn giải kết quả?
+2.2.4. KẾT QUẢ VÀ THẢO LUẬN
+Nêu toàn bộ kết quả nghiên cứu tương ứng với các mục tiêu nghiên cứu đã đề ra. Nên sắp xếp các kết quả theo từng vấn đề một cách logic làm cho người đọc dễ theo dõi.
+Nêu nhận xét về các kết quả thu được, so sánh kết quả của tác giả với kết quả nghiên cứu của các tác giả đã nghiên cứu trước giải thích sự khác biệt nếu có hoặc giải thích, lý giải về các kết quả thu được.  
+2.2.5. KẾT LUẬN VÀ KIẾN NGHỊ
+Phần kết luận: Kết luận về các nội dung nghiên cứu đã thực hiện. Đánh giá  những đóng góp mới của đề tài và khả năng ứng dụng của kết quả nghiên cứu.
+Phần kiến nghị: Các đề xuất được rút ra từ kết quả nghiên cứu. Đề xuất về các nghiên cứu tiếp theo; các biện pháp cần thiết để có thể ứng dụng kết quả nghiên cứu vào thực tiễn đời sống và sản xuất; các lĩnh vực nên ứng dụng hay sử dụng kết quả nghiên cứu; các kiến nghị về cơ chế, chính sách. 
+2.2.6. TÀI LIỆU THAM KHẢO
+-  Tên các tài liệu bằng tiếng nước ngoài phải giữ nguyên văn, không phiên âm, không dịch. 
+- Tài liệu tham khảo xếp theo thứ tự ABC họ tên tác giả theo thông lệ của từng nước:
++ Tác giả là người nước ngoài: xếp thứ tự ABC theo họ.
++ Tác giả là người Việt Nam: Xếp thứ tự ABC theo tên nhưng vẫn giữ nguyên thứ tự thông thường của tên người Việt Nam, không đảo tên lên trước họ.
++ Tài liệu không có tên tác giả thì xếp theo thứ tự ABC từ đầu của tên cơ quan ban hành báo cáo hay ấn phẩm. Ví dụ: Tổng cục thống kê xếp vào vần T, Bộ Giáo dục và Đào tạo xếp vào vần B,...
+-  Tài liệu tham khảo là sách, luận án, báo cáo phải ghi đầy đủ các thông tin: 
++ Tên các tác giả hoặc cơ quan ban hành (không có dấu ngăn cách)
++ (Năm xuất bản), (đặt trong dấu ngoặc đơn, dấu phẩy sau ngoặc đơn) 
++ Tên sách, luận án hoặc báo cáo (in nghiêng, dấu phẩy cuối tên)
++ Nhà xuất bản, (dấu phẫu cuối tên nhà xuất bản)
++ Nơi xuất bản. (dấu chấm kết thúc tài liệu tham khảo)
+- Tài liệu tham khảo là bài báo trong tạp chí, bài trong một cuốn sách,... phải ghi đầy đủ các thông tin sau:
++ Tên các tác giả (không có dấu ngăn cách)
++ (Năm công bố), (đặt trong dấu ngoặc đơn, dấu phẩy sau ngoặc đơn) 
++ “Tên bài báo”, (đặt trong ngoặc kép, không in nghiêng, dấu phẩy cuối tên)
+Tên tạp chí hoặc tên sách, (in nghiêng, dấu phẩy cuối tên)
+Tập (không có dấu ngăn cách)
+(Số), (đặt trong ngoặc đơn, dấu phẩy sau ngoặc đơn)
+Các số trang (gạch ngang giữa hai chữ số, dấu chấm kết thúc)
+Mẫu 1. Trang bìa của báo cáo tổng kết đề tài (bìa màu xanh dương)
+TRƯỜNG ĐẠI HỌC KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+KHOA…………
+(cỡ chữ 13)
+BÁO CÁO TỔNG KẾT
+(Cỡ chữ 16)
+TÊN ĐỀ TÀI
+(Cỡ chữ từ 16-20, tùy theo độ dài tên đề tài)
+GIẢNG VIÊN HƯỚNG DẪNSINH VIÊN THỰC HIỆN
+ThS. Nguyễn Văn ANguyễn Văn B (MSSV: …)
+Ngành: ………… 
+(Cỡ chữ 13)(Cỡ chữ 13)
+Cần Thơ, <Tháng>/<Năm>
+ Mẫu 2. Thông tin kết quả nghiên cứu của đề tài
+UBND THÀNH PHỐ CẦN THƠ
+TRƯỜNG ĐẠI HỌC 
+KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+THÔNG TIN KẾT QUẢ NGHIÊN CỨU CỦA ĐỀ TÀI
+1. Thông tin chung:
+- Tên đề tài: 
+- Sinh viên thực hiện: 
+- Lớp: Khoa:Năm thứ:        Số năm đào tạo:
+- Người hướng dẫn:
+2. Mục tiêu đề tài:
+3. Tính mới và sáng tạo:
+4. Kết quả nghiên cứu:
+5. Đóng góp về mặt kinh tế - xã hội, giáo dục và đào tạo, an ninh, quốc phòng và khả năng áp dụng của đề tài: 
+6. Công bố khoa học của sinh viên từ kết quả nghiên cứu của đề tài (ghi rõ tên tạp chí nếu có) hoặc nhận xét, đánh giá của cơ sở đã áp dụng các kết quả nghiên cứu (nếu có): 
+                                                                                         
+Ngày        tháng        năm  
+Sinh viên chịu trách nhiệm chính
+thực hiện đề tài
+(ký, họ và tên)
+Nhận xét của người hướng dẫn về những đóng góp khoa học của sinh viên thực hiện đề tài (phần này do người hướng dẫn ghi):
+Ngày        tháng        năm
+Người hướng dẫn
+(ký, họ và tên)
+Mẫu 3. Thông tin về sinh viên chịu trách nhiệm chính thực hiện đề tài 
+UBND THÀNH PHỐ CẦN THƠ
+TRƯỜNG ĐẠI HỌC 
+KỸ THUẬT - CÔNG NGHỆ CẦN THƠ
+THÔNG TIN VỀ SINH VIÊN 
+CHỊU TRÁCH NHIỆM CHÍNH THỰC HIỆN ĐỀ TÀI 
+I. SƠ LƯỢC VỀ SINH VIÊN: Ảnh 4x6
+Ảnh 4x6
+Họ và tên:
+Sinh ngày:              tháng            năm
+Nơi sinh:
+Lớp:                                                     Khóa:
+Khoa:
+Địa chỉ liên hệ:
+Điện thoại:                                          Email:
+II. QUÁ TRÌNH HỌC TẬP (kê khai thành tích của sinh viên từ năm thứ 1 đến năm đang học):
+* Năm thứ 1:
+    Ngành học:                                      Khoa:
+    Kết quả xếp loại học tập:
+    Sơ lược thành tích:
+* Năm thứ 2:
+    Ngành học:                                      Khoa:
+    Kết quả xếp loại học tập:
+    Sơ lược thành tích:
+...
+                                                                                        
+Ngày        tháng        năm 20
+Sinh viên chịu trách nhiệm chính
+thực hiện đề tài
+(ký, họ và tên)

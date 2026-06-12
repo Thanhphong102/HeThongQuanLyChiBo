@@ -69,7 +69,7 @@ const ForceChangePasswordPage = () => {
 
         {/* Cảnh báo */}
         <Alert
-          message="Bạn đang sử dụng mật khẩu tạm thời"
+          title="Bạn đang sử dụng mật khẩu tạm thời"
           description="Vui lòng đặt mật khẩu cá nhân mới để bảo vệ tài khoản. Bạn không thể bỏ qua bước này."
           type="warning"
           showIcon

@@ -155,15 +155,15 @@ const DashboardPage = () => {
             className="shadow-md h-full"
             variant="borderless"
           >
-            <List
-                dataSource={meetings}
-                locale={{ emptyText: <Empty description="Không có lịch họp sắp tới" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-                renderItem={item => (
-                    <List.Item className="border-b last:border-0 hover:bg-gray-50 transition-colors cursor-pointer">
-                        <List.Item.Meta
-                            title={<span className="text-red-dang font-semibold">{item.tieu_de}</span>}
-                            description={
-                                <div className="text-xs text-gray-500 mt-1">
+            {meetings.length === 0 ? (
+                <Empty description="Không có lịch họp sắp tới" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
+                <ul className="m-0 p-0 list-none">
+                    {meetings.map((item, index) => (
+                        <li key={index} className="border-b last:border-0 hover:bg-gray-50 transition-colors cursor-pointer py-3">
+                            <div className="flex flex-col">
+                                <span className="text-red-dang font-semibold text-base mb-1">{item.tieu_de}</span>
+                                <div className="text-xs text-gray-500">
                                     <div className="mb-1"><ClockCircleOutlined className="mr-1"/> {dayjs(item.thoi_gian).format('HH:mm')} - {item.thoi_gian_ket_thuc ? dayjs(item.thoi_gian_ket_thuc).format('HH:mm DD/MM/YYYY') : dayjs(item.thoi_gian).format('DD/MM/YYYY')}</div>
                                      <div className="mb-1">
                                          <Tag color={item.hinh_thuc_diem_danh === 'Online' ? 'green' : 'blue'} style={{ fontSize: 10 }}>
@@ -233,11 +233,11 @@ const DashboardPage = () => {
                                         })()}
                                     </div>
                                 </div>
-                            }
-                        />
-                    </List.Item>
-                )}
-            />
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
           </Card>
         </Col>
 

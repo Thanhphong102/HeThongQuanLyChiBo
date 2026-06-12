@@ -299,66 +299,7 @@ exports.uploadAvatar = async (req, res) => {
     }
 };
 
-// 8. Quên mật khẩu
-exports.forgotPassword = async (req, res) => {
-    const { email } = req.body;
 
-    if (!email) {
-        return res.status(400).json({ message: 'Vui lòng cung cấp địa chỉ email hợp lệ.' });
-    }
-
-    try {
-        // Kiểm tra xem email có tồn tại trong hệ thống không
-        const result = await db.query('SELECT * FROM "dangvien" WHERE email = $1', [email.trim()]);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy tài khoản nào đăng ký với email này.' });
-        }
-
-        const user = result.rows[0];
-
-        // Tạo mật khẩu mới ngẫu nhiên (10 ký tự: chữ hoa, chữ thường, số, ký tự đặc biệt)
-        const generateRandomPassword = () => {
-            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-            let password = '';
-            for (let i = 0; i < 10; i++) {
-                password += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return password;
-        };
-
-        const newPassword = generateRandomPassword();
-
-        // Mã hóa mật khẩu mới
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        // Cập nhật mật khẩu vào database và bật cờ buoc_doi_mat_khau
-        await db.query(
-            'UPDATE "dangvien" SET mat_khau = $1, buoc_doi_mat_khau = true WHERE ma_dang_vien = $2',
-            [hashedPassword, user.ma_dang_vien]
-        );
-
-        // Gửi email
-        const emailSent = await sendPasswordResetEmail(
-            user.email,
-            user.ho_ten,
-            user.ten_dang_nhap,
-            newPassword
-        );
-
-        if (emailSent) {
-            return res.json({ message: 'Mật khẩu mới đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư (hoặc mục Spam).' });
-        } else {
-            // Revert nếu gửi email lỗi? Thường thì không cần thiết nếu hệ thống ghi log tốt, nhưng báo lỗi cho người dùng.
-            return res.status(500).json({ message: 'Lỗi khi gửi email. Vui lòng liên hệ Quản trị viên.' });
-        }
-
-    } catch (error) {
-        console.error('[forgotPassword]', error);
-        res.status(500).json({ message: 'Lỗi xử lý yêu cầu quên mật khẩu' });
-    }
-};
 
 // const db = require('../config/db');
 // const jwt = require('jsonwebtoken');
@@ -572,32 +513,3 @@ exports.forgotPassword = async (req, res) => {
     }
 };
 
-// ==========================================
-// ĐỔI MẬT KHẨU BẮT BUỘC - Sau khi đăng nhập bằng mật khẩu tạm
-// ==========================================
-exports.changePasswordForced = async (req, res) => {
-    const userId = req.user?.id; // Lấy từ token đã verify
-    const { mat_khau_moi } = req.body;
-
-    if (!mat_khau_moi || mat_khau_moi.length < 6) {
-        return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự!' });
-    }
-
-    try {
-        // Mã hóa mật khẩu mới
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(mat_khau_moi, salt);
-
-        // Cập nhật mật khẩu & tắt cờ buoc_doi_mat_khau
-        await db.query(
-            'UPDATE "dangvien" SET mat_khau = $1, buoc_doi_mat_khau = false WHERE ma_dang_vien = $2',
-            [hashedPassword, userId]
-        );
-
-        res.json({ message: 'Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.' });
-
-    } catch (error) {
-        console.error('Lỗi changePasswordForced:', error);
-        res.status(500).json({ message: 'Lỗi server' });
-    }
-};

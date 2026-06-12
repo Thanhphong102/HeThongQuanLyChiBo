@@ -282,7 +282,7 @@ const TargetManager = () => {
           onCancel={() => setIsModalOpen(false)} 
           footer={null} 
           className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']" 
-          destroyOnHidden
+          destroyOnClose
         >
           <Form form={form} layout="vertical" onFinish={handleSave} className="mt-4">
             <Form.Item 
