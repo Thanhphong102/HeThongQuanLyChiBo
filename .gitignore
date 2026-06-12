@@ -31,4 +31,3 @@ yarn.lock
 # === BACKUP ===
 BACKUP_SOURCE/
 scratch_*.txt
-*.png
