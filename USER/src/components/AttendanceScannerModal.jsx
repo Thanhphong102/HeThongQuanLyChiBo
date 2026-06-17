@@ -17,8 +17,13 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
     let timer;
 
     if (isOpen && status === 'SCANNING') {
-      // Đợi 300ms để Ant Design Modal render xong DOM Element id="qr-reader"
-      timer = setTimeout(() => {
+      const startScanner = () => {
+        const element = document.getElementById("qr-reader");
+        if (!element) {
+          timer = setTimeout(startScanner, 100);
+          return;
+        }
+        
         try {
           html5QrcodeScanner = new Html5QrcodeScanner(
             "qr-reader",
@@ -29,8 +34,12 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
           setScanner(html5QrcodeScanner);
         } catch (error) {
           console.error("Lỗi khởi tạo camera:", error);
+          // Nếu lỗi do camera chưa sẵn sàng, thử lại sau 500ms
+          timer = setTimeout(startScanner, 500);
         }
-      }, 300);
+      };
+      
+      startScanner();
     }
 
     return () => {
