@@ -21,7 +21,7 @@ QUY TẮC BẮT BUỘC:
 - CHỈ trả về JSON object thuần túy, KHÔNG markdown, KHÔNG giải thích.
 - Nếu không tìm thấy, đặt giá trị null.
 - Các trường ngày tháng (ngaySinh, ngayVaoDang) định dạng YYYY-MM-DD.
-- Các trường: hoTen, mssv, lop, dienThoai, email, ngaySinh, ngayVaoDang, queQuan, diaChiHienTai, gioiTinh ("Nam" hoặc "Nữ").`;
+- Các trường: hoTen, mssv, lop, dienThoai, email, ngaySinh, ngayVaoDang, queQuan, diaChiThuongTru, diaChiTamTru, diaChiChiBoLienHe, gioiTinh ("Nam" hoặc "Nữ"), soCccd, soTheDang.`;
 
   const userPrompt = `VĂN BẢN CẦN PHÂN TÍCH:\n---\n${rawText}\n---\nJSON OUTPUT:`;
 

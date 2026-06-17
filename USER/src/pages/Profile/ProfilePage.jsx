@@ -51,7 +51,9 @@ const ProfilePage = () => {
                     ngay_sinh: fetchedUser.ngay_sinh ? dayjs(fetchedUser.ngay_sinh) : null,
                     gioi_tinh: fetchedUser.gioi_tinh,
                     que_quan: fetchedUser.que_quan,
-                    dia_chi_hien_tai: fetchedUser.dia_chi_hien_tai,
+                    dia_chi_thuong_tru: fetchedUser.dia_chi_thuong_tru,
+                    dia_chi_tam_tru: fetchedUser.dia_chi_tam_tru,
+                    dia_chi_chi_bo_lien_he: fetchedUser.dia_chi_chi_bo_lien_he,
                     so_dien_thoai: fetchedUser.so_dien_thoai,
                     email: fetchedUser.email,
                     ngay_vao_dang: fetchedUser.ngay_vao_dang ? dayjs(fetchedUser.ngay_vao_dang) : null,
@@ -261,27 +263,11 @@ const ProfilePage = () => {
                             </Row>
                         )}
 
-                        {/* Nhóm Thông tin Sửa được */}
-                        <Divider titlePlacement="left"><Text className="text-red-dang text-sm font-semibold">Thông tin Liên hệ & Cá nhân</Text></Divider>
+                        <Divider titlePlacement="left"><Text className="text-red-dang text-sm font-semibold">Thông tin Liên hệ (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
-                                <Form.Item name="ngay_sinh" label="Ngày sinh">
-                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Chọn ngày sinh" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
-                                <Form.Item name="gioi_tinh" label="Giới tính">
-                                    <Select placeholder="Chọn giới tính" className="h-10"
-                                        options={[
-                                            { value: 'Nam', label: 'Nam' },
-                                            { value: 'Nữ', label: 'Nữ' },
-                                        ]}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
                                 <Form.Item name="so_dien_thoai" label="Số điện thoại"
-                                    rules={[{ pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải gồm 10 chữ số' }]}
+                                    rules={[{ pattern: /^[0-9]{10}$/, message: 'Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0' }]}
                                 >
                                     <Input prefix={<PhoneOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập SĐT" />
                                 </Form.Item>
@@ -290,10 +276,49 @@ const ProfilePage = () => {
                                 <Form.Item name="email" label="Email"
                                     rules={[{ type: 'email', message: 'Email không hợp lệ' }]}
                                 >
-                                    <Input prefix={<MailOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập địa chỉ email" />
+                                    <Input disabled prefix={<MailOutlined className="text-gray-400" />} className="h-10 bg-gray-50 text-gray-700 font-semibold" placeholder="Nhập địa chỉ email" />
                                 </Form.Item>
                             </Col>
                         </Row>
+
+                        <Divider titlePlacement="left"><Text className="text-green-600 text-sm font-semibold">Địa chỉ (Được phép sửa)</Text></Divider>
+                        <Row gutter={16}>
+                            <Col xs={24}>
+                                <Form.Item name="dia_chi_thuong_tru" label="Địa chỉ thường trú">
+                                    <Input prefix={<EnvironmentOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập địa chỉ thường trú" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24}>
+                                <Form.Item name="dia_chi_tam_tru" label="Địa chỉ hiện tại/Tạm trú">
+                                    <Input prefix={<EnvironmentOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập địa chỉ tạm trú" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24}>
+                                <Form.Item name="dia_chi_chi_bo_lien_he" label="Địa chỉ chi bộ đang giữ mối liên hệ">
+                                    <Input prefix={<EnvironmentOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập địa chỉ chi bộ" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Cơ bản (Chỉ xem)</Text></Divider>
+                        <Row gutter={16}>
+                            <Col xs={24} md={12}>
+                                <Form.Item name="ngay_sinh" label="Ngày sinh">
+                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={12}>
+                                <Form.Item name="gioi_tinh" label="Giới tính">
+                                    <Input disabled className="h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24}>
+                                <Form.Item name="que_quan" label="Quê quán">
+                                    <Input.TextArea disabled rows={2} className="bg-gray-50 text-gray-700 font-semibold" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
 
                         <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Chỉ xem)</Text></Divider>
                         <Row gutter={16}>
@@ -313,26 +338,12 @@ const ProfilePage = () => {
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="so_dinh_danh" label="Số định danh công dân (CCCD)">
-                                    <Input prefix={<IdcardOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập số CCCD 12 chữ số" maxLength={12} />
+                                    <Input disabled prefix={<IdcardOutlined className="text-gray-400" />} className="h-10 bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item name="so_the_dang_vien" label="Số thẻ Đảng viên">
-                                    <Input prefix={<SafetyCertificateOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập số thẻ Đảng viên" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-
-                        <Divider titlePlacement="left"><Text className="text-green-600 text-sm font-semibold">Địa chỉ</Text></Divider>
-                        <Row gutter={16}>
-                            <Col xs={24}>
-                                <Form.Item name="que_quan" label="Quê quán">
-                                    <Input.TextArea rows={2} className="border-gray-300 rounded-lg" placeholder="Nhập quê quán" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24}>
-                                <Form.Item name="dia_chi_hien_tai" label="Địa chỉ hiện tại">
-                                    <Input prefix={<EnvironmentOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập địa chỉ đang ở" />
+                                    <Input disabled prefix={<SafetyCertificateOutlined className="text-gray-400" />} className="h-10 bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
                         </Row>

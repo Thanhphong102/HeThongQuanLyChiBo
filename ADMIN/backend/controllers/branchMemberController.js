@@ -75,8 +75,8 @@ exports.createMember = async (req, res) => {
     const branchId = req.user.branchId;
     const { 
         ho_ten, so_dien_thoai, email, ngay_sinh, gioi_tinh, que_quan, 
-        dia_chi_hien_tai, ngay_vao_dang, doi_tuong, ma_so_sinh_vien, 
-        lop, khoa_hoc, nganh_hoc, ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon
+        dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, ngay_vao_dang, doi_tuong, ma_so_sinh_vien, 
+        lop, khoa_hoc, nganh_hoc, ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, so_dinh_danh, so_the_dang_vien
     } = req.body;
 
     if (!ho_ten || !email) {
@@ -105,27 +105,27 @@ exports.createMember = async (req, res) => {
             INSERT INTO "dangvien" 
             (
                 ho_ten, ma_chi_bo, cap_quyen, trang_thai_dang_vien, hoat_dong,
-                so_dien_thoai, email, ngay_sinh, gioi_tinh, que_quan, dia_chi_hien_tai, ngay_vao_dang,
+                so_dien_thoai, email, ngay_sinh, gioi_tinh, que_quan, dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, ngay_vao_dang,
                 doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
                 ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, chuc_vu_dang, nguoi_tao,
-                ten_dang_nhap, mat_khau
+                ten_dang_nhap, mat_khau, so_dinh_danh, so_the_dang_vien
             )
             VALUES (
                 $1, $2, 3, 'Du bi', true,
-                $3, $4, $5, $6, $7, $8, $9,
-                $10, $11, $12, $13, $14,
-                $15, $16, $17, 'Dang vien', $18,
-                $19, $20
+                $3, $4, $5, $6, $7, $8, $9, $10, $11,
+                $12, $13, $14, $15, $16,
+                $17, $18, $19, 'Dang vien', $20,
+                $21, $22, $23, $24
             )
             RETURNING *
         `;
         
         await db.query(sql, [
             ho_ten, branchId, 
-            so_dien_thoai, email, ngay_sinh || null, gioi_tinh, que_quan, dia_chi_hien_tai, ngay_vao_dang || null,
+            so_dien_thoai, email, ngay_sinh || null, gioi_tinh, que_quan, dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, ngay_vao_dang || null,
             doi_tuong || 'Sinh vien', ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
             ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, req.user.id,
-            email, hashedPassword
+            email, hashedPassword, so_dinh_danh, so_the_dang_vien
         ]);
 
         // Gửi email thông báo
@@ -143,10 +143,10 @@ exports.updateMember = async (req, res) => {
     const { id } = req.params;
     const branchId = req.user.branchId;
     const { 
-        ho_ten, so_dien_thoai, email, dia_chi_hien_tai, que_quan, 
+        ho_ten, so_dien_thoai, email, dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, que_quan, 
         ngay_sinh, gioi_tinh, trang_thai_dang_vien, ngay_chinh_thuc, ngay_vao_dang,
         doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
-        ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon
+        ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, so_dinh_danh, so_the_dang_vien
     } = req.body;
 
     try {
@@ -155,21 +155,23 @@ exports.updateMember = async (req, res) => {
 
         const sql = `
             UPDATE "dangvien" 
-            SET ho_ten = $1, so_dien_thoai = $2, email = $3, dia_chi_hien_tai = $4, 
-                que_quan = $5, ngay_sinh = $6, gioi_tinh = $7, 
-                trang_thai_dang_vien = $8, ngay_chinh_thuc = $9, ngay_vao_dang = $10,
-                doi_tuong = $11, ma_so_sinh_vien = $12, lop = $13, khoa_hoc = $14, nganh_hoc = $15,
-                ma_can_bo = $16, don_vi_cong_tac = $17, chuc_vu_chuyen_mon = $18,
-                nguoi_cap_nhat = $19
-            WHERE ma_dang_vien = $20
+            SET ho_ten = $1, so_dien_thoai = $2, email = $3, dia_chi_thuong_tru = $4, dia_chi_tam_tru = $5, dia_chi_chi_bo_lien_he = $6,
+                que_quan = $7, ngay_sinh = $8, gioi_tinh = $9, 
+                trang_thai_dang_vien = $10, ngay_chinh_thuc = $11, ngay_vao_dang = $12,
+                doi_tuong = $13, ma_so_sinh_vien = $14, lop = $15, khoa_hoc = $16, nganh_hoc = $17,
+                ma_can_bo = $18, don_vi_cong_tac = $19, chuc_vu_chuyen_mon = $20,
+                so_dinh_danh = $21, so_the_dang_vien = $22,
+                nguoi_cap_nhat = $23
+            WHERE ma_dang_vien = $24
         `;
         
         await db.query(sql, [
-            ho_ten, so_dien_thoai, email, dia_chi_hien_tai, 
+            ho_ten, so_dien_thoai, email, dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he,
             que_quan, ngay_sinh || null, gioi_tinh, 
             trang_thai_dang_vien, ngay_chinh_thuc || null, ngay_vao_dang || null,
             doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
             ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon,
+            so_dinh_danh, so_the_dang_vien,
             req.user.id, id
         ]);
 

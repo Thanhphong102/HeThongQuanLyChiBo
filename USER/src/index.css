@@ -285,3 +285,17 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(169, 31, 35, 0.7);
 }
+
+/* =============================================
+   🔥 CẢI THIỆN HIỂN THỊ DỮ LIỆU BỊ KHÓA (DISABLED)
+   ============================================= */
+.ant-input-disabled,
+.ant-input-affix-wrapper-disabled,
+.ant-input-affix-wrapper-disabled input,
+.ant-picker-disabled .ant-picker-input > input,
+.ant-select-disabled .ant-select-selection-item {
+    color: #1f2937 !important; /* text-gray-800 */
+    -webkit-text-fill-color: #1f2937 !important; /* Cần có cho WebKit browsers khi input bị disabled */
+    background-color: #f3f4f6 !important; /* nền xám nhẹ nhàng */
+    font-weight: 600 !important;
+}

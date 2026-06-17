@@ -12,6 +12,24 @@ import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+const PROVINCES = [
+  "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "TP Hồ Chí Minh", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+];
+
+const MAJORS = [
+  "Khoa học máy tính", "Khoa học dữ liệu", "Hệ thống thông tin", "Công nghệ thông tin", "Kỹ thuật phần mềm",
+  "Kỹ thuật hệ thống công nghiệp", "Quản lý công nghiệp", "Logistics và Quản lý chuỗi cung ứng",
+  "Công nghệ kỹ thuật cơ điện tử", "Công nghệ kỹ thuật điện, điện tử", "Công nghệ kỹ thuật điều khiển và tự động hóa", "Công nghệ kỹ thuật năng lượng",
+  "Công nghệ thực phẩm", "Công nghệ sinh học", "Công nghệ kỹ thuật hóa học",
+  "Quản lý xây dựng", "Công nghệ kỹ thuật công trình xây dựng",
+  "Quản trị kinh doanh", "Kế toán", "Tài chính - Ngân hàng", "Luật", "Ngôn ngữ Anh"
+];
+
+const DEPARTMENTS = [
+  "Phòng Đào tạo", "Phòng Tổ chức - Hành chính", "Phòng Kế hoạch - Tài chính", "Phòng Quản trị - Thiết bị", "Phòng Khảo thí - Đảm bảo chất lượng", "Phòng Công tác chính trị - Quản lý sinh viên - Khởi nghiệp", "Phòng Quản lý khoa học công nghệ - Đổi mới sáng tạo - Hợp tác quốc tế",
+  "Khoa Công nghệ thông tin", "Khoa Điện - Điện tử", "Khoa Kinh tế - Quản lý công nghiệp", "Khoa Kỹ thuật xây dựng", "Khoa Công nghệ Sinh học - Công nghệ Thực phẩm - Hóa học", "Khoa Cơ bản"
+];
+
 const MemberManager = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +91,11 @@ const MemberManager = () => {
         ngay_sinh:      d.ngaySinh     ? dayjs(d.ngaySinh)     : undefined,
         ngay_vao_dang:  d.ngayVaoDang  ? dayjs(d.ngayVaoDang)  : undefined,
         que_quan:       d.queQuan      || undefined,
-        dia_chi_hien_tai: d.diaChiHienTai || undefined,
+        dia_chi_thuong_tru: d.diaChiThuongTru || undefined,
+        dia_chi_tam_tru: d.diaChiTamTru || undefined,
+        dia_chi_chi_bo_lien_he: d.diaChiChiBoLienHe || undefined,
+        so_dinh_danh:   d.soCccd       || undefined,
+        so_the_dang_vien: d.soTheDang  || undefined,
         gioi_tinh:      d.gioiTinh     || undefined,
       });
       message.success('✨ AI đã trích xuất thành công! Kiểm tra lại thông tin trước khi lưu.');
@@ -155,7 +177,13 @@ const MemberManager = () => {
         <Row gutter={16}>
           <Col span={6}><Form.Item name="ma_so_sinh_vien" label="MSSV"><Input /></Form.Item></Col>
           <Col span={6}><Form.Item name="lop" label="Lớp"><Input /></Form.Item></Col>
-          <Col span={6}><Form.Item name="nganh_hoc" label="Ngành học"><Input /></Form.Item></Col>
+          <Col span={6}>
+              <Form.Item name="nganh_hoc" label="Ngành học">
+                  <Select showSearch placeholder="Chọn ngành học" popupMatchSelectWidth={false}>
+                      {MAJORS.map(m => <Select.Option key={m} value={m}>{m}</Select.Option>)}
+                  </Select>
+              </Form.Item>
+          </Col>
           <Col span={6}><Form.Item name="khoa_hoc" label="Khóa học"><Input /></Form.Item></Col>
         </Row>
       );
@@ -163,7 +191,13 @@ const MemberManager = () => {
       return (
         <Row gutter={16}>
           <Col span={8}><Form.Item name="ma_can_bo" label="Mã Cán bộ"><Input /></Form.Item></Col>
-          <Col span={8}><Form.Item name="don_vi_cong_tac" label="Đơn vị công tác"><Input /></Form.Item></Col>
+          <Col span={8}>
+              <Form.Item name="don_vi_cong_tac" label="Đơn vị công tác">
+                  <Select showSearch placeholder="Chọn đơn vị" popupMatchSelectWidth={false}>
+                      {DEPARTMENTS.map(d => <Select.Option key={d} value={d}>{d}</Select.Option>)}
+                  </Select>
+              </Form.Item>
+          </Col>
           <Col span={8}><Form.Item name="chuc_vu_chuyen_mon" label="Chuyên môn"><Input /></Form.Item></Col>
         </Row>
       );
@@ -349,8 +383,12 @@ const MemberManager = () => {
                     <Descriptions.Item label="Giới tính">{selectedMember.gioi_tinh}</Descriptions.Item>
                     <Descriptions.Item label="Số điện thoại">{selectedMember.so_dien_thoai}</Descriptions.Item>
                     <Descriptions.Item label="Email">{selectedMember.email}</Descriptions.Item>
+                    <Descriptions.Item label="SỐ CCCD" span={2}><b>{selectedMember.so_dinh_danh}</b></Descriptions.Item>
+                    <Descriptions.Item label="Số thẻ Đảng" span={2}><b>{selectedMember.so_the_dang_vien}</b></Descriptions.Item>
                     <Descriptions.Item label="Quê quán" span={2}>{selectedMember.que_quan}</Descriptions.Item>
-                    <Descriptions.Item label="Địa chỉ hiện tại" span={2}>{selectedMember.dia_chi_hien_tai}</Descriptions.Item>
+                    <Descriptions.Item label="Thường trú" span={2}>{selectedMember.dia_chi_thuong_tru}</Descriptions.Item>
+                    <Descriptions.Item label="Tạm trú" span={2}>{selectedMember.dia_chi_tam_tru}</Descriptions.Item>
+                    <Descriptions.Item label="Chi bộ liên hệ" span={2}>{selectedMember.dia_chi_chi_bo_lien_he}</Descriptions.Item>
                     <Descriptions.Item label="Ngày vào Đảng" labelStyle={{color:'#cf1322'}}>{selectedMember.ngay_vao_dang ? dayjs(selectedMember.ngay_vao_dang).format('DD/MM/YYYY') : '-'}</Descriptions.Item>
                     <Descriptions.Item label="Ngày chính thức" labelStyle={{color:'#cf1322'}}>{selectedMember.ngay_chinh_thuc ? dayjs(selectedMember.ngay_chinh_thuc).format('DD/MM/YYYY') : 'Chưa'}</Descriptions.Item>
                     <Descriptions.Item label="Trạng thái Đảng"><Tag color={selectedMember.trang_thai_dang_vien === 'Chinh thuc' ? 'green' : selectedMember.trang_thai_dang_vien === 'Chuyen di' ? 'purple' : 'orange'}>{
@@ -426,18 +464,26 @@ const MemberManager = () => {
                 <Row gutter={16}>
                     <Col span={8}><Form.Item name="ngay_sinh" label="Ngày sinh"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
                     <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nữ">Nữ</Select.Option></Select></Form.Item></Col>
-                    <Col span={8}><Form.Item name="que_quan" label="Quê quán"><Input /></Form.Item></Col>
+                    <Col span={8}>
+                        <Form.Item name="que_quan" label="Quê quán">
+                            <Select showSearch placeholder="Chọn tỉnh thành" popupMatchSelectWidth={false}>
+                                {PROVINCES.map(p => <Select.Option key={p} value={p}>{p}</Select.Option>)}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}><Form.Item name="so_dinh_danh" label="Số CCCD" rules={[{ len: 12, message: 'CCCD phải đủ 12 số' }]}><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="so_the_dang_vien" label="Số thẻ Đảng" rules={[{ len: 12, message: 'Thẻ Đảng phải đủ 12 số' }]}><Input /></Form.Item></Col>
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}><Form.Item name="email" label="Email" rules={[{ required: true, message: 'Vui lòng nhập Email' }, { type: 'email', message: 'Email không hợp lệ' }]}><Input /></Form.Item></Col>
-                    <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại"><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại" rules={[{ pattern: /^0\d{9}$/, message: 'SĐT phải 10 số và bắt đầu bằng 0' }]}><Input /></Form.Item></Col>
                 </Row>
-                <Form.Item name="dia_chi_hien_tai" label="Địa chỉ hiện tại"><Input /></Form.Item>
-                {/* <div style={{ borderTop: '1px dashed #ccc', paddingTop: 10, marginBottom: 10 }}><b>Tài khoản</b></div>
-                <Row gutter={16}>
-                    <Col span={12}><Form.Item name="ten_dang_nhap" label="Username" rules={[{ required: true }]}><Input autoComplete="new-username"/></Form.Item></Col>
-                    <Col span={12}><Form.Item name="mat_khau" label="Password" rules={[{ required: true }]}><Input.Password autoComplete="new-password"/></Form.Item></Col>
-                </Row> */}
+                <Form.Item name="dia_chi_thuong_tru" label="Địa chỉ thường trú"><Input /></Form.Item>
+                <Form.Item name="dia_chi_tam_tru" label="Địa chỉ tạm trú"><Input /></Form.Item>
+                <Form.Item name="dia_chi_chi_bo_lien_he" label="Địa chỉ chi bộ đang giữ mối liên hệ"><Input /></Form.Item>
+
                 <Form.Item name="ngay_vao_dang" label="Ngày vào Đảng (Dự bị)"><DatePicker format="DD/MM/YYYY" /></Form.Item>
                 <Button type="primary" htmlType="submit" block size="large"
                   style={{ background: '#CE1126', borderColor: '#CE1126', borderRadius: 8, fontWeight: 600, fontFamily: 'Be Vietnam Pro, sans-serif' }}>
@@ -460,13 +506,25 @@ const MemberManager = () => {
                 <Row gutter={16}>
                     <Col span={8}><Form.Item name="ngay_sinh" label="Ngày sinh"><DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} /></Form.Item></Col>
                     <Col span={8}><Form.Item name="gioi_tinh" label="Giới tính"><Select><Select.Option value="Nam">Nam</Select.Option><Select.Option value="Nữ">Nữ</Select.Option></Select></Form.Item></Col>
-                    <Col span={8}><Form.Item name="que_quan" label="Quê quán"><Input /></Form.Item></Col>
+                    <Col span={8}>
+                        <Form.Item name="que_quan" label="Quê quán">
+                            <Select showSearch placeholder="Chọn tỉnh thành" popupMatchSelectWidth={false}>
+                                {PROVINCES.map(p => <Select.Option key={p} value={p}>{p}</Select.Option>)}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}><Form.Item name="so_dinh_danh" label="Số CCCD" rules={[{ len: 12, message: 'CCCD phải đủ 12 số' }]}><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="so_the_dang_vien" label="Số thẻ Đảng" rules={[{ len: 12, message: 'Thẻ Đảng phải đủ 12 số' }]}><Input /></Form.Item></Col>
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}><Form.Item name="email" label="Email" rules={[{ required: true, message: 'Vui lòng nhập Email' }, { type: 'email', message: 'Email không hợp lệ' }]}><Input /></Form.Item></Col>
-                    <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại"><Input /></Form.Item></Col>
+                    <Col span={12}><Form.Item name="so_dien_thoai" label="Số điện thoại" rules={[{ pattern: /^0\d{9}$/, message: 'SĐT phải 10 số và bắt đầu bằng 0' }]}><Input /></Form.Item></Col>
                 </Row>
-                <Form.Item name="dia_chi_hien_tai" label="Địa chỉ"><Input /></Form.Item>
+                <Form.Item name="dia_chi_thuong_tru" label="Địa chỉ thường trú"><Input /></Form.Item>
+                <Form.Item name="dia_chi_tam_tru" label="Địa chỉ tạm trú"><Input /></Form.Item>
+                <Form.Item name="dia_chi_chi_bo_lien_he" label="Địa chỉ chi bộ đang giữ mối liên hệ"><Input /></Form.Item>
                 <div style={{ borderTop: '1px solid #eee', paddingTop: 10, marginTop: 10 }}>
                     <Row gutter={16}>
                          <Col span={8}><Form.Item name="trang_thai_dang_vien" label="Trạng thái Đảng"><Select><Select.Option value="Du bi">Dự bị</Select.Option><Select.Option value="Chinh thuc">Chính thức</Select.Option><Select.Option value="Chuyen di">Đã chuyển đi</Select.Option></Select></Form.Item></Col>
