@@ -1,3 +1,19 @@
-react-dom.development.js:25765 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
-warning.js:30 Warning: [antd: Card] `bodyStyle` is deprecated. Please use `styles.body` instead.
-warning @ bundle.js:sourcemap:155438
+index-CQ5CComL.js:425 Lỗi lấy dữ liệu public: AxiosError: Network Error
+    at $.onerror (index-CQ5CComL.js:388:16197)
+    at Pu.request (index-CQ5CComL.js:390:2231)
+    at async Promise.all (index 0)
+    at async index-CQ5CComL.js:425:130544
+(ẩn danh) @ index-CQ5CComL.js:425
+index-CQ5CComL.js:425 Lỗi đăng nhập: AxiosError: Network Error
+    at $.onerror (index-CQ5CComL.js:388:16197)
+t @ index-CQ5CComL.js:425
+index-CQ5CComL.js:425 Lỗi đăng nhập: AxiosError: Network Error
+    at $.onerror (index-CQ5CComL.js:388:16197)
+t @ index-CQ5CComL.js:425
+
+index-CQ5CComL.js:425 Lỗi đăng nhập: AxiosError: Network Error
+    at $.onerror (index-CQ5CComL.js:388:16197)
+t @ index-CQ5CComL.js:425
+index-CQ5CComL.js:425 Lỗi đăng nhập: AxiosError: Network Error
+    at $.onerror (index-CQ5CComL.js:388:16197)
+t @ index-CQ5CComL.js:425

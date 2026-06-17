@@ -13,24 +13,34 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   const [scanner, setScanner] = useState(null);
 
   useEffect(() => {
-    if (isOpen && status === 'SCANNING') {
-      const html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { fps: 10, qrbox: {width: 250, height: 250}, formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] },
-        /* verbose= */ false
-      );
-      
-      html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-      setScanner(html5QrcodeScanner);
+    let html5QrcodeScanner;
+    let timer;
 
-      return () => {
-         try {
-             html5QrcodeScanner.clear().catch(error => {
-                 console.error("Failed to clear html5QrcodeScanner. ", error);
-             });
-         } catch(e) { console.error(e); }
-      };
+    if (isOpen && status === 'SCANNING') {
+      // Đợi 300ms để Ant Design Modal render xong DOM Element id="qr-reader"
+      timer = setTimeout(() => {
+        try {
+          html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader",
+            { fps: 10, qrbox: { width: 250, height: 250 }, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] },
+            false
+          );
+          html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+          setScanner(html5QrcodeScanner);
+        } catch (error) {
+          console.error("Lỗi khởi tạo camera:", error);
+        }
+      }, 300);
     }
+
+    return () => {
+      clearTimeout(timer);
+      if (html5QrcodeScanner) {
+        try {
+          html5QrcodeScanner.clear().catch(e => console.log(e));
+        } catch (e) { console.error(e); }
+      }
+    };
   }, [isOpen, status]);
 
   const onScanSuccess = (decodedText, decodedResult) => {
