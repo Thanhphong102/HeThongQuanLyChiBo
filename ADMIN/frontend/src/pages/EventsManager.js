@@ -60,15 +60,15 @@ const EventsManager = () => {
   const [previewImage, setPreviewImage]       = useState(null);
   const [isPreviewOpen, setIsPreviewOpen]     = useState(false);
 
-  // Helper chuyển đổi link Google Drive sang link Proxy Backend
-  const getDirectImageUrl = (url) => {
+  // Helper chuyển đổi link Google Drive sang link Iframe Preview (Hỗ trợ tốt HEIC/PDF)
+  const getDriveIframeUrl = (url) => {
     if (!url) return '';
     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
     const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const id = (match && match[1]) || (idParamMatch && idParamMatch[1]);
     
     if (id) {
-      return `http://localhost:5001/api/media/proxy/${id}`;
+      return `https://drive.google.com/file/d/${id}/preview`;
     }
     return url;
   };
@@ -523,13 +523,15 @@ const EventsManager = () => {
         width={600}
       >
         {previewImage && (
-          <div style={{ textAlign: 'center' }}>
-            <Image
-              src={getDirectImageUrl(previewImage)}
-              style={{ maxWidth: '100%', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
-              fallback="https://placehold.co/400x300?text=Không+tải+được+ảnh"
-              alt="Minh chứng tham gia"
-            />
+          <div style={{ textAlign: 'center', height: '400px' }}>
+            <iframe
+              src={getDriveIframeUrl(previewImage)}
+              width="100%"
+              height="100%"
+              style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
+              allow="autoplay"
+              title="Minh chứng tham gia"
+            ></iframe>
           </div>
         )}
       </Modal>

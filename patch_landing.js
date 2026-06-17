@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const fileContent = `import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, Upload, message, Popconfirm, Tag, Tooltip, Space, InputNumber, Tabs } from 'antd';
 import { PlusOutlined, DeleteOutlined, UploadOutlined, AppstoreOutlined, FileImageOutlined, TeamOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
@@ -7,44 +9,19 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 
-// Removed unused TabPane
+const { TabPane } = Tabs;
 
 const getDirectImageUrl = (url) => {
   if (!url) return '';
-  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
+  const match = url.match(/\\/file\\/d\\/([a-zA-Z0-9_-]+)\\//);
   const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   const id = (match && match[1]) || (idParamMatch && idParamMatch[1]);
-  const apiBaseUrl = process.env.REACT_APP_API_URL || process.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
   if (id) {
-    return `${apiBaseUrl}/media/proxy/${id}`;
+    return \`\${apiBaseUrl}/media/proxy/\${id}\`;
   }
   return url;
 };
-
-const quillModules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    [{ 'indent': '-1' }, { 'indent': '+1' }],
-    [{ 'align': [] }],
-    [{ 'color': [] }, { 'background': [] }],
-    ['link', 'image', 'video'],
-    ['clean']
-  ],
-  clipboard: {
-    matchVisual: false,
-  }
-};
-
-const quillFormats = [
-  'header',
-  'bold', 'italic', 'underline', 'strike', 'blockquote',
-  'list', 'bullet', 'indent',
-  'align',
-  'color', 'background',
-  'link', 'image', 'video'
-];
 
 const LandingManager = () => {
   const [orgData, setOrgData] = useState([]);
@@ -68,10 +45,6 @@ const LandingManager = () => {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedProcess, setSelectedProcess] = useState(null);
 
-  // Detail Modal Org
-  const [orgDetailModalOpen, setOrgDetailModalOpen] = useState(false);
-  const [selectedOrg, setSelectedOrg] = useState(null);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -89,7 +62,6 @@ const LandingManager = () => {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchData(); }, [activeTab]);
 
   // === XỬ LÝ SƠ ĐỒ TỔ CHỨC ===
@@ -99,8 +71,6 @@ const LandingManager = () => {
     formData.append('chuc_vu', values.chuc_vu);
     if (values.thu_tu) formData.append('thu_tu', values.thu_tu);
     if (values.ma_so_do_cha) formData.append('ma_so_do_cha', values.ma_so_do_cha);
-    if (values.email) formData.append('email', values.email);
-    if (values.nhiem_vu) formData.append('nhiem_vu', values.nhiem_vu);
     if (orgFileList.length > 0 && orgFileList[0].originFileObj) {
         formData.append('file', orgFileList[0].originFileObj);
     }
@@ -108,7 +78,7 @@ const LandingManager = () => {
     setLoading(true);
     try {
       if (editingOrgId) {
-        await axios.put(`/landing/org-chart/${editingOrgId}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.put(\`/landing/org-chart/\${editingOrgId}\`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         message.success('Cập nhật nhân sự thành công');
       } else {
         await axios.post('/landing/org-chart', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -129,9 +99,7 @@ const LandingManager = () => {
       ho_ten: record.ho_ten,
       chuc_vu: record.chuc_vu,
       thu_tu: record.thu_tu,
-      ma_so_do_cha: record.ma_so_do_cha,
-      email: record.email,
-      nhiem_vu: record.nhiem_vu
+      ma_so_do_cha: record.ma_so_do_cha
     });
     setOrgFileList([]); // We don't preload the actual file, just allow uploading a new one to replace
     setIsOrgModalOpen(true);
@@ -139,7 +107,7 @@ const LandingManager = () => {
 
   const handleDeleteOrg = async (id) => {
     try {
-      await axios.delete(`/landing/org-chart/${id}`);
+      await axios.delete(\`/landing/org-chart/\${id}\`);
       message.success('Xóa thành công');
       fetchData();
     } catch (e) { message.error('Xóa thất bại'); }
@@ -164,7 +132,7 @@ const LandingManager = () => {
     setLoading(true);
     try {
       if (editingProcessId) {
-        await axios.put(`/landing/process/${editingProcessId}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.put(\`/landing/process/\${editingProcessId}\`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         message.success('Cập nhật quy trình thành công');
       } else {
         await axios.post('/landing/process', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -191,34 +159,17 @@ const LandingManager = () => {
 
   const handleDeleteProcess = async (id) => {
     try {
-      await axios.delete(`/landing/process/${id}`);
+      await axios.delete(\`/landing/process/\${id}\`);
       message.success('Xóa thành công');
       fetchData();
     } catch (e) { message.error('Xóa thất bại'); }
-  };
-
-  const getRoleColor = (role) => {
-    if (!role) return 'default';
-    const r = role.toLowerCase();
-    if (r.includes('phó bí thư')) return 'volcano';
-    if (r.includes('bí thư')) return 'red';
-    if (r.includes('thường vụ') || r.includes('chủ nhiệm')) return 'purple';
-    if (r.includes('ủy viên')) return 'blue';
-    return 'cyan';
   };
 
   // Cột Sơ đồ tổ chức
   const orgColumns = [
     { title: 'Ảnh', dataIndex: 'anh_the', render: (url) => url ? <img src={getDirectImageUrl(url)} alt="Avt" className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200" /> : <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xs text-gray-400">Trống</div> },
     { title: 'Họ và tên', dataIndex: 'ho_ten', render: t => <span className="font-semibold text-gray-800 text-base">{t}</span> },
-    { title: 'Chức vụ', dataIndex: 'chuc_vu', render: t => <Tag color={getRoleColor(t)} className="rounded-md font-medium">{t}</Tag> },
-    { title: 'Email', dataIndex: 'email', render: t => t ? <span className="text-gray-600">{t}</span> : <span className="text-gray-400 italic">Trống</span> },
-    { title: 'Lĩnh vực phụ trách', align: 'center', render: (_, r) => (
-        <Tooltip title="Xem chi tiết">
-          <Button type="primary" shape="circle" icon={<EyeOutlined />} onClick={() => { setSelectedOrg(r); setOrgDetailModalOpen(true); }} className="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-600 hover:text-white" />
-        </Tooltip>
-      ) 
-    },
+    { title: 'Chức vụ', dataIndex: 'chuc_vu', render: t => <Tag color="blue" className="rounded-md">{t}</Tag> },
     { title: 'Thứ tự hiển thị', dataIndex: 'thu_tu', align: 'center', render: t => <b className="text-gray-500">{t}</b> },
     { title: 'Thao tác', key: 'action', align: 'center', width: 120, render: (_, r) => ( 
       <Space>
@@ -291,7 +242,7 @@ const LandingManager = () => {
                   <div className="flex justify-end mb-4">
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingOrgId(null); orgForm.resetFields(); setOrgFileList([]); setIsOrgModalOpen(true); }} className="h-10 px-4 rounded-xl font-medium bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200">Thêm nhân sự / cấu trúc</Button>
                   </div>
-                  <Table scroll={{ x: 'max-content' }} columns={orgColumns} dataSource={orgData} rowKey="ma_so_do" loading={loading} pagination={false} className="border-t border-gray-100" rowClassName="hover:bg-gray-50 transition-colors" />
+                  <Table columns={orgColumns} dataSource={orgData} rowKey="ma_so_do" loading={loading} pagination={false} className="border-t border-gray-100" rowClassName="hover:bg-gray-50 transition-colors" />
                 </div>
               )
             },
@@ -303,7 +254,7 @@ const LandingManager = () => {
                   <div className="flex justify-end mb-4">
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingProcessId(null); processForm.resetFields(); setProcessFileList([]); setIsProcessModalOpen(true); }} className="h-10 px-4 rounded-xl font-medium bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200">Thêm Quy trình mới</Button>
                   </div>
-                  <Table scroll={{ x: 'max-content' }} columns={processColumns} dataSource={processData} rowKey="ma_quy_trinh" loading={loading} pagination={false} className="border-t border-gray-100" rowClassName="hover:bg-gray-50 transition-colors" />
+                  <Table columns={processColumns} dataSource={processData} rowKey="ma_quy_trinh" loading={loading} pagination={false} className="border-t border-gray-100" rowClassName="hover:bg-gray-50 transition-colors" />
                 </div>
               )
             }
@@ -312,39 +263,22 @@ const LandingManager = () => {
       </Card>
 
       {/* MODAL ORG */}
-      <Modal title={<span className="text-lg font-bold">{editingOrgId ? 'Cập nhật nhân sự' : 'Thêm dữ liệu Sơ đồ tổ chức'}</span>} open={isOrgModalOpen} onCancel={() => setIsOrgModalOpen(false)} footer={null} className="rounded-2xl overflow-hidden" destroyOnHidden width={700}>
+      <Modal title={<span className="text-lg font-bold">{editingOrgId ? 'Cập nhật nhân sự' : 'Thêm dữ liệu Sơ đồ tổ chức'}</span>} open={isOrgModalOpen} onCancel={() => setIsOrgModalOpen(false)} footer={null} className="rounded-2xl overflow-hidden" destroyOnHidden>
         <Form form={orgForm} layout="vertical" onFinish={handleSaveOrg} className="mt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item name="ho_ten" label={<span className="font-semibold text-gray-700">Họ và tên</span>} rules={[{ required: true, message: 'Nhập họ tên!' }]}>
-              <Input size="large" className="rounded-lg" placeholder="Ví dụ: Nguyễn Văn A" />
-            </Form.Item>
-            <Form.Item name="chuc_vu" label={<span className="font-semibold text-gray-700">Chức vụ</span>} rules={[{ required: true, message: 'Nhập chức vụ!' }]}>
-              <Input size="large" className="rounded-lg" placeholder="Ví dụ: Bí thư Đảng ủy" />
-            </Form.Item>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Item name="email" label={<span className="font-semibold text-gray-700">Email</span>}>
-              <Input size="large" className="rounded-lg" placeholder="Ví dụ: nguyenvana@example.com" />
-            </Form.Item>
-            <Form.Item name="thu_tu" label={<span className="font-semibold text-gray-700">Thứ tự ưu tiên hiển thị</span>} help="Số nhỏ hiện trước">
-              <InputNumber min={0} size="large" className="w-full rounded-lg" placeholder="Ví dụ: 1" />
-            </Form.Item>
-          </div>
-          <Form.Item name="nhiem_vu" label={<span className="font-semibold text-gray-700">Nhiệm vụ / Chỉ đạo công tác (có thể định dạng)</span>}>
-            <ReactQuill 
-              theme="snow" 
-              modules={quillModules}
-              formats={quillFormats}
-              className="bg-white rounded-lg"
-              placeholder="Nhập chi tiết nhiệm vụ công tác..." 
-              style={{ minHeight: '120px' }}
-            />
+          <Form.Item name="ho_ten" label={<span className="font-semibold text-gray-700">Họ và tên</span>} rules={[{ required: true, message: 'Nhập họ tên!' }]}>
+            <Input size="large" className="rounded-lg" placeholder="Ví dụ: Nguyễn Văn A" />
+          </Form.Item>
+          <Form.Item name="chuc_vu" label={<span className="font-semibold text-gray-700">Chức vụ</span>} rules={[{ required: true, message: 'Nhập chức vụ!' }]}>
+            <Input size="large" className="rounded-lg" placeholder="Ví dụ: Bí thư Đảng ủy" />
           </Form.Item>
           <Form.Item label={<span className="font-semibold text-gray-700">Ảnh chân dung (nếu có)</span>}>
               <Upload beforeUpload={(file) => { setOrgFileList([{ originFileObj: file, name: file.name }]); return false; }} fileList={orgFileList} onRemove={() => setOrgFileList([])} maxCount={1}>
                   <Button icon={<UploadOutlined />} className="rounded-lg">Chọn ảnh (jpg, png)</Button>
               </Upload>
               {editingOrgId && <div className="text-xs text-gray-400 mt-1">Để trống nếu không muốn thay đổi ảnh cũ.</div>}
+          </Form.Item>
+          <Form.Item name="thu_tu" label={<span className="font-semibold text-gray-700">Thứ tự ưu tiên hiển thị</span>} help="Số nhỏ hiện trước (Ví dụ: 1 ưu tiên đứng đầu)">
+            <InputNumber min={0} size="large" className="w-full rounded-lg" placeholder="Ví dụ: 1" />
           </Form.Item>
           <Form.Item className="mb-0 mt-6"><Button type="primary" htmlType="submit" loading={loading} block size="large" className="rounded-xl h-12 font-bold bg-red-600 hover:bg-red-700 border-0 shadow-lg shadow-red-200">Lưu thông tin</Button></Form.Item>
         </Form>
@@ -359,8 +293,6 @@ const LandingManager = () => {
           <Form.Item name="mo_ta" label={<span className="font-semibold text-gray-700">Chi tiết quy trình (có thể định dạng)</span>}>
             <ReactQuill 
               theme="snow" 
-              modules={quillModules}
-              formats={quillFormats}
               className="bg-white rounded-lg"
               placeholder="Mô tả chi tiết quy trình theo từng bước..." 
               style={{ minHeight: '150px' }}
@@ -400,31 +332,9 @@ const LandingManager = () => {
         </div>
       </Modal>
 
-      {/* DETAIL MODAL ORG */}
-      <Modal 
-        title={<span className="text-xl font-bold text-blue-600">Nhiệm vụ công tác: {selectedOrg?.ho_ten}</span>} 
-        open={orgDetailModalOpen} 
-        onCancel={() => setOrgDetailModalOpen(false)} 
-        footer={[
-          <Button key="close" onClick={() => setOrgDetailModalOpen(false)} className="rounded-xl bg-gray-100 hover:bg-gray-200 border-0">Đóng</Button>
-        ]}
-        width={700}
-        centered
-        className="rounded-2xl"
-      >
-        <div className="mt-6 mb-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-          {selectedOrg?.nhiem_vu ? (
-            <div 
-              className="ql-editor prose prose-sm max-w-none" 
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedOrg.nhiem_vu) }} 
-            />
-          ) : (
-            <p className="text-gray-500 italic">Chưa có chi tiết nhiệm vụ công tác.</p>
-          )}
-        </div>
-      </Modal>
-
     </motion.div>
   );
 };
 export default LandingManager;
+`;
+fs.writeFileSync('d:/NCKHSV/SUPERADMIN/frontend/src/pages/LandingManager.js', fileContent);

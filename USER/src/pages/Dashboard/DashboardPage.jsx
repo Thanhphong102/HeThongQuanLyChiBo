@@ -1,13 +1,23 @@
 // src/pages/Dashboard/DashboardPage.jsx
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Typography, Spin, Divider, List, Tag, Button, Empty } from 'antd';
+import { Card, Row, Col, Typography, Spin, Divider, Tag, Button, Empty } from 'antd';
 // Import useNavigate để chuyển trang
 import { useNavigate } from 'react-router-dom';
 import { UserOutlined, CalendarOutlined, DollarCircleOutlined, DashboardOutlined, ClockCircleOutlined, EnvironmentOutlined, QrcodeOutlined, EditOutlined, LinkOutlined, GlobalOutlined, VideoCameraOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import AttendanceScannerModal from '../../components/AttendanceScannerModal';
 const { Title, Text } = Typography;
+
+const mapChucVu = {
+    'Bi thu': 'Bí thư',
+    'Bi thu chi bo': 'Bí thư chi bộ',
+    'Pho bi thu': 'Phó Bí thư',
+    'Pho bi thu chi bo': 'Phó Bí thư chi bộ',
+    'Dang vien': 'Đảng viên',
+    'Chi uy vien': 'Chi ủy viên',
+};
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -78,7 +88,7 @@ const DashboardPage = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-white m-0 flex items-center gap-3">
               <DashboardOutlined /> TỔNG QUAN CÁ NHÂN
               </h1>
-              <p className="text-white/75 mt-1 m-0 text-sm">Xin chào, <strong>{profile.ho_ten || 'Bạn'}</strong> — {profile.chuc_vu_dang || 'Đảng viên'}</p>
+              <p className="text-white/75 mt-1 m-0 text-sm">Xin chào, <strong>{profile.ho_ten || 'Bạn'}</strong> — {mapChucVu[profile.chuc_vu_dang] || profile.chuc_vu_dang || 'Đảng viên'}</p>
           </div>
           <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full"></div>
           <div className="absolute right-16 -bottom-6 w-24 h-24 bg-white/5 rounded-full"></div>
@@ -106,15 +116,7 @@ const DashboardPage = () => {
 
                 <Divider className="my-2" />
 
-                 <p><Text strong>Chức vụ:</Text> <span className="font-semibold text-blue-700">{(() => {
-                    const mapChucVu = {
-                        'Bi thu': 'Bí thư',
-                        'Pho bi thu': 'Phó Bí thư',
-                        'Dang vien': 'Đảng viên',
-                        'Chi uy vien': 'Chi ủy viên',
-                    };
-                    return mapChucVu[profile.chuc_vu_dang] || profile.chuc_vu_dang;
-                 })()}</span></p>
+                 <p><Text strong>Chức vụ:</Text> <span className="font-semibold text-blue-700">{mapChucVu[profile.chuc_vu_dang] || profile.chuc_vu_dang || 'Đảng viên'}</span></p>
                  <p><Text strong>Chi bộ:</Text> {profile.ten_chi_bo}</p>
                  <Row>
                     <Col span={12}><p><Text strong>Vào Đảng:</Text> {profile.ngay_vao_dang ? dayjs(profile.ngay_vao_dang).format('DD/MM/YYYY') : '...'}</p></Col>

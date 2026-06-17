@@ -1,8 +1,9 @@
 import React from 'react';
 import { Tabs } from 'antd';
-import { PictureOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { PictureOutlined, VideoCameraOutlined, FolderOpenOutlined } from '@ant-design/icons';
 
 import ImageGallery from '../components/ImageGallery';
+import AlbumGallery from '../components/AlbumGallery';
 import VideoGallery from '../components/VideoGallery';
 import PageHeader from '../components/PageHeader';
 
@@ -12,13 +13,22 @@ const MediaManager = () => {
       key: '1',
       label: (
         <span style={{ fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 500 }}>
-          <PictureOutlined /> Thư viện Ảnh
+          <FolderOpenOutlined /> Thư viện Album
+        </span>
+      ),
+      children: <AlbumGallery />,
+    },
+    {
+      key: '2',
+      label: (
+        <span style={{ fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 500 }}>
+          <PictureOutlined /> Thư viện Ảnh (Tự do)
         </span>
       ),
       children: <ImageGallery />,
     },
     {
-      key: '2',
+      key: '3',
       label: (
         <span style={{ fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 500 }}>
           <VideoCameraOutlined /> Thư viện Video

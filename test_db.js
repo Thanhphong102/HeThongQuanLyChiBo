@@ -1,24 +1,14 @@
-const db = require('./ADMIN/backend/config/db');
-const bcrypt = require('bcrypt');
-
-(async () => {
-    try {
-        const matKhauTam = '123456';
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(matKhauTam, salt);
-        const reqUserId = 2; // Giả lập admin
-        const id = 2; // Giả lập user cần đổi pass
-
-        await db.query(
-            `UPDATE "dangvien" 
-             SET mat_khau = $1, buoc_doi_mat_khau = true, nguoi_cap_nhat = $2 
-             WHERE ma_dang_vien = $3`,
-            [hashedPassword, reqUserId, id]
-        );
-        console.log("Thành công update!");
-    } catch (e) {
-        console.error("LỖI DB:", e.message);
-    } finally {
-        process.exit();
-    }
-})();
+const { Pool } = require('pg');
+require('dotenv').config({ path: 'd:\\NCKHSV\\ADMIN\\backend\\.env' });
+const pool = new Pool({
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'nckhsv',
+  password: process.env.DB_PASSWORD || '123456',
+  port: process.env.DB_PORT || 5432,
+});
+pool.query('SELECT ma_dang_vien, ho_ten, thoi_gian_tao FROM "dangvien" LIMIT 5', (err, res) => {
+  if (err) console.error(err);
+  else console.log(res.rows);
+  pool.end();
+});

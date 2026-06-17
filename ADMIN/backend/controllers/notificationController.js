@@ -4,8 +4,13 @@ const { createNotification } = require('../services/sharedNotificationService');
 exports.getNotifications = async (req, res) => {
     const branchId = req.user.branchId;
     const userId = req.user.id;
-    const userRole = req.user.role; // 2: Chi ủy (Admin), khác: Đảng viên (User)
+    let userRole = req.user.role; // 2: Chi ủy (Admin), khác: Đảng viên (User)
     
+    // Nếu gọi từ trang USER (?app=user), ép role thành User (để lấy thông báo của Đảng viên)
+    if (req.query.app === 'user') {
+        userRole = 1;
+    }
+
     // Convert logic role
     const roleString = userRole === 2 ? 'Admin' : 'User';
 

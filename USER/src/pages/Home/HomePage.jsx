@@ -1,6 +1,6 @@
 // src/pages/Home/HomePage.jsx
 import React, { useEffect, useState } from 'react';
-import { Card, List, Typography, Carousel, Spin, Empty, Modal, Button } from 'antd';
+import { Card, Typography, Carousel, Spin, Empty, Modal, Button, Pagination } from 'antd';
 import { CalendarOutlined, EyeOutlined } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
@@ -25,7 +25,9 @@ const getImageUrl = (url) => {
     const cleanPath = url.replace(/\\/g, '/');
     if (!cleanPath.startsWith('http')) {
       const path = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
-      return `https://admin-backend-chibo.onrender.com/${path}`;
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+      const backendUrl = apiBaseUrl.replace('/api', '');
+      return `${backendUrl}/${path}`;
     }
   }
 
@@ -39,6 +41,8 @@ const HomePage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     const initData = async () => {
@@ -114,45 +118,48 @@ const HomePage = () => {
         className="shadow-md"
         variant="borderless"
       >
-        <List
-          itemLayout="vertical"
-          size="large"
-          pagination={{ pageSize: 5 }}
-          dataSource={news}
-          locale={{ emptyText: <Empty description="Không có bản tin nào" /> }}
-          renderItem={(item) => (
-            <List.Item
-              key={item.id}
-              className="hover:bg-gray-50 transition-colors rounded-lg px-4"
-              actions={[
-                <span className="text-gray-500">
-                  <CalendarOutlined /> {dayjs(item.ngay_tao).format('DD/MM/YYYY HH:mm')}
-                </span>,
-                <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(item)}>Xem chi tiết</Button>
-              ]}
-              extra={
-                item.duong_dan_anh && (
-                  <div className="w-48 h-32 overflow-hidden rounded-md border border-gray-200 hidden md:block bg-gray-100">
+        <div className="flex flex-col">
+          {news.length === 0 ? (
+            <Empty description="Không có bản tin nào" />
+          ) : (
+            news.slice((currentPage - 1) * pageSize, currentPage * pageSize).map(item => (
+              <div key={item.id} className="hover:bg-gray-50 transition-colors rounded-lg p-4 flex flex-col md:flex-row gap-4 border-b last:border-0 border-gray-100">
+                <div className="flex-1 min-w-0">
+                  <a onClick={() => handleViewDetail(item)} className="text-lg font-bold text-gray-800 hover:text-red-dang block mb-2 break-words">
+                    {item.tieu_de}
+                  </a>
+                  <div className="line-clamp-2 text-gray-500 mb-4">{item.noi_dung}</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 text-sm">
+                      <CalendarOutlined className="mr-2" /> {dayjs(item.ngay_tao).format('DD/MM/YYYY HH:mm')}
+                    </span>
+                    <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(item)} className="px-0">Xem chi tiết</Button>
+                  </div>
+                </div>
+                {item.duong_dan_anh && (
+                  <div className="w-full md:w-48 h-32 overflow-hidden rounded-md border border-gray-200 flex-shrink-0 hidden md:block bg-gray-100">
                     <img
                       alt="tintuc"
                       src={getImageUrl(item.duong_dan_anh)}
                       className="w-full h-full object-cover transition-transform hover:scale-110 duration-500"
                     />
                   </div>
-                )
-              }
-            >
-              <List.Item.Meta
-                title={
-                  <a onClick={() => handleViewDetail(item)} className="text-lg font-bold text-gray-800 hover:text-red-dang">
-                    {item.tieu_de}
-                  </a>
-                }
-                description={<div className="line-clamp-2 text-gray-500">{item.noi_dung}</div>}
-              />
-            </List.Item>
+                )}
+              </div>
+            ))
           )}
-        />
+        </div>
+        {news.length > pageSize && (
+          <div className="flex justify-end mt-4 pt-4 border-t border-gray-100">
+            <Pagination 
+              current={currentPage} 
+              total={news.length} 
+              pageSize={pageSize} 
+              onChange={setCurrentPage} 
+              showSizeChanger={false}
+            />
+          </div>
+        )}
       </Card>
 
       {/* 4. MODAL XEM CHI TIẾT TIN TỨC */}

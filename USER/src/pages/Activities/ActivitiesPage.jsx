@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Typography, Button, Spin, Tag, Input, Modal, Upload, message, Empty, Divider } from 'antd';
-import { ThunderboltOutlined, EnvironmentOutlined, CalendarOutlined, UploadOutlined, CheckCircleOutlined, SyncOutlined, TeamOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Typography, Button, Spin, Tag, Input, Modal, Upload, message, Empty, Divider, DatePicker, Space, Pagination, Popover, Select, Badge } from 'antd';
+import { ThunderboltOutlined, EnvironmentOutlined, CalendarOutlined, UploadOutlined, CheckCircleOutlined, SyncOutlined, TeamOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import userApi from '../../api/userApi';
+import { removeAccents } from '../../utils/stringUtils';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -15,6 +16,18 @@ const ActivitiesPage = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [selectedRegId, setSelectedRegId] = useState(null);
     const [fileList, setFileList] = useState([]);
+
+    // Filter & Pagination State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [dateFilter, setDateFilter] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [participationFilter, setParticipationFilter] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 6;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, dateFilter, statusFilter, participationFilter]);
 
     const fetchEvents = async () => {
         setLoading(true);
@@ -93,8 +106,10 @@ const ActivitiesPage = () => {
         },
         beforeUpload: (file) => {
             const isImage = file.type.startsWith('image/');
-            if (!isImage) {
-                message.error('Bạn chỉ có thể tải lên file hình ảnh!');
+            const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+            
+            if (!isImage && !isHeic) {
+                message.error('Bạn chỉ có thể tải lên file hình ảnh (kể cả HEIC)!');
                 return Upload.LIST_IGNORE;
             }
             setFileList([file]);
@@ -112,6 +127,66 @@ const ActivitiesPage = () => {
         );
     }
 
+    const filterContent = (
+        <div className="flex flex-col gap-4 w-64 p-2">
+            <div>
+                <Text strong className="block mb-1 text-gray-700">Lọc theo tháng</Text>
+                <DatePicker 
+                    picker="month" 
+                    placeholder="Chọn tháng/năm" 
+                    format="MM/YYYY"
+                    style={{ width: '100%', borderRadius: 8 }} 
+                    onChange={date => setDateFilter(date)}
+                    value={dateFilter}
+                    allowClear
+                />
+            </div>
+            <div>
+                <Text strong className="block mb-1 text-gray-700">Trạng thái hoạt động</Text>
+                <Select
+                    value={statusFilter}
+                    onChange={setStatusFilter}
+                    style={{ width: '100%' }}
+                    options={[
+                        { value: 'ALL', label: 'Tất cả' },
+                        { value: 'Dang mo', label: 'Đang mở đăng ký' },
+                        { value: 'Da ket thuc', label: 'Đã kết thúc' }
+                    ]}
+                />
+            </div>
+            <div>
+                <Text strong className="block mb-1 text-gray-700">Trạng thái tham gia</Text>
+                <Select
+                    value={participationFilter}
+                    onChange={setParticipationFilter}
+                    style={{ width: '100%' }}
+                    options={[
+                        { value: 'ALL', label: 'Tất cả' },
+                        { value: 'NOT_REGISTERED', label: 'Chưa tham gia' },
+                        { value: 'REGISTERED', label: 'Đã đăng ký (Chờ duyệt)' },
+                        { value: 'CONFIRMED', label: 'Đã hoàn thành' }
+                    ]}
+                />
+            </div>
+            {(dateFilter || statusFilter !== 'ALL' || participationFilter !== 'ALL') && (
+                <Button 
+                    type="link" 
+                    danger 
+                    onClick={() => {
+                        setDateFilter(null);
+                        setStatusFilter('ALL');
+                        setParticipationFilter('ALL');
+                    }}
+                    className="p-0 text-left"
+                >
+                    Xóa tất cả bộ lọc
+                </Button>
+            )}
+        </div>
+    );
+
+    const activeFiltersCount = (dateFilter ? 1 : 0) + (statusFilter !== 'ALL' ? 1 : 0) + (participationFilter !== 'ALL' ? 1 : 0);
+
     return (
         <div className="animate-fade-in">
             {/* Page Header Premium */}
@@ -126,12 +201,61 @@ const ActivitiesPage = () => {
                 <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full"></div>
                 <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-white/5 rounded-full"></div>
             </div>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <Input 
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    placeholder="Tìm kiếm hoạt động..." 
+                    allowClear 
+                    onChange={e => setSearchTerm(e.target.value)} 
+                    style={{ width: '100%', maxWidth: 400, borderRadius: 8 }} 
+                    size="large"
+                />
+                <Popover 
+                    content={filterContent} 
+                    title={<span className="font-bold text-gray-800 border-b pb-2 block">Bộ lọc nâng cao</span>} 
+                    trigger="click" 
+                    placement="bottomRight"
+                >
+                    <Badge count={activeFiltersCount} size="small" color="#a91f23">
+                        <Button size="large" icon={<FilterOutlined />} className="font-semibold text-gray-700 flex items-center gap-2">
+                            Bộ lọc
+                        </Button>
+                    </Badge>
+                </Popover>
+            </div>
+
             <Row gutter={[24, 24]}>
-                {events.length === 0 ? (
-                    <Col span={24} className="flex justify-center mt-10">
-                        <Empty description="Hiện chưa có hoạt động nào được mở!" />
-                    </Col>
-                ) : events.map(ev => {
+                {(() => {
+                    const filteredEvents = events.filter(ev => {
+                        const matchSearch = removeAccents(ev.ten_hoat_dong).includes(removeAccents(searchTerm));
+                        const matchDate = dateFilter ? dayjs(ev.thoi_gian_bat_dau).format('MM/YYYY') === dateFilter.format('MM/YYYY') : true;
+                        
+                        let matchStatus = true;
+                        if (statusFilter === 'Dang mo') matchStatus = ev.trang_thai === 'Dang mo';
+                        else if (statusFilter === 'Da ket thuc') matchStatus = ev.trang_thai !== 'Dang mo';
+                        
+                        let matchParticipation = true;
+                        const isRegistered = !!ev.registration_id;
+                        const isConfirmed = ev.xac_nhan_admin;
+                        
+                        if (participationFilter === 'NOT_REGISTERED') matchParticipation = !isRegistered;
+                        else if (participationFilter === 'REGISTERED') matchParticipation = isRegistered && !isConfirmed;
+                        else if (participationFilter === 'CONFIRMED') matchParticipation = isConfirmed;
+
+                        return matchSearch && matchDate && matchStatus && matchParticipation;
+                    });
+                    const paginatedEvents = filteredEvents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+                    if (filteredEvents.length === 0) {
+                        return (
+                            <Col span={24} className="flex justify-center mt-10">
+                                <Empty description="Không tìm thấy hoạt động nào phù hợp!" />
+                            </Col>
+                        );
+                    }
+
+                    return paginatedEvents.map(ev => {
                     const isRegistered = !!ev.registration_id;
                     const hasEvidence = !!ev.minh_chung_url;
                     const isConfirmed = ev.xac_nhan_admin;
@@ -226,8 +350,55 @@ const ActivitiesPage = () => {
                             </Card>
                         </Col>
                     );
-                })}
+                    });
+                })()}
             </Row>
+
+            {events.filter(ev => {
+                const matchSearch = removeAccents(ev.ten_hoat_dong).includes(removeAccents(searchTerm));
+                const matchDate = dateFilter ? dayjs(ev.thoi_gian_bat_dau).format('MM/YYYY') === dateFilter.format('MM/YYYY') : true;
+                
+                let matchStatus = true;
+                if (statusFilter === 'Dang mo') matchStatus = ev.trang_thai === 'Dang mo';
+                else if (statusFilter === 'Da ket thuc') matchStatus = ev.trang_thai !== 'Dang mo';
+                
+                let matchParticipation = true;
+                const isRegistered = !!ev.registration_id;
+                const isConfirmed = ev.xac_nhan_admin;
+                
+                if (participationFilter === 'NOT_REGISTERED') matchParticipation = !isRegistered;
+                else if (participationFilter === 'REGISTERED') matchParticipation = isRegistered && !isConfirmed;
+                else if (participationFilter === 'CONFIRMED') matchParticipation = isConfirmed;
+
+                return matchSearch && matchDate && matchStatus && matchParticipation;
+            }).length > 0 && (
+                <div className="mt-10 flex justify-center">
+                    <Pagination 
+                        current={currentPage} 
+                        pageSize={pageSize} 
+                        total={events.filter(ev => {
+                            const matchSearch = removeAccents(ev.ten_hoat_dong).includes(removeAccents(searchTerm));
+                            const matchDate = dateFilter ? dayjs(ev.thoi_gian_bat_dau).format('MM/YYYY') === dateFilter.format('MM/YYYY') : true;
+                            
+                            let matchStatus = true;
+                            if (statusFilter === 'Dang mo') matchStatus = ev.trang_thai === 'Dang mo';
+                            else if (statusFilter === 'Da ket thuc') matchStatus = ev.trang_thai !== 'Dang mo';
+                            
+                            let matchParticipation = true;
+                            const isRegistered = !!ev.registration_id;
+                            const isConfirmed = ev.xac_nhan_admin;
+                            
+                            if (participationFilter === 'NOT_REGISTERED') matchParticipation = !isRegistered;
+                            else if (participationFilter === 'REGISTERED') matchParticipation = isRegistered && !isConfirmed;
+                            else if (participationFilter === 'CONFIRMED') matchParticipation = isConfirmed;
+
+                            return matchSearch && matchDate && matchStatus && matchParticipation;
+                        }).length} 
+                        onChange={page => setCurrentPage(page)} 
+                        showSizeChanger={false}
+                    />
+                </div>
+            )}
 
             <Modal
                 title={
@@ -255,7 +426,7 @@ const ActivitiesPage = () => {
             >
                 <div className="py-4">
                     <p className="text-gray-600 mb-4">Vui lòng tải lên bức ảnh minh chứng sự tham gia của bạn. Kích thước file không vượt quá 5MB.</p>
-                    <Upload {...uploadProps} maxCount={1} accept="image/*">
+                    <Upload {...uploadProps} maxCount={1} accept="image/*,.heic,.HEIC,.heif,.HEIF">
                         <Button icon={<UploadOutlined />}>Nhấp để Chọn File Ảnh</Button>
                     </Upload>
                 </div>

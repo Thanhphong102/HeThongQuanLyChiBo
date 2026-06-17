@@ -15,6 +15,7 @@ const activityEventsRoutes    = require('./activityEventsRoutes');    // Task 8:
 const notificationRoutes      = require('./notificationRoutes');      // [NEW] Task 2: Notification
 const publicRoutes            = require('./publicRoutes');            // [NEW] Task 5: Landing Data (Public)
 const targetRoutes            = require('./targetRoutes');            // [NEW] Task 9: Nhận chỉ tiêu
+const albumRoutes             = require('./albumRoutes');
 
 const aiRoutes                = require('./aiRoutes');                // [NEW] AI Smart Paste
 
@@ -33,6 +34,7 @@ router.use('/events',            activityEventsRoutes);   // Task 8
 router.use('/notifications',     notificationRoutes);     // Task 2
 router.use('/public',            publicRoutes);           // Task 5 (Dữ liệu Landing)
 router.use('/targets',           targetRoutes);           // Task 9
+router.use('/albums',            albumRoutes);
 router.use('/ai',                aiRoutes);               // [NEW] AI Smart Paste
 
 

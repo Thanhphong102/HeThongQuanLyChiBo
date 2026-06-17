@@ -401,7 +401,19 @@ const ActivityManager = () => {
 
   const attendanceColumns = [
     { title: 'Đảng viên', dataIndex: 'ho_ten', render: t => <span style={{ fontWeight: 600 }}>{t}</span> },
-    { title: 'Chức vụ', dataIndex: 'chuc_vu_dang' },
+    { 
+      title: 'Chức vụ', 
+      dataIndex: 'chuc_vu_dang',
+      render: (role) => {
+        const map = {
+          'Bi thu chi bo': 'Bí thư chi bộ',
+          'Pho bi thu chi bo': 'Phó bí thư chi bộ',
+          'Chi uy vien': 'Chi ủy viên',
+          'Dang vien': 'Đảng viên'
+        };
+        return map[role] || role;
+      }
+    },
     {
       title: 'Nguồn', key: 'nguon', width: 160, align: 'left',
       render: (_, record) => {

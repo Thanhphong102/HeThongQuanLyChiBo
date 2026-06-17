@@ -166,16 +166,29 @@ exports.getAttendanceList = async (req, res) => {
     const { id } = req.params; 
     const branchId = req.user.branchId;
     try {
-        const sql = `
+        const meetingRes = await db.query('SELECT thoi_gian, loai_hinh FROM "lichsinhhoat" WHERE ma_lich = $1', [id]);
+        if (meetingRes.rows.length === 0) return res.status(404).json({ message: 'Không tìm thấy lịch họp' });
+        const meeting = meetingRes.rows[0];
+
+        let sql = `
             SELECT 
                 d.ma_dang_vien, d.ho_ten, d.chuc_vu_dang,
                 dd.trang_thai_tham_gia, dd.ghi_chu, dd.nguon_diem_danh
             FROM "dangvien" d
             LEFT JOIN "diemdanh" dd ON d.ma_dang_vien = dd.ma_dang_vien AND dd.ma_lich = $1
-            WHERE d.ma_chi_bo = $2 AND d.hoat_dong = true
-            ORDER BY d.ten_dang_nhap ASC
+            WHERE d.ma_chi_bo = $2
+              AND COALESCE(d.thoi_gian_tao, '1970-01-01'::timestamp) <= $3
+              AND (d.hoat_dong = true OR dd.ma_dang_vien IS NOT NULL)
         `;
-        const result = await db.query(sql, [id, branchId]);
+        const params = [id, branchId, meeting.thoi_gian];
+
+        if (meeting.loai_hinh === 'Chi uy') {
+            sql += ` AND d.chuc_vu_dang IN ('Bi thu chi bo', 'Pho bi thu chi bo', 'Chi uy vien') `;
+        }
+        
+        sql += ` ORDER BY d.ten_dang_nhap ASC `;
+        
+        const result = await db.query(sql, params);
         res.json(result.rows);
     } catch (error) {
         console.error(error);
@@ -225,16 +238,20 @@ exports.uploadMinutes = async (req, res) => {
 
 exports.getMyAttendance = async (req, res) => {
     const userId = req.user.id; 
+    const branchId = req.user.branchId;
     try {
         const sql = `
-            SELECT dd.trang_thai_tham_gia, dd.ghi_chu,
-                   lsh.tieu_de, lsh.thoi_gian, lsh.dia_diem
-            FROM "diemdanh" dd
-            JOIN "lichsinhhoat" lsh ON dd.ma_lich = lsh.ma_lich
-            WHERE dd.ma_dang_vien = $1
+            SELECT COALESCE(dd.trang_thai_tham_gia, 'Vang hop') AS trang_thai_tham_gia, dd.ghi_chu,
+                   lsh.tieu_de, lsh.thoi_gian, lsh.dia_diem, lsh.loai_hinh
+            FROM "lichsinhhoat" lsh
+            JOIN "dangvien" d ON d.ma_dang_vien = $1
+            LEFT JOIN "diemdanh" dd ON dd.ma_lich = lsh.ma_lich AND dd.ma_dang_vien = $1
+            WHERE lsh.ma_chi_bo = $2 
+              AND NOW() > COALESCE(lsh.thoi_gian_ket_thuc, lsh.thoi_gian + interval '2 hours')
+              AND COALESCE(d.thoi_gian_tao, '1970-01-01'::timestamp) <= lsh.thoi_gian
             ORDER BY lsh.thoi_gian DESC
         `;
-        const result = await db.query(sql, [userId]);
+        const result = await db.query(sql, [userId, branchId]);
         res.json(result.rows);
     } catch (error) {
         console.error(error);

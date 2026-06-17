@@ -11,7 +11,7 @@ const db = require('../config/db');
 exports.createNotification = async (ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type) => {
     try {
         const sql = `
-            INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type)
+            INSERT INTO "thongbao" (ma_nguoi_nhan, quyen_nguoi_nhan, tieu_de, noi_dung, loai_thong_bao)
             VALUES ($1, $2, $3, $4, $5)
         `;
         await db.query(sql, [ma_nguoi_nhan, quyen_nguoi_nhan, title, content, type]);

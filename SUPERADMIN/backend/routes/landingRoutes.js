@@ -8,11 +8,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Router cho Sơ đồ tổ chức
 router.get('/org-chart', verifyToken, isSuperAdmin, landingController.getOrgChart);
 router.post('/org-chart', verifyToken, isSuperAdmin, upload.single('file'), landingController.createOrgMember);
+router.put('/org-chart/:id', verifyToken, isSuperAdmin, upload.single('file'), landingController.updateOrgMember);
 router.delete('/org-chart/:id', verifyToken, isSuperAdmin, landingController.deleteOrgMember);
 
 // Router cho Quy trình Đảng
 router.get('/process', verifyToken, isSuperAdmin, landingController.getProcesses);
-router.post('/process', verifyToken, isSuperAdmin, upload.single('file'), landingController.createProcess);
+router.post('/process', verifyToken, isSuperAdmin, upload.array('files', 10), landingController.createProcess);
+router.put('/process/:id', verifyToken, isSuperAdmin, upload.array('files', 10), landingController.updateProcess);
 router.delete('/process/:id', verifyToken, isSuperAdmin, landingController.deleteProcess);
 
 module.exports = router;

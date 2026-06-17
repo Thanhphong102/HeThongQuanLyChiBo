@@ -5,13 +5,18 @@ import {
   AppstoreOutlined, KeyOutlined, TeamOutlined, 
   UserOutlined, ArrowRightOutlined, DownloadOutlined 
 } from '@ant-design/icons';
-import { Timeline } from 'antd';
+import { Timeline, Modal, Button } from 'antd';
 import userApi from '../../api/userApi';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [orgData, setOrgData] = useState([]);
   const [processData, setProcessData] = useState([]);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedProcess, setSelectedProcess] = useState(null);
+  
+  const [orgDetailModalOpen, setOrgDetailModalOpen] = useState(false);
+  const [selectedOrg, setSelectedOrg] = useState(null);
 
   useEffect(() => {
     const fetchLandingData = async () => {
@@ -34,7 +39,7 @@ const LandingPage = () => {
     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);
     const idParamMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const id = (match && match[1]) || (idParamMatch && idParamMatch[1]);
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://admin-backend-chibo.onrender.com/api';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
     if (id) {
       return `${apiBaseUrl}/media/proxy/${id}`;
     }
@@ -51,7 +56,10 @@ const LandingPage = () => {
   const sortedLevels = Object.keys(groupedOrgData).sort((a, b) => Number(a) - Number(b));
 
   const OrgNode = ({ person }) => (
-    <div className="flex flex-col items-center group relative z-10 mx-4">
+    <div 
+      className="flex flex-col items-center group relative z-10 mx-4 cursor-pointer" 
+      onClick={() => { setSelectedOrg(person); setOrgDetailModalOpen(true); }}
+    >
       <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden mb-3 bg-zinc-100 relative transition-transform hover:scale-105 duration-300">
         {person.anh_the ? (
           <img src={getDirectImageUrl(person.anh_the)} alt={person.ho_ten} className="w-full h-full object-cover" />
@@ -62,6 +70,7 @@ const LandingPage = () => {
       <div className="bg-white px-4 py-2 rounded-xl shadow-sm text-center border border-zinc-100 min-w-[140px] transition-all hover:shadow-md hover:border-[#a91f23]/30">
         <h3 className="text-sm font-bold text-zinc-900">{person.ho_ten}</h3>
         <p className="text-xs font-semibold text-[#a91f23] mt-1">{person.chuc_vu}</p>
+        {person.email && <p className="text-xs font-bold text-blue-500 mt-1 truncate w-full px-2">{person.email}</p>}
       </div>
     </div>
   );
@@ -183,7 +192,7 @@ const LandingPage = () => {
       {orgData.length > 0 && (
         <section className="py-16 bg-[#fdfdfc] relative overflow-hidden">
           {/* Decorative Red Drum */}
-          <img src="/trong-dong-red.png" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] opacity-[0.12] pointer-events-none" alt="" />
+          <img src="/trong-dong-red.png" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] opacity-[0.12] pointer-events-none" alt="" />
           
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-12">
@@ -230,16 +239,42 @@ const LandingPage = () => {
                     className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 hover:shadow-md hover:border-red-200 transition-all text-left"
                   >
                     <h3 className="text-xl font-bold text-zinc-900 mb-2">{process.tieu_de}</h3>
-                    <p className="text-zinc-600 text-sm leading-relaxed mb-4">
-                      {process.mo_ta || "Ban hành quy định biểu mẫu chi tiết trong công tác chuyên môn."}
-                    </p>
-                    <a 
-                      href={getDirectImageUrl(process.duong_dan_file)} 
-                      target="_blank" rel="noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#a91f23] hover:text-[#8b1517] transition-colors"
+                    <Button 
+                      type="link" 
+                      onClick={() => { setSelectedProcess(process); setDetailModalOpen(true); }}
+                      className="p-0 text-[#a91f23] hover:text-[#8b1517] font-semibold mb-4"
                     >
-                      Tải tài liệu <DownloadOutlined />
-                    </a>
+                      Xem chi tiết quy trình
+                    </Button>
+                    <div className="flex flex-col gap-2">
+                      {(() => {
+                        if (!process.duong_dan_file) return null;
+                        try {
+                          const files = JSON.parse(process.duong_dan_file);
+                          if (!Array.isArray(files) || files.length === 0) return null;
+                          return files.map((f, i) => (
+                            <a 
+                              key={i}
+                              href={getDirectImageUrl(f.url)} 
+                              target="_blank" rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-[#a91f23] hover:text-[#8b1517] transition-colors"
+                            >
+                              Tải {f.name} <DownloadOutlined />
+                            </a>
+                          ));
+                        } catch(e) {
+                          return (
+                            <a 
+                              href={getDirectImageUrl(process.duong_dan_file)} 
+                              target="_blank" rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-[#a91f23] hover:text-[#8b1517] transition-colors"
+                            >
+                              Tải tài liệu <DownloadOutlined />
+                            </a>
+                          );
+                        }
+                      })()}
+                    </div>
                   </motion.div>
                 )
               }))}
@@ -255,6 +290,66 @@ const LandingPage = () => {
           <p>Thiết kế tinh gọn, bảo mật và thông minh.</p>
         </div>
       </footer>
+
+      {/* DETAIL MODAL PROCESS */}
+      <Modal 
+        title={<span className="text-xl font-bold text-[#a91f23]">{selectedProcess?.tieu_de}</span>} 
+        open={detailModalOpen} 
+        onCancel={() => setDetailModalOpen(false)} 
+        footer={[
+          <Button key="close" onClick={() => setDetailModalOpen(false)} className="rounded-xl bg-gray-100 hover:bg-gray-200 border-0">Đóng</Button>
+        ]}
+        width={700}
+        centered
+        className="rounded-2xl"
+      >
+        <div className="mt-6 mb-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+          {selectedProcess?.mo_ta ? (
+            <div 
+              className="prose prose-sm max-w-none prose-red text-zinc-700 leading-relaxed" 
+              dangerouslySetInnerHTML={{ __html: selectedProcess.mo_ta }} 
+            />
+          ) : (
+            <p className="text-gray-500 italic">Chưa có chi tiết cho quy trình này.</p>
+          )}
+        </div>
+      </Modal>
+
+      {/* DETAIL MODAL ORG MEMBER */}
+      <Modal 
+        title={<span className="text-xl font-bold text-[#a91f23]">Nhiệm vụ công tác</span>} 
+        open={orgDetailModalOpen} 
+        onCancel={() => setOrgDetailModalOpen(false)} 
+        footer={[
+          <Button key="close" onClick={() => setOrgDetailModalOpen(false)} className="rounded-xl bg-gray-100 hover:bg-gray-200 border-0">Đóng</Button>
+        ]}
+        width={600}
+        centered
+        className="rounded-2xl"
+      >
+        <div className="mt-4 mb-2 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-zinc-100 shadow-sm">
+             {selectedOrg?.anh_the ? <img src={getDirectImageUrl(selectedOrg.anh_the)} alt="avt" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400"><UserOutlined /></div>}
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-zinc-900">{selectedOrg?.ho_ten}</h3>
+            <p className="text-sm font-semibold text-[#a91f23]">{selectedOrg?.chuc_vu}</p>
+            {selectedOrg?.email && <p className="text-xs text-zinc-500 mt-1">{selectedOrg?.email}</p>}
+          </div>
+        </div>
+        <hr className="my-4 border-zinc-100" />
+        <div className="mb-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+          {selectedOrg?.nhiem_vu ? (
+            <div 
+              className="prose prose-sm max-w-none prose-red text-zinc-700 leading-relaxed" 
+              dangerouslySetInnerHTML={{ __html: selectedOrg.nhiem_vu }} 
+            />
+          ) : (
+            <p className="text-gray-500 italic text-sm">Chưa có nội dung mô tả nhiệm vụ công tác cho nhân sự này.</p>
+          )}
+        </div>
+      </Modal>
+
     </div>
   );
 };

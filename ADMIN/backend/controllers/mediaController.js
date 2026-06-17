@@ -137,6 +137,47 @@ exports.updateMedia = async (req, res) => {
     }
 };
 
+// 5. POST: Upload nhiều ảnh vào Album
+exports.createAlbumMedia = async (req, res) => {
+    const branchId = req.user.branchId;
+    const { ma_album } = req.body;
+    const files = req.files; // mảng các file do upload.array()
+
+    if (!files || files.length === 0) {
+        return res.status(400).json({ message: 'Vui lòng chọn ít nhất một ảnh' });
+    }
+
+    try {
+        const uploadedMedia = [];
+
+        // Duyệt qua từng file, upload lên Drive và lưu DB
+        for (const file of files) {
+            try {
+                const driveData = await uploadFileToDrive(file);
+                const finalUrl = driveData.webViewLink;
+                const driveFileId = driveData.id;
+
+                const sql = `
+                    INSERT INTO "thuvienanh" (ma_chi_bo, loai_hinh_anh, duong_dan, ma_file_drive, ma_album)
+                    VALUES ($1, 'IMAGE', $2, $3, $4)
+                    RETURNING *
+                `;
+                // Lưu ý: tieu_de đang để trống (null) vì bảng đã được ALTER
+                const result = await db.query(sql, [branchId, finalUrl, driveFileId, ma_album || null]);
+                uploadedMedia.push(result.rows[0]);
+            } catch (err) {
+                console.error("Lỗi upload 1 file trong batch:", err);
+            }
+        }
+
+        res.status(201).json({ message: 'Tải lên thành công', uploaded: uploadedMedia.length });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi thêm nhiều media vào album' });
+    }
+};
+
 // const db = require('../config/db');
 // const { uploadFileToDrive, deleteFileFromDrive } = require('../services/driveService');
 

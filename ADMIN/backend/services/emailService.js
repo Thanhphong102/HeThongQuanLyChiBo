@@ -30,6 +30,14 @@ const sendAccountCreationEmail = async (email, hoTen, username, password) => {
                         </div>
                         <p style="color: #CE1126; font-weight: bold;">Lưu ý quan trọng:</p>
                         <p>Để đảm bảo an toàn thông tin cá nhân, yêu cầu đồng chí <strong>đổi mật khẩu ngay</strong> trong lần đăng nhập đầu tiên.</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${process.env.FRONTEND_URL || 'https://user-frontend-chibo.vercel.app'}" 
+                               style="background-color: #CE1126; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                                ĐĂNG NHẬP VÀO HỆ THỐNG
+                            </a>
+                        </div>
+                        
                         <br>
                         <p>Trân trọng,</p>
                         <p><strong>Ban Quản trị Hệ thống</strong></p>
@@ -79,6 +87,14 @@ const sendPasswordResetEmail = async (email, hoTen, username, newPassword) => {
                         </div>
                         <p style="color: #CE1126; font-weight: bold;">Lưu ý quan trọng:</p>
                         <p>Đồng chí vui lòng đăng nhập bằng mật khẩu mới này và <strong>đổi mật khẩu ngay lập tức</strong> để đảm bảo an toàn.</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${process.env.FRONTEND_URL || 'https://user-frontend-chibo.vercel.app'}" 
+                               style="background-color: #2563eb; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                                ĐĂNG NHẬP ĐỂ ĐỔI MẬT KHẨU
+                            </a>
+                        </div>
+
                         <br>
                         <p>Trân trọng,</p>
                         <p><strong>Ban Quản trị Hệ thống</strong></p>

@@ -14,6 +14,7 @@ import {
   EyeOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import notificationService from '../services/notificationService';
 
 // ── Bản đồ icon + màu theo loại thông báo ──
@@ -30,6 +31,7 @@ const getTypeConfig = (type) => TYPE_CONFIG[type] || TYPE_CONFIG.default;
 
 const NotificationPopover = () => {
   const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate();
 
   const fetchNotifications = async () => {
     try {
@@ -49,6 +51,22 @@ const NotificationPopover = () => {
   const handleMarkAsRead = async (id) => {
     await notificationService.markAsRead(id);
     fetchNotifications();
+  };
+
+  const handleItemClick = async (item) => {
+    // Điều hướng theo type
+    switch (item.type) {
+      case 'ACTIVITY': navigate('/hoat-dong'); break;
+      case 'MEETING': navigate('/sinh-hoat'); break;
+      case 'FEE': navigate('/dang-phi'); break;
+      case 'TARGET': navigate('/nhan-chi-tieu'); break;
+      case 'DOCUMENT': navigate('/bieu-mau'); break;
+      default: break;
+    }
+
+    if (item.isUnread) {
+      await handleMarkAsRead(item.id);
+    }
   };
 
   const handleMarkAsUnread = async (id, e) => {
@@ -158,7 +176,7 @@ const NotificationPopover = () => {
                     transition: 'background 0.2s',
                     position: 'relative',
                   }}
-                  onClick={() => { if (item.isUnread) handleMarkAsRead(item.id); }}
+                  onClick={() => handleItemClick(item)}
                 >
                   {/* Chấm xanh báo chưa đọc */}
                   {item.isUnread && (

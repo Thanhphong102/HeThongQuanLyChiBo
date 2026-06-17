@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Badge, Dropdown, List, Button, Tooltip } from 'antd';
+import { Badge, Dropdown, Button, Tooltip } from 'antd';
 import { 
     BellOutlined, 
     CheckCircleOutlined, 
@@ -14,12 +14,14 @@ import {
     CheckSquareOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import userApi from '../../api/userApi';
 
 const NotificationPopover = () => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [expandedItems, setExpandedItems] = useState({});
+    const navigate = useNavigate();
 
     const fetchNotifs = async () => {
         try {
@@ -42,6 +44,17 @@ const NotificationPopover = () => {
     // FIX: Dùng `item.id` (không phải item.ma_thong_bao) vì backend map sang `id`
     const handleReadNotification = async (item, e) => {
         if (e) e.stopPropagation();
+        
+        // Điều hướng dựa vào type
+        switch (item.type) {
+            case 'ACTIVITY': navigate('/activities'); break;
+            case 'MEETING': navigate('/dashboard'); break;
+            case 'FEE': navigate('/lookup'); break;
+            case 'TARGET': navigate('/dashboard'); break;
+            case 'DOCUMENT': navigate('/documents'); break;
+            default: break;
+        }
+
         if (!item.isUnread) return;
         try {
             await userApi.markNotificationRead(item.id);
@@ -128,53 +141,51 @@ const NotificationPopover = () => {
                         </div>
                     </div>
 
-                    <List
-                        className="max-h-80 overflow-y-auto"
-                        dataSource={notifications}
-                        locale={{ emptyText: 'Chưa có thông báo nào' }}
-                        renderItem={(item) => {
-                            // FIX: Dùng `item.type` (không phải item.loai_thong_bao) vì backend đã map
-                            let IconRender = <CheckCircleOutlined className="text-gray-400" />;
-                            if (item.type === 'MEETING') IconRender = <CalendarOutlined className="text-blue-500" />;
-                            if (item.type === 'FEE')     IconRender = <ExclamationCircleOutlined className="text-red-500" />;
-                            if (item.type === 'TARGET')  IconRender = <AimOutlined className="text-blue-600" />;
-                            if (item.type === 'DOCUMENT') IconRender = <FileTextOutlined className="text-purple-500" />;
-                            if (item.type === 'ACTIVITY') IconRender = <StarOutlined className="text-pink-500" />;
-                            
-                            const actionMenu = [
-                                {
-                                    key: '1',
-                                    label: item.isUnread ? 'Đánh dấu đã đọc' : 'Đánh dấu chưa đọc',
-                                    icon: <CheckCircleOutlined />,
-                                    onClick: (e) => item.isUnread 
-                                        ? handleReadNotification(item, e.domEvent) 
-                                        : handleMarkAsUnread(item, e.domEvent)
-                                },
-                                {
-                                    key: '2',
-                                    danger: true,
-                                    label: 'Xóa thông báo',
-                                    icon: <DeleteOutlined />,
-                                    onClick: (e) => handleDelete(item, e.domEvent)
-                                }
-                            ];
+                    <div className="max-h-80 overflow-y-auto">
+                        {notifications.length === 0 ? (
+                            <div className="p-4 text-center text-gray-500">Chưa có thông báo nào</div>
+                        ) : (
+                            notifications.map(item => {
+                                // FIX: Dùng `item.type` (không phải item.loai_thong_bao) vì backend đã map
+                                let IconRender = <CheckCircleOutlined className="text-gray-400" />;
+                                if (item.type === 'MEETING') IconRender = <CalendarOutlined className="text-blue-500" />;
+                                if (item.type === 'FEE')     IconRender = <ExclamationCircleOutlined className="text-red-500" />;
+                                if (item.type === 'TARGET')  IconRender = <AimOutlined className="text-blue-600" />;
+                                if (item.type === 'DOCUMENT') IconRender = <FileTextOutlined className="text-purple-500" />;
+                                if (item.type === 'ACTIVITY') IconRender = <StarOutlined className="text-pink-500" />;
+                                
+                                const actionMenu = [
+                                    {
+                                        key: '1',
+                                        label: item.isUnread ? 'Đánh dấu đã đọc' : 'Đánh dấu chưa đọc',
+                                        icon: <CheckCircleOutlined />,
+                                        onClick: (e) => item.isUnread 
+                                            ? handleReadNotification(item, e.domEvent) 
+                                            : handleMarkAsUnread(item, e.domEvent)
+                                    },
+                                    {
+                                        key: '2',
+                                        danger: true,
+                                        label: 'Xóa thông báo',
+                                        icon: <DeleteOutlined />,
+                                        onClick: (e) => handleDelete(item, e.domEvent)
+                                    }
+                                ];
 
-                            return (
-                                <List.Item 
-                                    className={`px-4 py-3 hover:bg-red-50 transition-colors cursor-pointer border-b last:border-0 border-gray-100 ${item.isUnread ? 'bg-red-50/50' : 'bg-white'}`}
-                                    onClick={() => handleReadNotification(item)}
-                                >
-                                    <List.Item.Meta
-                                        avatar={<div className="mt-1 text-lg">{IconRender}</div>}
-                                        title={
+                                return (
+                                    <div 
+                                        key={item.id}
+                                        className={`flex gap-3 px-4 py-3 hover:bg-red-50 transition-colors cursor-pointer border-b last:border-0 border-gray-100 ${item.isUnread ? 'bg-red-50/50' : 'bg-white'}`}
+                                        onClick={() => handleReadNotification(item)}
+                                    >
+                                        <div className="mt-1 text-lg flex-shrink-0">{IconRender}</div>
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
-                                                {/* Chấm tròn biểu thị chưa đọc */}
                                                 <div className="flex items-start gap-1.5 flex-1 min-w-0">
                                                     {item.isUnread && (
                                                         <span className="mt-1.5 flex-shrink-0 w-2 h-2 rounded-full bg-red-500 inline-block" />
                                                     )}
                                                     <span className={`text-sm pr-2 transition-colors break-words ${item.isUnread ? 'font-bold text-gray-900' : 'font-normal text-gray-500'}`}>
-                                                        {/* FIX: Dùng item.title (backend đã map từ tieu_de) */}
                                                         {item.title}
                                                     </span>
                                                 </div>
@@ -182,11 +193,8 @@ const NotificationPopover = () => {
                                                     <Button type="text" size="small" icon={<MoreOutlined className="text-gray-400" />} onClick={e => e.stopPropagation()} className="flex-shrink-0" />
                                                 </Dropdown>
                                             </div>
-                                        }
-                                        description={
                                             <div>
                                                 <div className={`text-xs mt-1 transition-colors ${item.isUnread ? 'text-gray-800 font-medium' : 'text-gray-500'} ${expandedItems[item.id] ? '' : 'line-clamp-2'}`}>
-                                                    {/* FIX: Dùng item.message (backend đã map từ noi_dung) */}
                                                     {item.message}
                                                 </div>
                                                 {item.message?.length > 70 && (
@@ -202,12 +210,12 @@ const NotificationPopover = () => {
                                                 )}
                                                 <div className="text-[10px] text-gray-400 mt-1">{dayjs(item.date).format('HH:mm - DD/MM/YYYY')}</div>
                                             </div>
-                                        }
-                                    />
-                                </List.Item>
-                            );
-                        }}
-                    />
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
 
                     {/* Footer */}
                     {notifications.length > 0 && (

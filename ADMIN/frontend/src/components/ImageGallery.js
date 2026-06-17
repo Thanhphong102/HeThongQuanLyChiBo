@@ -36,7 +36,9 @@ const ImageGallery = () => {
 
   // [MỚI] Filter ảnh theo tên + ngày
   const filteredImages = useMemo(() => {
-    let result = images;
+    // Chỉ lấy ảnh KHÔNG thuộc album nào
+    let result = images.filter(img => !img.ma_album);
+
     if (searchText.trim()) {
       result = result.filter(img => fuzzySearch(img.tieu_de, searchText));
     }
@@ -90,12 +92,12 @@ const ImageGallery = () => {
 
   const getDriveImage = (img) => {
     if (img.ma_file_drive) {
-      return `https://lh3.googleusercontent.com/d/${img.ma_file_drive}`;
+      return `http://localhost:5001/api/media/proxy/${img.ma_file_drive}`;
     }
     // Fallback cho các ảnh cũ bị lưu thiếu ma_file_drive
     if (img.duong_dan) {
       const idMatch = img.duong_dan.match(/[-\w]{25,}/);
-      if (idMatch) return `https://lh3.googleusercontent.com/d/${idMatch[0]}`;
+      if (idMatch) return `http://localhost:5001/api/media/proxy/${idMatch[0]}`;
     }
     return '';
   };

@@ -14,6 +14,7 @@ router.get('/', verifyToken, controller.getMedia);
 
 // 2. Các quyền sửa đổi: Giữ nguyên isBranchAdmin
 router.post('/', verifyToken, isBranchAdmin, upload.single('file'), controller.createMedia);
+router.post('/album', verifyToken, isBranchAdmin, upload.array('files', 50), controller.createAlbumMedia);
 router.delete('/:id', verifyToken, isBranchAdmin, controller.deleteMedia);
 router.put('/:id', verifyToken, isBranchAdmin, controller.updateMedia);
 

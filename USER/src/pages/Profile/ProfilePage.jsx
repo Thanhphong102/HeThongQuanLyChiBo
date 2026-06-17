@@ -7,6 +7,18 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
+const getMediaSrc = (duong_dan) => {
+  if (!duong_dan) return '';
+  if (duong_dan.includes('drive.google.com') || duong_dan.includes('docs.google.com')) {
+    const idMatch = duong_dan.match(/[-\w]{25,}/);
+    if (idMatch) {
+      const fileId = idMatch[0];
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+  }
+  return duong_dan;
+};
+
 const ProfilePage = () => {
     const [profileForm] = Form.useForm();
     const [passwordForm] = Form.useForm();
@@ -47,6 +59,10 @@ const ProfilePage = () => {
                     lop: fetchedUser.lop,
                     nganh_hoc: fetchedUser.nganh_hoc,
                     ma_so_sinh_vien: fetchedUser.ma_so_sinh_vien,
+                    ma_can_bo: fetchedUser.ma_can_bo,
+                    don_vi_cong_tac: fetchedUser.don_vi_cong_tac,
+                    chuc_vu_chuyen_mon: fetchedUser.chuc_vu_chuyen_mon,
+                    doi_tuong: fetchedUser.doi_tuong === 'Can bo' ? 'Cán bộ' : (fetchedUser.doi_tuong === 'Sinh vien' ? 'Sinh viên' : fetchedUser.doi_tuong),
                     so_dinh_danh: fetchedUser.so_dinh_danh,
                     so_the_dang_vien: fetchedUser.so_the_dang_vien,
                 });
@@ -112,9 +128,10 @@ const ProfilePage = () => {
     // Handle Cập nhật ảnh đại diện (Avatar)
     const handleAvatarUpload = async (options) => {
         const { file, onSuccess, onError } = options;
+        const actualFile = file.originFileObj || file;
         setUploadingAvatar(true);
         try {
-            const res = await userApi.uploadAvatar(file);
+            const res = await userApi.uploadAvatar(actualFile);
             setAvatarUrl(res.data.url);
             
             const updatedUser = res.data.user;
@@ -153,7 +170,7 @@ const ProfilePage = () => {
                             <div className="bg-white p-6 shadow-sm rounded-xl w-full flex flex-col items-center border border-gray-100">
                                 <Avatar 
                                     size={180} 
-                                    src={avatarUrl || user.anh_the} 
+                                    src={getMediaSrc(avatarUrl || user.anh_the)} 
                                     icon={<UserOutlined />} 
                                     className="shadow-sm border-4 border-gray-50 mb-6 bg-gray-100 object-cover"
                                 />
@@ -181,25 +198,68 @@ const ProfilePage = () => {
                                 onFinish={onFinishProfile}
                                 className="bg-white p-8 mb-8 shadow-sm rounded-xl border border-gray-100"
                             >
-                        {/* Nhóm Thông tin Cố định (Không được sửa) */}
                         <Divider titlePlacement="left"><Text type="secondary" className="text-sm">Thông tin nội bộ (Chỉ xem)</Text></Divider>
                         <Row gutter={16}>
-                            <Col xs={24} md={8}>
+                            <Col xs={24} md={6}>
+                                <Form.Item name="doi_tuong" label="Đối tượng">
+                                    <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} md={6}>
                                 <Form.Item name="ho_ten" label="Họ và tên">
-                                    <Input disabled className="bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
-                            <Col xs={24} md={8}>
+                            <Col xs={24} md={6}>
                                 <Form.Item name="chuc_vu_dang" label="Chức vụ Đảng">
-                                    <Input disabled className="bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
-                            <Col xs={24} md={8}>
+                            <Col xs={24} md={6}>
                                 <Form.Item name="ten_chi_bo" label="Sinh hoạt tại">
-                                    <Input disabled className="bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
                         </Row>
+
+                        {/* Tùy biến thông tin theo đối tượng Cán bộ / Sinh viên (Chỉ xem) */}
+                        {user.doi_tuong === 'Can bo' ? (
+                            <Row gutter={16}>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="ma_can_bo" label="Mã Cán bộ">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="don_vi_cong_tac" label="Đơn vị công tác">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="chuc_vu_chuyen_mon" label="Chuyên môn">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        ) : (
+                            <Row gutter={16}>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="ma_so_sinh_vien" label="MSSV">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="lop" label="Lớp">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                                <Col xs={24} md={8}>
+                                    <Form.Item name="nganh_hoc" label="Ngành học">
+                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        )}
 
                         {/* Nhóm Thông tin Sửa được */}
                         <Divider titlePlacement="left"><Text className="text-red-dang text-sm font-semibold">Thông tin Liên hệ & Cá nhân</Text></Divider>
@@ -235,31 +295,16 @@ const ProfilePage = () => {
                             </Col>
                         </Row>
 
-                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt & Sinh viên</Text></Divider>
+                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Chỉ xem)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_vao_dang" label="Ngày Kết nạp (Vào Đảng)">
-                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Ngày kết nạp" />
+                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_chinh_thuc" label="Ngày Chính thức">
-                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Ngày chính thức" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <Form.Item name="ma_so_sinh_vien" label="Mã Số Sinh Viên (MSSV)">
-                                    <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập MSSV" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <Form.Item name="lop" label="Lớp">
-                                    <Input className="h-10 border-gray-300 rounded-lg" placeholder="VD: KTPM01" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={8}>
-                                <Form.Item name="nganh_hoc" label="Ngành học">
-                                    <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập ngành học" />
+                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
                                 </Form.Item>
                             </Col>
                         </Row>

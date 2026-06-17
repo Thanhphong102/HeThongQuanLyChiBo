@@ -32,7 +32,7 @@ const uploadFileToDrive = async (fileObject) => {
         body: bufferStream,
       },
       requestBody: {
-        name: fileObject.originalname,
+        name: Buffer.from(fileObject.originalname, 'latin1').toString('utf8'),
         // Parents: ID thư mục đích (Lấy từ .env)
         parents: [process.env.DRIVE_FOLDER_ID],
       },

@@ -355,18 +355,17 @@ exports.uploadEvidence = async (req, res) => {
     }
 
     // --- KIỂM TRA EXIF METADATA (CHỐNG GIAN LẬN) ---
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
+    const isImageExt = file.originalname.toLowerCase().match(/\.(jpe?g|heic|heif|png|webp)$/);
+    if (file.mimetype.startsWith('image/') || isImageExt) {
       try {
-        const ExifParser = require('exif-parser');
-        const parser = ExifParser.create(file.buffer);
-        const result = parser.parse();
+        const exifr = require('exifr');
+        const result = await exifr.parse(file.buffer);
         
-        if (result.tags && result.tags.DateTimeOriginal) {
-          const photoTime = new Date(result.tags.DateTimeOriginal * 1000); // EXIF lưu dạng Unix timestamp
+        if (result && result.DateTimeOriginal) {
+          const photoTime = new Date(result.DateTimeOriginal);
           const dayjs = require('dayjs');
           
-          // Nếu ảnh chụp TRƯỚC thời gian bắt đầu sự kiện quá 1 tiếng (cho phép sai số nhỏ hoặc chuẩn bị)
-          // Hoặc ảnh chụp cách đây quá lâu (ví dụ ảnh từ năm ngoái)
+          // Nếu ảnh chụp TRƯỚC thời gian bắt đầu sự kiện quá 1 tiếng
           if (dayjs(photoTime).isBefore(dayjs(eventStartTime).subtract(1, 'hour'))) {
             return res.status(400).json({ 
               message: `Ảnh minh chứng không hợp lệ. Ảnh này được chụp vào lúc ${photoTime.toLocaleString('vi-VN')}, trước khi sự kiện bắt đầu.` 
@@ -375,7 +374,7 @@ exports.uploadEvidence = async (req, res) => {
         }
       } catch (exifErr) {
         console.warn('Không thể đọc EXIF từ ảnh:', exifErr.message);
-        // Vẫn cho phép upload nếu lỗi parse EXIF để tránh chặn người dùng khi ảnh bị lỗi header
+        // Vẫn cho phép upload nếu lỗi parse EXIF để tránh chặn người dùng khi ảnh bị lỗi header hoặc bị xoá EXIF
       }
     }
     // ----------------------------------------------

@@ -24,14 +24,14 @@ const userApi = {
     formData.append('file', file);
     return axiosClient.post('/auth/profile/avatar', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': undefined,
       },
     });
   },
 
   // Lấy danh sách thông báo
   getNotifications: () => {
-    return axiosClient.get('/notifications');
+    return axiosClient.get('/notifications?app=user');
   },
   
   markNotificationRead: (id) => {
@@ -87,13 +87,18 @@ const userApi = {
   submitEvidence: (regId, formData) => {
     return axiosClient.post(`/events/registrations/${regId}/evidence`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': undefined,
       },
     });
   },
 
   // --- 3. NHÓM TIN TỨC ---
   // Lấy danh sách tin tức
+  getMedia: () => axiosClient.get('/media'),
+
+  getAlbums: () => axiosClient.get('/albums'),
+  getAlbumById: (id) => axiosClient.get(`/albums/${id}`),
+
   getNews: () => {
     return axiosClient.get('/news');
   },

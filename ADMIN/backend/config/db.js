@@ -1,5 +1,10 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 require('dotenv').config();
+
+// Ép pg driver hiểu 'timestamp without time zone' (OID 1114) trong DB là giờ UTC
+types.setTypeParser(1114, function(stringValue) {
+  return new Date(stringValue + 'Z');
+});
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

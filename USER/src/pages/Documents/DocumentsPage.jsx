@@ -1,9 +1,10 @@
 // src/pages/Documents/DocumentsPage.jsx
 import React, { useEffect, useState } from 'react';
-import { Tabs, Table, Button, Card, message, Tag, Input, Select, Space } from 'antd';
-import { DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, SearchOutlined } from '@ant-design/icons';
+import { Tabs, Table, Button, Card, message, Tag, Input, Select, Space, Popover, Badge, Typography } from 'antd';
+import { DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
+import { removeAccents } from '../../utils/stringUtils';
 
 const DocumentsPage = () => {
   const [branchForms, setBranchForms] = useState([]); // Tab 1: Biểu mẫu chi bộ
@@ -98,8 +99,13 @@ const DocumentsPage = () => {
       title: 'Tải về', 
       key: 'action', 
       render: (_, record) => (
-        <Button type="link" href={record.duong_dan_file} target="_blank" icon={<DownloadOutlined />}>
-          Tải về
+        <Button 
+            type="primary" ghost size="small"
+            href={record.duong_dan_file} 
+            target="_blank" 
+            icon={<DownloadOutlined />}
+        >
+          Xem/Tải
         </Button>
       ) 
     },
@@ -107,12 +113,12 @@ const DocumentsPage = () => {
 
   // Lọc dữ liệu Biểu mẫu chi bộ
   const filteredForms = branchForms.filter(f => 
-    f.tieu_de?.toLowerCase().includes(formSearch.toLowerCase())
+    removeAccents(f.tieu_de).includes(removeAccents(formSearch))
   );
 
   // Lọc dữ liệu Văn bản trường
   const filteredSchoolDocs = schoolDocs.filter(d => {
-    const matchSearch = d.ten_tai_lieu?.toLowerCase().includes(schoolSearch.toLowerCase());
+    const matchSearch = removeAccents(d.ten_tai_lieu).includes(removeAccents(schoolSearch));
     const matchType = schoolTypeFilter === 'ALL' ? true : d.loai_tai_lieu === schoolTypeFilter;
     return matchSearch && matchType;
   });
@@ -135,7 +141,7 @@ const DocumentsPage = () => {
             onChange={e => setFormSearch(e.target.value)} 
             style={{ width: 400, borderRadius: 8 }} 
           />
-          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5 }} />
+          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
         </div>
       ),
     },
@@ -144,32 +150,60 @@ const DocumentsPage = () => {
       label: 'VĂN BẢN CẤP TRƯỜNG',
       children: (
         <div className="space-y-4 pt-2">
-          <Space wrap>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <Input 
               prefix={<SearchOutlined className="text-gray-400" />}
               placeholder="Tìm kiếm văn bản..." 
               allowClear 
               onChange={e => setSchoolSearch(e.target.value)} 
-              style={{ width: 400, borderRadius: 8 }} 
+              style={{ width: '100%', maxWidth: 400, borderRadius: 8 }} 
             />
-            <Select 
-              value={schoolTypeFilter} 
-              style={{ width: 220, borderRadius: 8 }} 
-              onChange={value => setSchoolTypeFilter(value)}
-              options={[
-                { value: 'ALL', label: 'Tất cả loại văn bản' },
-                ...DOC_TYPES.map(t => ({ value: t, label: t }))
-              ]}
-            />
-          </Space>
-          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5 }} />
+            <Popover 
+                content={
+                    <div className="flex flex-col gap-4 w-64 p-2">
+                        <div>
+                            <Typography.Text strong className="block mb-1 text-gray-700">Loại văn bản</Typography.Text>
+                            <Select 
+                              value={schoolTypeFilter} 
+                              style={{ width: '100%', borderRadius: 8 }} 
+                              onChange={value => setSchoolTypeFilter(value)}
+                              options={[
+                                { value: 'ALL', label: 'Tất cả loại văn bản' },
+                                ...DOC_TYPES.map(t => ({ value: t, label: t }))
+                              ]}
+                            />
+                        </div>
+                        {schoolTypeFilter !== 'ALL' && (
+                            <Button 
+                                type="link" 
+                                danger 
+                                onClick={() => setSchoolTypeFilter('ALL')}
+                                className="p-0 text-left"
+                            >
+                                Xóa bộ lọc
+                            </Button>
+                        )}
+                    </div>
+                } 
+                title={<span className="font-bold text-gray-800 border-b pb-2 block">Bộ lọc nâng cao</span>} 
+                trigger="click" 
+                placement="bottomRight"
+            >
+                <Badge count={schoolTypeFilter !== 'ALL' ? 1 : 0} size="small" color="#a91f23">
+                    <Button icon={<FilterOutlined />} className="font-semibold text-gray-700 flex items-center gap-2">
+                        Bộ lọc
+                    </Button>
+                </Badge>
+            </Popover>
+          </div>
+          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
         </div>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <Card variant="borderless" className="shadow-md">
           <h2 className="text-2xl font-bold text-red-dang mb-4 uppercase border-b pb-2">
             Kho Tài liệu & Văn bản
