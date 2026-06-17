@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Button, Upload, Modal, message, Image, Input, Empty, Popconfirm, Tooltip,
-  DatePicker, Space, Typography
+  DatePicker, Space, Typography, Pagination
 } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, CalendarOutlined } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
@@ -24,6 +24,10 @@ const ImageGallery = () => {
   // [MỚI] Search + Date filter
   const [searchText, setSearchText]   = useState('');
   const [dateRange, setDateRange]     = useState([]);
+
+  // [MỚI] Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
 
   const fetchImages = async () => {
     try {
@@ -52,6 +56,16 @@ const ImageGallery = () => {
     }
     return result;
   }, [images, searchText, dateRange]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchText, dateRange]);
+
+  const paginatedImages = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredImages.slice(startIndex, startIndex + pageSize);
+  }, [filteredImages, currentPage]);
 
   const handleUpload = async () => {
     if (fileList.length === 0 || !tieu_de) return message.error('Thiếu thông tin');
@@ -125,7 +139,7 @@ const ImageGallery = () => {
             suffixIcon={<CalendarOutlined />}
           />
           <Text style={{ color: '#6b7280', fontSize: 13, alignSelf: 'center' }}>
-            <strong>{filteredImages.length}</strong> / {images.length} ảnh
+            <strong>{filteredImages.length}</strong> ảnh tự do (Trong tổng <strong>{images.length}</strong> ảnh toàn hệ thống)
           </Text>
         </Space>
         <Button
@@ -141,8 +155,9 @@ const ImageGallery = () => {
       {filteredImages.length === 0
         ? <Empty description="Không có ảnh nào" />
         : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-            {filteredImages.map(img => (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+              {paginatedImages.map(img => (
               <div key={img.ma_hinh_anh} style={{
                 borderRadius: 12, overflow: 'hidden',
                 boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
@@ -194,7 +209,18 @@ const ImageGallery = () => {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+              <Pagination 
+                current={currentPage} 
+                pageSize={pageSize} 
+                total={filteredImages.length} 
+                onChange={page => setCurrentPage(page)} 
+                showSizeChanger={false}
+              />
+            </div>
+          </>
         )
       }
 

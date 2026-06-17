@@ -108,11 +108,11 @@ const FormManager = () => {
 
   const columns = [
     {
-      tieu_de: 'Loại', key: 'icon', width: 72, align: 'center',
+      title: 'Loại', key: 'icon', width: 72, align: 'center',
       render: (_, r) => getFileIcon(r.tieu_de)
     },
     {
-      tieu_de: 'Tên Biểu mẫu / Tài liệu',
+      title: 'Tên Biểu mẫu / Tài liệu',
       dataIndex: 'tieu_de',
       render: (text, record) => (
         <div>
@@ -127,7 +127,7 @@ const FormManager = () => {
       )
     },
     {
-      tieu_de: 'Người đăng',
+      title: 'Người đăng',
       dataIndex: 'nguoi_dang',
       width: 160,
       render: (text) => (
@@ -137,14 +137,14 @@ const FormManager = () => {
       )
     },
     {
-      tieu_de: 'Hành động', key: 'action', width: 110, align: 'center',
+      title: 'Hành động', key: 'action', width: 110, align: 'center',
       render: (_, record) => (
         <Space>
-          <Tooltip tieu_de="Tải xuống / Xem">
+          <Tooltip title="Tải xuống / Xem">
             <Button type="primary" ghost size="small" icon={<CloudDownloadOutlined />}
               href={record.duong_dan_file} target="_blank" style={{ borderRadius: 6 }} />
           </Tooltip>
-          <Popconfirm tieu_de="Xóa tài liệu này?"
+          <Popconfirm title="Xóa tài liệu này?"
             onConfirm={() => handleDelete(record.ma_bieu_mau)}
             okText="Xóa" cancelText="Hủy" okButtonProps={{ danger: true }}>
             <Button size="small" danger icon={<DeleteOutlined />} style={{ borderRadius: 6 }} />
@@ -208,7 +208,7 @@ const FormManager = () => {
         <Table
           columns={columns}
           dataSource={filteredForms}
-          rowKey="id"
+          rowKey="ma_bieu_mau"
           loading={loading}
           pagination={{ pageSize: 6, showSizeChanger: false }}
           style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
@@ -217,7 +217,7 @@ const FormManager = () => {
 
       {/* Modal Upload */}
       <Modal
-        tieu_de={
+        title={
           <span style={{ fontFamily: 'Be Vietnam Pro, sans-serif', fontWeight: 600 }}>
             📤 Tải lên Biểu mẫu mới
           </span>

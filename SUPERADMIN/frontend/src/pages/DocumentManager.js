@@ -69,15 +69,17 @@ const DocumentManager = () => {
     }
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append('ten_tai_lieu', values.ten_tai_lieu);
+      formData.append('loai_tai_lieu', values.loai_tai_lieu);
+      if (fileList.length > 0) {
+        formData.append('file', fileList[0]);
+      }
+
       if (editingDoc) {
-        const payload = { ten_tai_lieu: values.ten_tai_lieu, loai_tai_lieu: values.loai_tai_lieu };
-        await axios.put(`/documents/${editingDoc.ma_tai_lieu}`, payload);
+        await axios.put(`/documents/${editingDoc.ma_tai_lieu}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         message.success('Cập nhật thông tin tài liệu thành công!');
       } else {
-        const formData = new FormData();
-        formData.append('file', fileList[0]); 
-        formData.append('ten_tai_lieu', values.ten_tai_lieu);
-        formData.append('loai_tai_lieu', values.loai_tai_lieu);
         // Không gửi ma_chi_bo → backend sẽ gửi thông báo 'All' cho mọi Admin & User
         await axios.post('/documents', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         message.success('Tải lên thành công!');
@@ -282,18 +284,16 @@ const DocumentManager = () => {
             </Select>
           </Form.Item>
 
-          {!editingDoc && (
-            <Form.Item label={<span className="font-semibold">Đính kèm file (PDF/Img) <span className="text-red-500">*</span></span>}>
-              <Upload 
-                beforeUpload={(file) => { setFileList([file]); return false; }} 
-                fileList={fileList} 
-                onRemove={() => setFileList([])} 
-                maxCount={1}
-              >
-                <Button icon={<UploadOutlined />} style={{ borderRadius: 8 }}>Chọn file (Bắt buộc)</Button>
-              </Upload>
-            </Form.Item>
-          )}
+          <Form.Item label={<span className="font-semibold">{editingDoc ? "Cập nhật file đính kèm (Bỏ qua nếu giữ nguyên file cũ)" : "Đính kèm file (PDF/Img) *"}</span>}>
+            <Upload 
+              beforeUpload={(file) => { setFileList([file]); return false; }} 
+              fileList={fileList} 
+              onRemove={() => setFileList([])} 
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />} style={{ borderRadius: 8 }}>{editingDoc ? "Chọn file thay thế" : "Chọn file (Bắt buộc)"}</Button>
+            </Upload>
+          </Form.Item>
 
           <Form.Item className="mb-0 mt-6">
             <Button 

@@ -148,19 +148,41 @@ exports.deleteDocument = async (req, res) => {
 exports.updateDocument = async (req, res) => {
     const { id } = req.params;
     const { ten_tai_lieu, loai_tai_lieu } = req.body;
+    const file = req.file;
     
     try {
-        const sql = `
-            UPDATE "tailieu"
-            SET ten_tai_lieu = $1, loai_tai_lieu = $2
-            WHERE ma_tai_lieu = $3
-            RETURNING *
-        `;
-        const result = await db.query(sql, [ten_tai_lieu, loai_tai_lieu, id]);
-        
-        if (result.rows.length === 0) {
+        const checkDoc = await db.query('SELECT * FROM "tailieu" WHERE ma_tai_lieu = $1', [id]);
+        if (checkDoc.rows.length === 0) {
             return res.status(404).json({ message: 'Tài liệu không tồn tại' });
         }
+        const oldDoc = checkDoc.rows[0];
+
+        let newDriveLink = oldDoc.duong_dan;
+
+        // Nếu có upload file mới
+        if (file) {
+            // Upload file mới
+            const driveData = await uploadFileToDrive(file);
+            newDriveLink = driveData.webViewLink;
+
+            // Xóa file cũ
+            if (oldDoc.duong_dan) {
+                const fileIdMatch = oldDoc.duong_dan.match(/\/d\/(.*?)\//);
+                if (fileIdMatch && fileIdMatch[1]) {
+                    try {
+                        await deleteFileFromDrive(fileIdMatch[1]);
+                    } catch (e) { console.error('Lỗi xóa file cũ trên drive', e.message); }
+                }
+            }
+        }
+
+        const sql = `
+            UPDATE "tailieu"
+            SET ten_tai_lieu = $1, loai_tai_lieu = $2, duong_dan = $3
+            WHERE ma_tai_lieu = $4
+            RETURNING *
+        `;
+        const result = await db.query(sql, [ten_tai_lieu, loai_tai_lieu, newDriveLink, id]);
         
         const doc = result.rows[0];
         

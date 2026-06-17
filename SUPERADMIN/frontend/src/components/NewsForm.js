@@ -81,7 +81,7 @@ const NewsForm = ({ isEditMode, initialData, onSubmit, onCancel }) => {
     const sanitizedContent = DOMPurify.sanitize(values.content);
     const formData = new FormData();
     formData.append('tieu_de', values.tieu_de);
-    formData.append('content', sanitizedContent);
+    formData.append('noi_dung', sanitizedContent);
     if (fileList.length > 0) {
       formData.append('image', fileList[0]);
     }
@@ -126,26 +126,33 @@ const NewsForm = ({ isEditMode, initialData, onSubmit, onCancel }) => {
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleFinish} className="mt-4">
+    <Form 
+      form={form} 
+      layout="vertical" 
+      onFinish={handleFinish} 
+      className="mt-4"
+      initialValues={{
+        tieu_de: initialData?.tieu_de || '',
+        content: initialData?.noi_dung || ''
+      }}
+    >
       <Form.Item 
         name="tieu_de" 
         label={<span className="font-semibold">Tiêu đề tin</span>} 
         rules={[{ validator: validateTitle }]}
       >
-        <div className="relative">
-          <Input 
-            size="large" 
-            placeholder="Ví dụ: Lễ kết nạp Đảng viên mới..." 
-            className="rounded-lg pr-16" 
-            maxLength={150}
-            onChange={handleTitleChange}
-          />
-          <div 
-            className={`absolute right-3 top-2.5 text-xs font-medium ${titleLength >= 140 ? 'text-red-500' : 'text-gray-400'}`}
-          >
-            {titleLength}/150
-          </div>
-        </div>
+        <Input 
+          size="large" 
+          placeholder="Ví dụ: Lễ kết nạp Đảng viên mới..." 
+          className="rounded-lg" 
+          maxLength={150}
+          onChange={handleTitleChange}
+          suffix={
+            <span className={`text-xs font-medium ${titleLength >= 140 ? 'text-red-500' : 'text-gray-400'}`}>
+              {titleLength}/150
+            </span>
+          }
+        />
       </Form.Item>
       
       <Form.Item 

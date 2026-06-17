@@ -68,7 +68,7 @@ exports.deleteForm = async (req, res) => {
 
     try {
         // Kiểm tra quyền sở hữu (Chỉ xóa nếu thuộc chi bộ mình)
-        const check = await db.query('SELECT * FROM "bieumau" WHERE ma_bieu_mau = $1 AND ma_chi_bo = $2', [id, branchId]);
+        const check = await db.query('SELECT * FROM "bieumau" WHERE ma_bieu_mau = $1 AND ma_chi_bo = $2', [ma_bieu_mau, branchId]);
         
         if (check.rows.length === 0) {
             return res.status(404).json({ message: 'Biểu mẫu không tồn tại hoặc không có quyền xóa' });
@@ -82,7 +82,7 @@ exports.deleteForm = async (req, res) => {
         }
 
         // Xóa trong DB
-        await db.query('DELETE FROM "bieumau" WHERE ma_bieu_mau = $1', [id]);
+        await db.query('DELETE FROM "bieumau" WHERE ma_bieu_mau = $1', [ma_bieu_mau]);
 
         res.json({ message: 'Đã xóa biểu mẫu' });
 
