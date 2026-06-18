@@ -76,10 +76,11 @@ const AlbumGallery = () => {
   };
 
   const getDriveImage = (img) => {
-    if (img.ma_file_drive) return `http://localhost:5001/api/media/proxy/${img.ma_file_drive}`;
+    const apiUrl = axios.defaults.baseURL || 'http://localhost:5001/api';
+    if (img.ma_file_drive) return `${apiUrl}/media/proxy/${img.ma_file_drive}`;
     if (img.duong_dan) {
       const idMatch = img.duong_dan.match(/[-\w]{25,}/);
-      if (idMatch) return `http://localhost:5001/api/media/proxy/${idMatch[0]}`;
+      if (idMatch) return `${apiUrl}/media/proxy/${idMatch[0]}`;
     }
     return '';
   };
