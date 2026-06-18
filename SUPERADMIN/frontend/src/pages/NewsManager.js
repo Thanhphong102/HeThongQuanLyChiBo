@@ -136,6 +136,7 @@ const NewsManager = () => {
         </div>
 
         <Table 
+            scroll={{ x: 'max-content' }}
             columns={columns} 
             dataSource={newsList} 
             rowKey="ma_tin_tuc" 

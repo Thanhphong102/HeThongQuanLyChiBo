@@ -496,7 +496,7 @@ const ActivityManager = () => {
           </div>
         }
       >
-        <Table columns={columns} dataSource={activities} rowKey="ma_lich" loading={loading}
+        <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={activities} rowKey="ma_lich" loading={loading}
           pagination={{ pageSize: 8, showSizeChanger: false }}
           style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }} />
       </Card>

@@ -223,6 +223,7 @@ const MemberAccountManager = () => {
         }
       >
         <Table
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={members}
           rowKey="ma_dang_vien"

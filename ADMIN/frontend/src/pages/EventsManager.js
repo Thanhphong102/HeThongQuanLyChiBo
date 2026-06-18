@@ -392,6 +392,7 @@ const EventsManager = () => {
       {/* Bảng danh sách */}
       <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
         <Table
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={events}
           rowKey="id"
@@ -497,6 +498,7 @@ const EventsManager = () => {
         </Row>
 
         <Table
+          scroll={{ x: 'max-content' }}
           columns={regColumns}
           dataSource={registrations}
           rowKey="ma_dang_ky"

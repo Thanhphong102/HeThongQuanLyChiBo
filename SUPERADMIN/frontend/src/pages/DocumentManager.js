@@ -232,6 +232,7 @@ const DocumentManager = () => {
         </div>
 
         <Table 
+          scroll={{ x: 'max-content' }}
           columns={columns} 
           dataSource={documents} 
           rowKey="ma_tai_lieu" 

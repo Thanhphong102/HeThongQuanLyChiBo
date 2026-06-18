@@ -104,7 +104,7 @@ const BranchManager = () => {
             </Row>
         </div>
 
-        <Table columns={columns} dataSource={branches} rowKey="ma_chi_bo" loading={loading} pagination={{ pageSize: 8, className: "custom-pagination" }} className="border-t border-gray-100 mt-2" rowClassName="hover:bg-gray-50 transition-colors" />
+        <Table scroll={{ x: 'max-content' }} columns={columns} dataSource={branches} rowKey="ma_chi_bo" loading={loading} pagination={{ pageSize: 8, className: "custom-pagination" }} className="border-t border-gray-100 mt-2" rowClassName="hover:bg-gray-50 transition-colors" />
       </Card>
 
       <Modal title={<span className="text-lg font-bold">{editingBranch ? "Chỉnh sửa thông tin" : "Thêm Chi bộ mới"}</span>} open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null} className="rounded-2xl overflow-hidden font-['Be_Vietnam_Pro']" destroyOnClose>

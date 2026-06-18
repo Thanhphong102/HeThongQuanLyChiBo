@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, message, Typography, theme, Button, Space } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, message, Typography, theme, Button, Space, Grid } from 'antd';
 import { 
   UserOutlined, 
   DashboardOutlined, 
@@ -30,6 +30,7 @@ const MainLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const screens = Grid.useBreakpoint();
 
   const primaryColor = '#CE1126'; 
   const secondaryColor = '#F9D71C';
@@ -72,7 +73,7 @@ const MainLayout = () => {
         collapsible 
         collapsed={collapsed}
         breakpoint="lg" 
-        collapsedWidth="80" 
+        collapsedWidth={screens.md ? 80 : 0} 
         onBreakpoint={(broken) => setCollapsed(broken)}
         width={260}
         style={{ 

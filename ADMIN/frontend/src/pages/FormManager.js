@@ -206,6 +206,7 @@ const FormManager = () => {
         </div>
 
         <Table
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={filteredForms}
           rowKey="ma_bieu_mau"

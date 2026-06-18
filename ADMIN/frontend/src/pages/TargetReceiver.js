@@ -205,6 +205,7 @@ const TargetReceiver = () => {
       </div>
 
       <Table 
+        scroll={{ x: 'max-content' }}
         columns={columns} 
         dataSource={targets} 
         rowKey="ma_chi_tieu" 

@@ -357,6 +357,7 @@ const MemberManager = () => {
       {/* Bảng dữ liệu */}
       <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
         <Table
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={members}
           rowKey="ma_dang_vien"

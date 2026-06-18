@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, message, theme, Button } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, message, theme, Button, Grid } from 'antd';
 import { 
   DashboardOutlined, 
   TeamOutlined, 
@@ -31,6 +31,7 @@ const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
   const { token: { colorBgContainer } } = theme.useToken();
+  const screens = Grid.useBreakpoint();
   const primaryColor = '#CE1126'; 
 
   const handleLogout = () => {
@@ -97,7 +98,7 @@ const MainLayout = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider 
         trigger={null} collapsible collapsed={collapsed} breakpoint="lg" 
-        collapsedWidth="80" onBreakpoint={(broken) => setCollapsed(broken)} width={260}
+        collapsedWidth={screens.md ? 80 : 0} onBreakpoint={(broken) => setCollapsed(broken)} width={260}
         style={{ 
           background: `linear-gradient(180deg, #001529 0%, #003a8c 100%)`,
           boxShadow: '4px 0 10px rgba(0,0,0,0.15)',
