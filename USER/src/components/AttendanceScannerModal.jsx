@@ -15,7 +15,10 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   useEffect(() => {
     let isMounted = true;
     
-    if (isOpen && status === 'SCANNING') {
+    // Detect mobile devices (simple width check). On mobile, skip auto camera start to avoid white screen and rely on file upload fallback.
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    
+    if (isOpen && status === 'SCANNING' && !isMobile) {
       const html5QrCode = new Html5Qrcode("qr-reader-modern");
       html5QrCodeRef.current = html5QrCode;
       
@@ -45,11 +48,14 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   }, [isOpen, status]);
 
   const stopCamera = async () => {
+      // Safely stop camera if scanning is active
       if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
           try { 
             await html5QrCodeRef.current.stop(); 
             html5QrCodeRef.current.clear();
-          } catch(e){}
+          } catch(e) {
+            console.warn('Error stopping camera:', e);
+          }
       }
   }
 
@@ -188,7 +194,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
       className="backdrop-blur-sm"
       styles={{ body: { padding: 0, borderRadius: '16px', overflow: 'hidden' } }}
     >
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden backdrop-blur-md bg-opacity-90">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden backdrop-blur-md bg-opacity-90" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="bg-red-dang p-4 text-center">
                 <h3 className="text-yellow-sao text-xl font-bold m-0 uppercase flex items-center justify-center">
                     <QrcodeOutlined className="mr-2" /> Điểm Danh
@@ -199,7 +205,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
             <div className="p-6">
                 {status === 'SCANNING' && (
                     <div className="flex flex-col items-center">
-                        <div className="relative w-full overflow-hidden rounded-xl bg-gray-900 shadow-inner flex items-center justify-center min-h-[300px]">
+                        <div className="relative w-full overflow-hidden rounded-xl bg-gray-900 shadow-inner flex items-center justify-center" style={{ minHeight: '250px' }}>
                             {/* Khu vực camera */}
                             <div id="qr-reader-modern" className="w-full h-full object-cover"></div>
                             
