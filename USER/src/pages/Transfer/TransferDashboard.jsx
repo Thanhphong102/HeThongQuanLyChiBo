@@ -81,8 +81,13 @@ const TransferDashboard = () => {
   ];
 
   return (
-    <Card title={<Title level={3} style={{ margin: 0 }}>Quản lý chuyển sinh hoạt Đảng</Title>} 
-          extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/transfer-requests/new')}>Tạo yêu cầu mới</Button>}
+    <Card 
+      title={
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-2">
+          <Title level={3} style={{ margin: 0, fontSize: '1.25rem' }} className="whitespace-normal">Quản lý chuyển sinh hoạt Đảng</Title>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/transfer-requests/new')} className="w-full sm:w-auto">Tạo yêu cầu mới</Button>
+        </div>
+      }
     >
       <Table 
         columns={columns} 
