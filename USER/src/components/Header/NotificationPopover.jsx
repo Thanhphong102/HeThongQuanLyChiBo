@@ -37,7 +37,7 @@ const NotificationPopover = () => {
 
     useEffect(() => {
         fetchNotifs();
-        const interval = setInterval(fetchNotifs, 60000);
+        const interval = setInterval(fetchNotifs, 3000);
         return () => clearInterval(interval);
     }, []);
 
@@ -46,13 +46,23 @@ const NotificationPopover = () => {
         if (e) e.stopPropagation();
         
         // Điều hướng dựa vào type
-        switch (item.type) {
-            case 'ACTIVITY': navigate('/activities'); break;
-            case 'MEETING': navigate('/dashboard'); break;
-            case 'FEE': navigate('/lookup'); break;
-            case 'TARGET': navigate('/dashboard'); break;
-            case 'DOCUMENT': navigate('/documents'); break;
-            default: break;
+        if (item.type.startsWith('TRANSFER_')) {
+            const id = item.type.split('_')[1];
+            if (id === 'NEW') {
+                navigate('/transfer-requests/new');
+            } else {
+                navigate(`/transfer-requests/${id}`);
+            }
+        } else {
+            switch (item.type) {
+                case 'ACTIVITY': navigate('/activities'); break;
+                case 'MEETING': navigate('/dashboard'); break;
+                case 'FEE': navigate('/lookup'); break;
+                case 'TARGET': navigate('/dashboard'); break;
+                case 'DOCUMENT': navigate('/documents'); break;
+                case 'TRANSFER': navigate('/transfer-requests'); break;
+                default: break;
+            }
         }
 
         if (!item.isUnread) return;

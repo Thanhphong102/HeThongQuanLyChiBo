@@ -108,14 +108,14 @@ exports.createMember = async (req, res) => {
                 so_dien_thoai, email, ngay_sinh, gioi_tinh, que_quan, dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, ngay_vao_dang,
                 doi_tuong, ma_so_sinh_vien, lop, khoa_hoc, nganh_hoc,
                 ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon, chuc_vu_dang, nguoi_tao,
-                ten_dang_nhap, mat_khau, so_dinh_danh, so_the_dang_vien
+                ten_dang_nhap, mat_khau, so_dinh_danh, so_the_dang_vien, buoc_doi_mat_khau
             )
             VALUES (
                 $1, $2, 3, 'Du bi', true,
                 $3, $4, $5, $6, $7, $8, $9, $10, $11,
                 $12, $13, $14, $15, $16,
                 $17, $18, $19, 'Dang vien', $20,
-                $21, $22, $23, $24
+                $21, $22, $23, $24, true
             )
             RETURNING *
         `;
@@ -197,7 +197,7 @@ exports.grantAccount = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(mat_khau, salt);
 
-        await db.query('UPDATE "dangvien" SET ten_dang_nhap = $1, mat_khau = $2, hoat_dong = true, nguoi_cap_nhat = $3 WHERE ma_dang_vien = $4', [ten_dang_nhap, hashedPassword, req.user.id, id]);
+        await db.query('UPDATE "dangvien" SET ten_dang_nhap = $1, mat_khau = $2, hoat_dong = true, buoc_doi_mat_khau = true, nguoi_cap_nhat = $3 WHERE ma_dang_vien = $4', [ten_dang_nhap, hashedPassword, req.user.id, id]);
 
         res.json({ message: 'Cấp tài khoản thành công' });
     } catch (error) {

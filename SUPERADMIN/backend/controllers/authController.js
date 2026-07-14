@@ -93,8 +93,8 @@ exports.register = async (req, res) => {
 
         // Lưu vào DB
         const sql = `
-            INSERT INTO "dangvien" (ho_ten, email, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, chuc_vu_dang, ngay_vao_dang, hoat_dong)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_DATE, true)
+            INSERT INTO "dangvien" (ho_ten, email, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, chuc_vu_dang, ngay_vao_dang, hoat_dong, buoc_doi_mat_khau)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_DATE, true, true)
         `;
         await db.query(sql, [ho_ten, email, ten_dang_nhap, hashedPassword, ma_chi_bo, cap_quyen || 3, finalChucVu]);
         
@@ -134,7 +134,7 @@ exports.resetPassword = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(matKhauTam, salt);
 
-        await db.query('UPDATE "dangvien" SET mat_khau = $1 WHERE ma_dang_vien = $2', [hashedPassword, id]);
+        await db.query('UPDATE "dangvien" SET mat_khau = $1, buoc_doi_mat_khau = true WHERE ma_dang_vien = $2', [hashedPassword, id]);
         
         // Gửi email
         let emailSent = false;
@@ -255,8 +255,8 @@ exports.updateRole = async (req, res) => {
 //         if (check.rows.length > 0) return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
 
 //         const sql = `
-//             INSERT INTO "dangvien" (ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, ngay_vao_dang, hoat_dong)
-//             VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, true)
+//             INSERT INTO "dangvien" (ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, ngay_vao_dang, hoat_dong, buoc_doi_mat_khau)
+//             VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, true, true)
 //         `;
 //         await db.query(sql, [ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen || 3]);
 //         res.status(201).json({ message: 'Cấp tài khoản thành công!' });
@@ -274,7 +274,7 @@ exports.updateRole = async (req, res) => {
 //     if (!new_password) return res.status(400).json({ message: 'Mật khẩu mới không được để trống' });
 
 //     try {
-//         await db.query('UPDATE "dangvien" SET mat_khau = $1 WHERE ma_dang_vien = $2', [new_password, id]);
+//         await db.query('UPDATE "dangvien" SET mat_khau = $1, buoc_doi_mat_khau = true WHERE ma_dang_vien = $2', [new_password, id]);
 //         res.json({ message: 'Đã cập nhật mật khẩu thành công' });
 //     } catch (error) {
 //         res.status(500).json({ message: 'Lỗi cập nhật mật khẩu' });

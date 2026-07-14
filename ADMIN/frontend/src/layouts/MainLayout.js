@@ -13,7 +13,8 @@ import {
   AimOutlined,
   UserSwitchOutlined,
   PictureOutlined,
-  StarOutlined    // Task 8: Icon cho Hoạt động
+  StarOutlined,    // Task 8: Icon cho Hoạt động
+  SwapOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -91,6 +92,11 @@ const MainLayout = () => {
       key: '/nhan-chi-tieu', 
       icon: <AimOutlined />,
       label: <Link to="/nhan-chi-tieu">Nhận chỉ tiêu</Link> // Task 9
+    },
+    { 
+      key: '/chuyen-dang', 
+      icon: <SwapOutlined />,
+      label: <Link to="/chuyen-dang">Quản lý chuyển Đảng</Link>
     },
   ];
 

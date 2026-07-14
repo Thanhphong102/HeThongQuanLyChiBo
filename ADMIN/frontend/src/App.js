@@ -18,6 +18,8 @@ import FormManager from './pages/FormManager';
 import MediaManager from './pages/MediaManager';
 import EventsManager from './pages/EventsManager';   // Task 8: Quản lý Hoạt động
 import TargetReceiver from './pages/TargetReceiver'; // Task 9: Nhận chỉ tiêu
+import TransferManagement from './pages/Transfer/TransferManagement'; // Quản lý chuyển đảng
+import GuidelineConfig from './pages/Transfer/GuidelineConfig'; // Cấu hình hướng dẫn chuyển đảng
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
             <Route path="/thu-vien" element={<MediaManager />} />
             <Route path="/hoat-dong" element={<EventsManager />} /> {/* Task 8 */}
             <Route path="/nhan-chi-tieu" element={<TargetReceiver />} /> {/* Task 9 */}
+            <Route path="/chuyen-dang" element={<TransferManagement />} />
+            <Route path="/chuyen-dang/huong-dan" element={<GuidelineConfig />} />
           </Route>
         </Route>
 

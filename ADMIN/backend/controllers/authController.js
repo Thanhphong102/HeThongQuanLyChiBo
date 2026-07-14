@@ -95,8 +95,8 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(mat_khau, salt);
 
         const sql = `
-            INSERT INTO "dangvien" (ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, ngay_vao_dang, hoat_dong)
-            VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, true)
+            INSERT INTO "dangvien" (ho_ten, ten_dang_nhap, mat_khau, ma_chi_bo, cap_quyen, ngay_vao_dang, hoat_dong, buoc_doi_mat_khau)
+            VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, true, true)
         `;
         await db.query(sql, [ho_ten, ten_dang_nhap, hashedPassword, ma_chi_bo, cap_quyen || 3]); // Lưu hashedPassword
         
@@ -215,7 +215,9 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     const userId = req.user.id;
     const { 
-        ngay_sinh, gioi_tinh, que_quan, dia_chi_hien_tai, so_dien_thoai, email,
+        ngay_sinh, gioi_tinh, que_quan, 
+        dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, 
+        so_dien_thoai, email,
         ngay_vao_dang, ngay_chinh_thuc, lop, nganh_hoc, ma_so_sinh_vien,
         so_dinh_danh, so_the_dang_vien, anh_the
     } = req.body;
@@ -223,17 +225,21 @@ exports.updateProfile = async (req, res) => {
     try {
         const sql = `
             UPDATE "dangvien" 
-            SET ngay_sinh = $1, gioi_tinh = $2, que_quan = $3, dia_chi_hien_tai = $4, so_dien_thoai = $5, email = $6,
-                ngay_vao_dang = $7, ngay_chinh_thuc = $8, lop = $9, nganh_hoc = $10, ma_so_sinh_vien = $11,
-                so_dinh_danh = $12, so_the_dang_vien = $13, anh_the = $14
-            WHERE ma_dang_vien = $15
+            SET ngay_sinh = $1, gioi_tinh = $2, que_quan = $3, 
+                dia_chi_thuong_tru = $4, dia_chi_tam_tru = $5, dia_chi_chi_bo_lien_he = $6, 
+                so_dien_thoai = $7, email = $8,
+                ngay_vao_dang = $9, ngay_chinh_thuc = $10, lop = $11, nganh_hoc = $12, ma_so_sinh_vien = $13,
+                so_dinh_danh = $14, so_the_dang_vien = $15, anh_the = $16
+            WHERE ma_dang_vien = $17
             RETURNING *
         `;
         const result = await db.query(sql, [
             ngay_sinh || null, 
             gioi_tinh || null, 
             que_quan || null, 
-            dia_chi_hien_tai || null, 
+            dia_chi_thuong_tru || null, 
+            dia_chi_tam_tru || null, 
+            dia_chi_chi_bo_lien_he || null, 
             so_dien_thoai || null, 
             email || null, 
             ngay_vao_dang || null,

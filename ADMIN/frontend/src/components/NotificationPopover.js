@@ -44,7 +44,9 @@ const NotificationPopover = () => {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
+    
+    // Polling mỗi 3 giây (3000ms) để cập nhật dữ liệu liên tục thay vì 1 phút
+    const interval = setInterval(fetchNotifications, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -55,13 +57,23 @@ const NotificationPopover = () => {
 
   const handleItemClick = async (item) => {
     // Điều hướng theo type
-    switch (item.type) {
-      case 'ACTIVITY': navigate('/hoat-dong'); break;
-      case 'MEETING': navigate('/sinh-hoat'); break;
-      case 'FEE': navigate('/dang-phi'); break;
-      case 'TARGET': navigate('/nhan-chi-tieu'); break;
-      case 'DOCUMENT': navigate('/bieu-mau'); break;
-      default: break;
+    if (item.type.startsWith('TRANSFER_')) {
+      const id = item.type.split('_')[1];
+      if (id === 'REMINDER') {
+        navigate('/chuyen-dang');
+      } else {
+        navigate(`/chuyen-dang?id=${id}`);
+      }
+    } else {
+      switch (item.type) {
+        case 'ACTIVITY': navigate('/hoat-dong'); break;
+        case 'MEETING': navigate('/sinh-hoat'); break;
+        case 'FEE': navigate('/dang-phi'); break;
+        case 'TARGET': navigate('/nhan-chi-tieu'); break;
+        case 'DOCUMENT': navigate('/bieu-mau'); break;
+        case 'TRANSFER': navigate('/chuyen-dang'); break;
+        default: break;
+      }
     }
 
     if (item.isUnread) {

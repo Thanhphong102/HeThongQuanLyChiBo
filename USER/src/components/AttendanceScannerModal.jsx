@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Button, Spin, message, Typography } from 'antd';
-import { QrcodeOutlined, EnvironmentOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import React, { useEffect, useState, useRef } from 'react';
+import { Modal, Button, Spin, message, Typography, Upload } from 'antd';
+import { QrcodeOutlined, EnvironmentOutlined, CheckCircleOutlined, PictureOutlined, CameraOutlined } from '@ant-design/icons';
+import { Html5Qrcode } from 'html5-qrcode';
 import userApi from '../api/userApi';
 
 const { Text } = Typography;
@@ -10,53 +10,51 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('SCANNING'); // 'SCANNING', 'GEOLOCATING', 'SUCCESS', 'ERROR'
-  const [scanner, setScanner] = useState(null);
+  const html5QrCodeRef = useRef(null);
 
   useEffect(() => {
-    let html5QrcodeScanner;
-    let timer;
-
+    let isMounted = true;
+    
     if (isOpen && status === 'SCANNING') {
-      const startScanner = () => {
-        const element = document.getElementById("qr-reader");
-        if (!element) {
-          timer = setTimeout(startScanner, 100);
-          return;
-        }
-        
-        try {
-          html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader",
-            { fps: 10, qrbox: { width: 250, height: 250 }, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] },
-            false
-          );
-          html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-          setScanner(html5QrcodeScanner);
-        } catch (error) {
-          console.error("Lỗi khởi tạo camera:", error);
-          // Nếu lỗi do camera chưa sẵn sàng, thử lại sau 500ms
-          timer = setTimeout(startScanner, 500);
-        }
-      };
+      const html5QrCode = new Html5Qrcode("qr-reader-modern");
+      html5QrCodeRef.current = html5QrCode;
       
-      startScanner();
+      const config = { fps: 10 }; // Remove qrbox to hide default ugly border
+      
+      // Tự động quét camera sau
+      setTimeout(() => {
+        if (!isMounted) return;
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+        .catch((err) => {
+           console.warn("Lỗi bật camera sau:", err);
+           // Fallback nếu không có cam sau (ví dụ chạy trên laptop)
+           if(isMounted) {
+             html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailure)
+             .catch(e => {
+                message.error("Không thể mở Camera tự động. Hãy dùng tính năng tải ảnh lên.");
+             });
+           }
+        });
+      }, 500); // Đợi DOM render xong thẻ div
     }
 
     return () => {
-      clearTimeout(timer);
-      if (html5QrcodeScanner) {
-        try {
-          html5QrcodeScanner.clear().catch(e => console.log(e));
-        } catch (e) { console.error(e); }
-      }
+      isMounted = false;
+      stopCamera();
     };
   }, [isOpen, status]);
 
-  const onScanSuccess = (decodedText, decodedResult) => {
-      // Dừng quét
-      if (scanner) {
-          try { scanner.clear(); } catch(e){}
+  const stopCamera = async () => {
+      if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
+          try { 
+            await html5QrCodeRef.current.stop(); 
+            html5QrCodeRef.current.clear();
+          } catch(e){}
       }
+  }
+
+  const onScanSuccess = async (decodedText) => {
+      await stopCamera();
       setScanResult(decodedText);
 
       // Parse JSON từ nội dung QR: { meetingId, token, type: 'ATTENDANCE_QR' }
@@ -68,9 +66,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
               parsedToken = parsed.token;
               parsedMeetingId = parsed.meetingId || meetingId;
           }
-      } catch (e) {
-          // Nếu không parse được, dùng nguyên bản
-      }
+      } catch (e) {}
       
       if (attendanceType === 'Online') {
           setStatus('GEOLOCATING');
@@ -79,6 +75,31 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
           setStatus('GEOLOCATING');
           getLocationAndSubmit(parsedToken, parsedMeetingId);
       }
+  };
+
+  const onScanFailure = (error) => {
+      // Bỏ qua lỗi ko tìm thấy QR trong frame
+  };
+
+  const handleFileUpload = async (file) => {
+      if (!file) return false;
+
+      if (!html5QrCodeRef.current) {
+          html5QrCodeRef.current = new Html5Qrcode("qr-reader-modern");
+      }
+      
+      try {
+          await stopCamera();
+          setLoading(true);
+          const decodedText = await html5QrCodeRef.current.scanFile(file, true);
+          onScanSuccess(decodedText);
+      } catch (err) {
+          message.error("Không tìm thấy mã QR trong ảnh. Vui lòng chọn ảnh khác rõ nét hơn.");
+          setStatus('SCANNING'); // Khởi động lại quét cam
+      } finally {
+          setLoading(false);
+      }
+      return false; // Ngăn Upload component tự gửi request
   };
 
   const submitOnlineAttendance = async (qrToken, resolvedMeetingId) => {
@@ -106,10 +127,6 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
       }
   };
 
-  const onScanFailure = (error) => {
-      // Bỏ qua lỗi quét
-  };
-
   const getLocationAndSubmit = (qrToken, resolvedMeetingId) => {
       if (!navigator.geolocation) {
           message.error("Trình duyệt không hỗ trợ định vị");
@@ -124,7 +141,6 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
               
               try {
                   setLoading(true);
-                  // Gọi API qua function submitAttendance (sẽ code ở userApi)
                   const res = await userApi.submitAttendance(resolvedMeetingId, {
                       qr_token: qrToken,
                       lat,
@@ -156,9 +172,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   };
 
   const handleClose = () => {
-      if (scanner) {
-          try { scanner.clear().catch(e => console.error(e)); } catch(e){}
-      }
+      stopCamera();
       setStatus('SCANNING');
       setScanResult(null);
       onClose();
@@ -177,16 +191,55 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden backdrop-blur-md bg-opacity-90">
             <div className="bg-red-dang p-4 text-center">
                 <h3 className="text-yellow-sao text-xl font-bold m-0 uppercase flex items-center justify-center">
-                    <QrcodeOutlined className="mr-2" /> ĐIỂM DANH
+                    <QrcodeOutlined className="mr-2" /> Điểm Danh
                 </h3>
                 <p className="text-white opacity-90 mt-1 m-0 truncate text-sm">{meetingTitle}</p>
             </div>
             
             <div className="p-6">
                 {status === 'SCANNING' && (
-                    <div>
-                        <div id="qr-reader" className="w-full border-2 border-dashed border-red-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center min-h-[250px]"></div>
-                        <p className="text-center text-gray-500 mt-4 text-sm"><QrcodeOutlined /> Hãy đưa camera hướng vào mã QR của Chi ủy để quét</p>
+                    <div className="flex flex-col items-center">
+                        <div className="relative w-full overflow-hidden rounded-xl bg-gray-900 shadow-inner flex items-center justify-center min-h-[300px]">
+                            {/* Khu vực camera */}
+                            <div id="qr-reader-modern" className="w-full h-full object-cover"></div>
+                            
+                            {/* Khung quét giả lập (Scanner Frame) */}
+                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                <div className="w-56 h-56 border-2 border-red-500 rounded-lg relative">
+                                    <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-red-500 rounded-tl"></div>
+                                    <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-red-500 rounded-tr"></div>
+                                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-red-500 rounded-bl"></div>
+                                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-red-500 rounded-br"></div>
+                                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-50 animate-pulse shadow-[0_0_8px_rgba(239,68,68,1)]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p className="text-center text-gray-500 mt-4 text-sm font-medium flex items-center">
+                            <CameraOutlined className="mr-2 text-lg text-red-dang" /> 
+                            Hãy đưa mã QR vào trong khung hình
+                        </p>
+
+                        <div className="w-full flex items-center justify-center my-3 relative">
+                            <div className="w-full h-px bg-gray-200"></div>
+                            <span className="bg-white px-3 text-gray-400 text-xs absolute uppercase font-bold tracking-widest">Hoặc</span>
+                        </div>
+
+                        <Upload
+                            accept="image/*"
+                            showUploadList={false}
+                            beforeUpload={handleFileUpload}
+                        >
+                            <Button 
+                                type="dashed" 
+                                icon={<PictureOutlined />} 
+                                size="large" 
+                                loading={loading}
+                                className="w-full border-red-300 text-red-600 hover:text-red-700 hover:border-red-400 font-semibold"
+                            >
+                                Tải ảnh QR từ Thư viện
+                            </Button>
+                        </Upload>
                     </div>
                 )}
                 
@@ -195,7 +248,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
                         <Spin size="large" />
                         <h4 className="text-lg font-semibold text-blue-600 mt-4 flex items-center justify-center">
                             {attendanceType === 'Online' ? <CheckCircleOutlined className="mr-2" /> : <EnvironmentOutlined className="mr-2" />} 
-                            {attendanceType === 'Online' ? 'Đang gửi yêu cầu điểm danh...' : 'Đang lấy vị trí phân tích...'}
+                            {attendanceType === 'Online' ? 'Đang gửi yêu cầu điểm danh...' : 'Đang lấy tọa độ GPS...'}
                         </h4>
                         <p className="text-gray-500 text-sm mt-2">
                             {attendanceType === 'Online' ? 'Vui lòng kiên nhẫn chờ trong giây lát.' : 'Vui lòng kiên nhẫn chờ trong giây lát. Đảm bảo bạn đã bật GPS.'}
@@ -219,13 +272,13 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
                         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-4xl text-red-500 font-bold">!</span>
                         </div>
-                        <h4 className="text-xl font-bold text-red-600 mt-2">VỊ TRÍ HOẶC QR KHÔNG HỢP LỆ</h4>
+                        <h4 className="text-xl font-bold text-red-600 mt-2">ĐIỂM DANH THẤT BẠI</h4>
                         <p className="text-gray-600 mb-6 px-4">
-                            {attendanceType === 'Online' ? 'Mã QR cung cấp không khớp với Server hoặc đã hết hạn.' : 'Khoảng cách quét hoặc mã QR cung cấp không khớp với Server.'}
+                            {attendanceType === 'Online' ? 'Mã QR không hợp lệ hoặc đã hết hạn.' : 'Khoảng cách quá xa so với địa điểm tổ chức, hoặc mã QR hết hạn.'}
                         </p>
                         <div className="flex justify-center flex-row gap-4">
-                            <Button className="h-10 px-6 rounded-lg font-semibold" onClick={() => setStatus('SCANNING')}>Thử Lại</Button>
-                            <Button type="primary" danger className="h-10 px-6 rounded-lg font-semibold bg-red-dang" onClick={handleClose}>Huỷ</Button>
+                            <Button className="h-10 px-6 rounded-lg font-semibold" onClick={() => setStatus('SCANNING')}>Quét lại</Button>
+                            <Button type="primary" danger className="h-10 px-6 rounded-lg font-semibold bg-red-dang" onClick={handleClose}>Đóng</Button>
                         </div>
                     </div>
                 )}

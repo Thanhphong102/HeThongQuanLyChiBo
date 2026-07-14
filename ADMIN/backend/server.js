@@ -6,6 +6,9 @@ require('dotenv').config();
 const app = express();
 const allRoutes = require('./routes/index'); // Import file tổng hợp routes
 
+// Khởi chạy các Cronjobs
+require('./services/transferCron');
+
 // --- 1. CẤU HÌNH CORS (QUAN TRỌNG) ---
 // // Cho phép Frontend (Port 5173) gọi API sang Backend (Port 5001)
 // app.use(cors({

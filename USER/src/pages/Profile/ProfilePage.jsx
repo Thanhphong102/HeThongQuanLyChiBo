@@ -16,6 +16,9 @@ const getMediaSrc = (duong_dan) => {
       return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
   }
+  if (duong_dan.startsWith('/uploads')) {
+    return `http://localhost:5001${duong_dan}`;
+  }
   return duong_dan;
 };
 
@@ -43,31 +46,7 @@ const ProfilePage = () => {
                 setUser(fetchedUser);
                 setAvatarUrl(fetchedUser.anh_the);
                 
-                // Điền dữ liệu vào Form
-                profileForm.setFieldsValue({
-                    ho_ten: fetchedUser.ho_ten,
-                    chuc_vu_dang: fetchedUser.chuc_vu_dang,
-                    ten_chi_bo: fetchedUser.ten_chi_bo,
-                    ngay_sinh: fetchedUser.ngay_sinh ? dayjs(fetchedUser.ngay_sinh) : null,
-                    gioi_tinh: fetchedUser.gioi_tinh,
-                    que_quan: fetchedUser.que_quan,
-                    dia_chi_thuong_tru: fetchedUser.dia_chi_thuong_tru,
-                    dia_chi_tam_tru: fetchedUser.dia_chi_tam_tru,
-                    dia_chi_chi_bo_lien_he: fetchedUser.dia_chi_chi_bo_lien_he,
-                    so_dien_thoai: fetchedUser.so_dien_thoai,
-                    email: fetchedUser.email,
-                    ngay_vao_dang: fetchedUser.ngay_vao_dang ? dayjs(fetchedUser.ngay_vao_dang) : null,
-                    ngay_chinh_thuc: fetchedUser.ngay_chinh_thuc ? dayjs(fetchedUser.ngay_chinh_thuc) : null,
-                    lop: fetchedUser.lop,
-                    nganh_hoc: fetchedUser.nganh_hoc,
-                    ma_so_sinh_vien: fetchedUser.ma_so_sinh_vien,
-                    ma_can_bo: fetchedUser.ma_can_bo,
-                    don_vi_cong_tac: fetchedUser.don_vi_cong_tac,
-                    chuc_vu_chuyen_mon: fetchedUser.chuc_vu_chuyen_mon,
-                    doi_tuong: fetchedUser.doi_tuong === 'Can bo' ? 'Cán bộ' : (fetchedUser.doi_tuong === 'Sinh vien' ? 'Sinh viên' : fetchedUser.doi_tuong),
-                    so_dinh_danh: fetchedUser.so_dinh_danh,
-                    so_the_dang_vien: fetchedUser.so_the_dang_vien,
-                });
+                // Dữ liệu sẽ được điền vào form qua useEffect riêng biệt để tránh lỗi 'useForm is not connected'
             } catch (error) {
                 console.error("Lỗi lấy thông tin cá nhân:", error);
                 message.error('Không thể tải thông tin hồ sơ');
@@ -77,6 +56,36 @@ const ProfilePage = () => {
         };
         fetchUserData();
     }, [profileForm]);
+
+    // [NEW] Điền dữ liệu vào Form sau khi component đã render xong Form
+    useEffect(() => {
+        if (!loading && user && Object.keys(user).length > 0) {
+            profileForm.setFieldsValue({
+                ho_ten: user.ho_ten,
+                chuc_vu_dang: user.chuc_vu_dang,
+                ten_chi_bo: user.ten_chi_bo,
+                ngay_sinh: user.ngay_sinh ? dayjs(user.ngay_sinh) : null,
+                gioi_tinh: user.gioi_tinh,
+                que_quan: user.que_quan,
+                dia_chi_thuong_tru: user.dia_chi_thuong_tru,
+                dia_chi_tam_tru: user.dia_chi_tam_tru,
+                dia_chi_chi_bo_lien_he: user.dia_chi_chi_bo_lien_he,
+                so_dien_thoai: user.so_dien_thoai,
+                email: user.email,
+                ngay_vao_dang: user.ngay_vao_dang ? dayjs(user.ngay_vao_dang) : null,
+                ngay_chinh_thuc: user.ngay_chinh_thuc ? dayjs(user.ngay_chinh_thuc) : null,
+                lop: user.lop,
+                nganh_hoc: user.nganh_hoc,
+                ma_so_sinh_vien: user.ma_so_sinh_vien,
+                ma_can_bo: user.ma_can_bo,
+                don_vi_cong_tac: user.don_vi_cong_tac,
+                chuc_vu_chuyen_mon: user.chuc_vu_chuyen_mon,
+                doi_tuong: user.doi_tuong === 'Can bo' ? 'Cán bộ' : (user.doi_tuong === 'Sinh vien' ? 'Sinh viên' : user.doi_tuong),
+                so_dinh_danh: user.so_dinh_danh,
+                so_the_dang_vien: user.so_the_dang_vien,
+            });
+        }
+    }, [loading, user, profileForm]);
 
     // Handle Cập nhật Profile
     const onFinishProfile = async (values) => {

@@ -15,6 +15,9 @@ import LookupPage from './pages/Lookup/LookupPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import ActivitiesPage from './pages/Activities/ActivitiesPage';
 import ForceChangePasswordPage from './pages/Auth/ForceChangePasswordPage'; // [NEW] Đổi MK bắt buộc
+import TransferDashboard from './pages/Transfer/TransferDashboard';
+import TransferRequestForm from './pages/Transfer/TransferRequestForm';
+import TransferRequestDetail from './pages/Transfer/TransferRequestDetail';
 
 // Component bảo vệ tuyến đường (Private Route)
 const PrivateRoute = () => {
@@ -55,6 +58,11 @@ function App() {
 
         {/* Hoạt động Ngoại khóa */}
         <Route path="/activities" element={<ActivitiesPage />} />
+
+        {/* Quản lý chuyển Đảng */}
+        <Route path="/transfer-requests" element={<TransferDashboard />} />
+        <Route path="/transfer-requests/new" element={<TransferRequestForm />} />
+        <Route path="/transfer-requests/:id" element={<TransferRequestDetail />} />
       </Route>
       
       {/* Các đường dẫn lạ thì đẩy về Home */}

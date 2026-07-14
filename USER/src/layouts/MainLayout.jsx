@@ -16,7 +16,8 @@ import {
   MenuOutlined,
   EnvironmentOutlined,
   MailOutlined,
-  ThunderboltOutlined 
+  ThunderboltOutlined,
+  SwapOutlined
 } from '@ant-design/icons';
 
 import userApi from '../api/userApi'; // [NEW] Import API
@@ -39,6 +40,7 @@ const menuItems = [
   { key: '/documents', icon: <FileTextOutlined />, label: 'KHO TÀI LIỆU' },
   { key: '/media', icon: <PictureOutlined />, label: 'THƯ VIỆN ẢNH' },
   { key: '/lookup', icon: <DollarOutlined />, label: 'TRA CỨU' },
+  { key: '/transfer-requests', icon: <SwapOutlined />, label: 'CHUYỂN ĐẢNG' },
 ];
 
 const MainLayout = () => {
@@ -133,8 +135,9 @@ const MainLayout = () => {
                     </div>
                     <Avatar 
                         size="large" 
-                        icon={<UserOutlined />} 
-                        style={{ backgroundColor: '#a91f23', color: '#fff1aa' }}
+                        src={user.anh_the ? (user.anh_the.startsWith('/uploads') ? `http://localhost:5001${user.anh_the}` : user.anh_the) : null}
+                        icon={!user.anh_the && <UserOutlined />} 
+                        style={{ backgroundColor: '#a91f23', color: '#fff1aa', objectFit: 'cover' }}
                     />
                     <DownOutlined className="ml-2 text-xs hidden lg:block" style={{ color: '#a91f23' }} />
                 </div>

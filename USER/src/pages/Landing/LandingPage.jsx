@@ -43,6 +43,9 @@ const LandingPage = () => {
     if (id) {
       return `${apiBaseUrl}/media/proxy/${id}`;
     }
+    if (url.startsWith('/uploads')) {
+      return `http://localhost:5001${url}`;
+    }
     return url;
   };
 

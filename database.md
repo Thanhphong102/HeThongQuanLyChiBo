@@ -21,7 +21,7 @@ CREATE TABLE public.dangvien (
   ngay_sinh date,
   gioi_tinh character varying,
   que_quan character varying,
-  dia_chi_hien_tai character varying,
+  dia_chi_thuong_tru character varying,
   so_dien_thoai character varying,
   email character varying,
   ngay_vao_dang date,
@@ -48,6 +48,8 @@ CREATE TABLE public.dangvien (
   nguoi_tao integer,
   nguoi_cap_nhat integer,
   buoc_doi_mat_khau boolean DEFAULT false,
+  dia_chi_tam_tru character varying,
+  dia_chi_chi_bo_lien_he character varying,
   CONSTRAINT dangvien_pkey PRIMARY KEY (ma_dang_vien),
   CONSTRAINT fk_dangvien_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
 );
@@ -165,8 +167,10 @@ CREATE TABLE public.thuvienanh (
   duong_dan text NOT NULL,
   ma_file_drive character varying,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  ma_album integer,
   CONSTRAINT thuvienanh_pkey PRIMARY KEY (ma_hinh_anh),
-  CONSTRAINT fk_media_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
+  CONSTRAINT fk_media_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo),
+  CONSTRAINT thuvienanh_ma_album_fkey FOREIGN KEY (ma_album) REFERENCES public.album(ma_album)
 );
 CREATE TABLE public.sodotochuc (
   ma_so_do integer NOT NULL DEFAULT nextval('sodo_tochuc_id_seq'::regclass),
@@ -177,6 +181,8 @@ CREATE TABLE public.sodotochuc (
   thu_tu integer DEFAULT 0,
   trang_thai boolean DEFAULT true,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  email character varying,
+  nhiem_vu text,
   CONSTRAINT sodotochuc_pkey PRIMARY KEY (ma_so_do),
   CONSTRAINT sodo_tochuc_parent_id_fkey FOREIGN KEY (ma_so_do_cha) REFERENCES public.sodotochuc(ma_so_do)
 );
@@ -229,4 +235,12 @@ CREATE TABLE public.thongbao (
   da_xoa boolean DEFAULT false,
   ngay_tao timestamp without time zone DEFAULT now(),
   CONSTRAINT thongbao_pkey PRIMARY KEY (ma_thong_bao)
+);
+CREATE TABLE public.album (
+  ma_album integer NOT NULL DEFAULT nextval('album_ma_album_seq'::regclass),
+  ten_album character varying NOT NULL,
+  ma_chi_bo integer,
+  nguoi_tao integer,
+  ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT album_pkey PRIMARY KEY (ma_album)
 );

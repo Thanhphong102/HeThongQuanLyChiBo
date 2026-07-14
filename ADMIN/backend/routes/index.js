@@ -18,7 +18,7 @@ const targetRoutes            = require('./targetRoutes');            // [NEW] T
 const albumRoutes             = require('./albumRoutes');
 
 const aiRoutes                = require('./aiRoutes');                // [NEW] AI Smart Paste
-
+const transferRoutes          = require('./transferRoutes');
 // Gom nhóm các route
 router.use('/auth',              authRoutes);
 router.use('/branch-admin',      branchRoutes);
@@ -36,6 +36,6 @@ router.use('/public',            publicRoutes);           // Task 5 (Dữ liệu
 router.use('/targets',           targetRoutes);           // Task 9
 router.use('/albums',            albumRoutes);
 router.use('/ai',                aiRoutes);               // [NEW] AI Smart Paste
-
+router.use('/transfer-requests', transferRoutes);
 
 module.exports = router;
