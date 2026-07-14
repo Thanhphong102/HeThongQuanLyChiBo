@@ -10,37 +10,27 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('SCANNING'); // 'SCANNING', 'GEOLOCATING', 'SUCCESS', 'ERROR'
+  const [cameraError, setCameraError] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const html5QrCodeRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
     
     if (isOpen && status === 'SCANNING') {
-      const html5QrCode = new Html5Qrcode("qr-reader-modern");
-      html5QrCodeRef.current = html5QrCode;
+      if (!html5QrCodeRef.current) {
+        html5QrCodeRef.current = new Html5Qrcode("qr-reader-modern");
+      }
       
-      const config = { fps: 10 }; // Remove qrbox to hide default ugly border
-      
-      // Tự động quét camera sau
-      setTimeout(() => {
+      // Attempt auto-start after a short delay
+      const startTimer = setTimeout(() => {
         if (!isMounted) return;
-        
-        // Ensure DOM element is present before starting
-        const elem = document.getElementById("qr-reader-modern");
-        if (!elem) return;
+        startCamera();
+      }, 500);
 
-        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-        .catch((err) => {
-           console.warn("Lỗi bật camera sau:", err);
-           // Fallback nếu không có cam sau hoặc bị từ chối
-           if(isMounted) {
-             html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailure)
-             .catch(e => {
-                message.error("Không thể mở Camera tự động. Hãy dùng tính năng tải ảnh lên.");
-             });
-           }
-        });
-      }, 800); // Đợi DOM render xong thẻ div (tăng thời gian lên 800ms để đảm bảo modal render xong trên mobile)
+      return () => {
+        clearTimeout(startTimer);
+      };
     }
 
     return () => {
@@ -48,6 +38,47 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
       stopCamera();
     };
   }, [isOpen, status]);
+
+  const startCamera = async () => {
+    setCameraError(null);
+    const html5QrCode = html5QrCodeRef.current;
+    if (!html5QrCode) return;
+
+    const elem = document.getElementById("qr-reader-modern");
+    if (!elem) return;
+
+    try {
+      // Configuration that is safer for mobile
+      const config = { 
+        fps: 10, 
+        aspectRatio: window.innerWidth < 600 ? 1.0 : undefined 
+      };
+
+      await html5QrCode.start(
+        { facingMode: "environment" }, 
+        config, 
+        onScanSuccess, 
+        onScanFailure
+      );
+      setIsCameraActive(true);
+    } catch (err) {
+      console.warn("Lỗi bật camera sau:", err);
+      // Fallback to 'user' facing or any available camera
+      try {
+        await html5QrCode.start(
+          { facingMode: "user" }, 
+          { fps: 10 }, 
+          onScanSuccess, 
+          onScanFailure
+        );
+        setIsCameraActive(true);
+      } catch (fallbackErr) {
+        console.error("Camera fallback failed:", fallbackErr);
+        setCameraError("Không thể mở máy ảnh tự động. Vui lòng kiểm tra quyền truy cập hoặc bấm nút Bật Camera bên dưới.");
+        setIsCameraActive(false);
+      }
+    }
+  };
 
   const stopCamera = async () => {
       // Safely stop camera if scanning is active
@@ -59,6 +90,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
             console.warn('Error stopping camera:', e);
           }
       }
+      setIsCameraActive(false);
   }
 
   const onScanSuccess = async (decodedText) => {
@@ -209,18 +241,37 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
                     <div className="flex flex-col items-center">
                         <div className="relative w-full overflow-hidden rounded-xl bg-gray-900 shadow-inner flex items-center justify-center" style={{ minHeight: '250px' }}>
                             {/* Khu vực camera */}
-                            <div id="qr-reader-modern" className="w-full h-full object-cover"></div>
+                            <div id="qr-reader-modern" className="w-full"></div>
                             
                             {/* Khung quét giả lập (Scanner Frame) */}
-                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                                <div className="w-56 h-56 border-2 border-red-500 rounded-lg relative">
-                                    <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-red-500 rounded-tl"></div>
-                                    <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-red-500 rounded-tr"></div>
-                                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-red-500 rounded-bl"></div>
-                                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-red-500 rounded-br"></div>
-                                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-50 animate-pulse shadow-[0_0_8px_rgba(239,68,68,1)]"></div>
-                                </div>
-                            </div>
+                            {isCameraActive && (
+                              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                  <div className="w-56 h-56 border-2 border-red-500 rounded-lg relative">
+                                      <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-red-500 rounded-tl"></div>
+                                      <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-red-500 rounded-tr"></div>
+                                      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-red-500 rounded-bl"></div>
+                                      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-red-500 rounded-br"></div>
+                                      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-50 animate-pulse shadow-[0_0_8px_rgba(239,68,68,1)]"></div>
+                                  </div>
+                              </div>
+                            )}
+
+                            {!isCameraActive && !cameraError && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                                <Spin />
+                                <span className="mt-2 text-sm">Đang khởi động camera...</span>
+                              </div>
+                            )}
+
+                            {cameraError && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800 p-4 text-center">
+                                <span className="text-red-400 mb-2 text-3xl">!</span>
+                                <p className="text-white text-sm">{cameraError}</p>
+                                <Button type="primary" onClick={startCamera} className="mt-4 bg-blue-500">
+                                  Thử Bật Lại Camera
+                                </Button>
+                              </div>
+                            )}
                         </div>
 
                         <p className="text-center text-gray-500 mt-4 text-sm font-medium flex items-center">
