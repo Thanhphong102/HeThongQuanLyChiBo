@@ -188,7 +188,7 @@ const LookupPage = () => {
                 </Badge>
             </Popover>
           </div>
-          <Table dataSource={filteredFees} columns={feeCols} rowKey="ma_giao_dich" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
+          <Table dataSource={filteredFees} columns={feeCols} rowKey="ma_giao_dich" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         </div>
       )
     },
@@ -239,7 +239,7 @@ const LookupPage = () => {
                 </Badge>
             </Popover>
           </div>
-          <Table dataSource={filteredAttendance} columns={attCols} rowKey="id" locale={{ emptyText: 'Chưa có dữ liệu điểm danh' }} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
+          <Table dataSource={filteredAttendance} columns={attCols} rowKey="id" locale={{ emptyText: 'Chưa có dữ liệu điểm danh' }} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         </div>
       )
     }

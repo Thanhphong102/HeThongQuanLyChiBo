@@ -15,10 +15,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   useEffect(() => {
     let isMounted = true;
     
-    // Detect mobile devices (simple width check). On mobile, skip auto camera start to avoid white screen and rely on file upload fallback.
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-    
-    if (isOpen && status === 'SCANNING' && !isMobile) {
+    if (isOpen && status === 'SCANNING') {
       const html5QrCode = new Html5Qrcode("qr-reader-modern");
       html5QrCodeRef.current = html5QrCode;
       
@@ -27,10 +24,15 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
       // Tự động quét camera sau
       setTimeout(() => {
         if (!isMounted) return;
+        
+        // Ensure DOM element is present before starting
+        const elem = document.getElementById("qr-reader-modern");
+        if (!elem) return;
+
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
         .catch((err) => {
            console.warn("Lỗi bật camera sau:", err);
-           // Fallback nếu không có cam sau (ví dụ chạy trên laptop)
+           // Fallback nếu không có cam sau hoặc bị từ chối
            if(isMounted) {
              html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailure)
              .catch(e => {
@@ -38,7 +40,7 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
              });
            }
         });
-      }, 500); // Đợi DOM render xong thẻ div
+      }, 800); // Đợi DOM render xong thẻ div (tăng thời gian lên 800ms để đảm bảo modal render xong trên mobile)
     }
 
     return () => {

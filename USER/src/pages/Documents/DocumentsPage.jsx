@@ -141,7 +141,7 @@ const DocumentsPage = () => {
             onChange={e => setFormSearch(e.target.value)} 
             style={{ width: 400, borderRadius: 8 }} 
           />
-          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
+          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         </div>
       ),
     },
@@ -196,7 +196,7 @@ const DocumentsPage = () => {
                 </Badge>
             </Popover>
           </div>
-          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} />
+          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
         </div>
       ),
     },

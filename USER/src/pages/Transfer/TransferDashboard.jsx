@@ -90,6 +90,7 @@ const TransferDashboard = () => {
         rowKey="id" 
         loading={loading}
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 'max-content' }}
       />
     </Card>
   );
