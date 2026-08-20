@@ -218,7 +218,8 @@ exports.updateProfile = async (req, res) => {
         ngay_sinh, gioi_tinh, que_quan, 
         dia_chi_thuong_tru, dia_chi_tam_tru, dia_chi_chi_bo_lien_he, 
         so_dien_thoai, email,
-        ngay_vao_dang, ngay_chinh_thuc, lop, nganh_hoc, ma_so_sinh_vien,
+        ngay_vao_dang, ngay_chinh_thuc, lop, nganh_hoc, ma_so_sinh_vien, khoa_hoc,
+        ma_can_bo, don_vi_cong_tac, chuc_vu_chuyen_mon,
         so_dinh_danh, so_the_dang_vien, anh_the
     } = req.body;
 
@@ -229,8 +230,9 @@ exports.updateProfile = async (req, res) => {
                 dia_chi_thuong_tru = $4, dia_chi_tam_tru = $5, dia_chi_chi_bo_lien_he = $6, 
                 so_dien_thoai = $7, email = $8,
                 ngay_vao_dang = $9, ngay_chinh_thuc = $10, lop = $11, nganh_hoc = $12, ma_so_sinh_vien = $13,
-                so_dinh_danh = $14, so_the_dang_vien = $15, anh_the = $16
-            WHERE ma_dang_vien = $17
+                so_dinh_danh = $14, so_the_dang_vien = $15, anh_the = $16,
+                khoa_hoc = $17, ma_can_bo = $18, don_vi_cong_tac = $19, chuc_vu_chuyen_mon = $20
+            WHERE ma_dang_vien = $21
             RETURNING *
         `;
         const result = await db.query(sql, [
@@ -250,6 +252,10 @@ exports.updateProfile = async (req, res) => {
             so_dinh_danh || null,
             so_the_dang_vien || null,
             anh_the || null,
+            khoa_hoc || null,
+            ma_can_bo || null,
+            don_vi_cong_tac || null,
+            chuc_vu_chuyen_mon || null,
             userId
         ]);
 

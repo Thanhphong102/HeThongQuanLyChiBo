@@ -2,16 +2,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card, Table, Button, Tag, Input, Select, Space, Popover,
-  Badge, Typography, Spin, Empty, Breadcrumb
+  Badge, Typography, Spin, Empty, Breadcrumb, Segmented
 } from 'antd';
 import {
   DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined,
   SearchOutlined, FilterOutlined, FolderOutlined, FileOutlined,
-  ArrowLeftOutlined, HomeOutlined
+  ArrowLeftOutlined, HomeOutlined, AppstoreOutlined, UnorderedListOutlined
 } from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
-import { removeAccents } from '../../utils/stringUtils';
+import { removeAccents, fuzzyMatch } from '../../utils/stringUtils';
 
 const { Text, Title } = Typography;
 const COLOR_RED = '#a91f23';
@@ -37,6 +37,8 @@ const FolderBrowser = ({ branchId }) => {
   const [files, setFiles]           = useState([]);
   const [loading, setLoading]       = useState(false);
   const [search, setSearch]         = useState('');
+  const [sortBy, setSortBy]         = useState('date_desc');
+  const [viewMode, setViewMode]     = useState('grid');
 
   const fetchContent = useCallback(async () => {
     if (!branchId) return;
@@ -76,11 +78,24 @@ const FolderBrowser = ({ branchId }) => {
   };
 
   // Lọc theo search
-  const filteredFolders = subfolders.filter(f =>
-    removeAccents(f.ten_folder).includes(removeAccents(search))
+  const sortItems = (items, nameField, dateField) => [...items].sort((a, b) => {
+    if (sortBy === 'name_asc' || sortBy === 'name_desc') {
+      const result = String(a[nameField] || '').localeCompare(
+        String(b[nameField] || ''), 'vi', { sensitivity: 'base', numeric: true }
+      );
+      return sortBy === 'name_asc' ? result : -result;
+    }
+    const aTime = new Date(a[dateField] || a.ngay_tao || 0).getTime();
+    const bTime = new Date(b[dateField] || b.ngay_tao || 0).getTime();
+    return sortBy === 'date_asc' ? aTime - bTime : bTime - aTime;
+  });
+  const filteredFolders = sortItems(
+    subfolders.filter(f => fuzzyMatch(f.ten_folder, search)),
+    'ten_folder', 'ngay_cap_nhat'
   );
-  const filteredFiles = files.filter(f =>
-    removeAccents(f.tieu_de).includes(removeAccents(search))
+  const filteredFiles = sortItems(
+    files.filter(f => fuzzyMatch(f.tieu_de, search)),
+    'tieu_de', 'ngay_tao'
   );
 
   const isEmpty = filteredFolders.length === 0 && filteredFiles.length === 0;
@@ -130,21 +145,44 @@ const FolderBrowser = ({ branchId }) => {
             </Button>
           )}
         </Space>
-        <Input
-          prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-          placeholder="Tìm kiếm..."
-          allowClear
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: 220, borderRadius: 8 }}
-        />
+        <Space wrap>
+          <Segmented
+            value={viewMode}
+            onChange={setViewMode}
+            aria-label="Kiểu hiển thị"
+            options={[
+              { value: 'grid', icon: <AppstoreOutlined />, label: 'Lưới' },
+              { value: 'list', icon: <UnorderedListOutlined />, label: 'Danh sách' },
+            ]}
+          />
+          <Select
+            aria-label="Sắp xếp biểu mẫu"
+            value={sortBy}
+            onChange={setSortBy}
+            style={{ width: 165 }}
+            options={[
+              { value: 'date_desc', label: 'Mới nhất trước' },
+              { value: 'date_asc', label: 'Cũ nhất trước' },
+              { value: 'name_asc', label: 'Tên A → Z' },
+              { value: 'name_desc', label: 'Tên Z → A' },
+            ]}
+          />
+          <Input
+            prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+            placeholder="Tìm gần đúng tên thư mục hoặc file..."
+            allowClear
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ width: 220, borderRadius: 8 }}
+          />
+        </Space>
       </div>
 
       {/* Content */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
       ) : isEmpty ? (
-        <Empty description={currentFolderId ? 'Thư mục trống' : 'Chưa có biểu mẫu nào'} />
+        <Empty description={search ? 'Không tìm thấy thư mục hoặc file phù hợp' : (currentFolderId ? 'Thư mục trống' : 'Chưa có biểu mẫu nào')} />
       ) : (
         <div>
           {/* Thư mục con */}
@@ -155,7 +193,7 @@ const FolderBrowser = ({ branchId }) => {
               </Text>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(220px, 1fr))' : '1fr',
                 gap: 10, marginTop: 8
               }}>
                 {filteredFolders.map(folder => (
@@ -194,10 +232,16 @@ const FolderBrowser = ({ branchId }) => {
               <Text style={{ fontSize: 11, color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>
                 TÀI LIỆU
               </Text>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+              <div style={{
+                display: viewMode === 'grid' ? 'grid' : 'flex',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(240px, 1fr))' : undefined,
+                flexDirection: viewMode === 'list' ? 'column' : undefined,
+                gap: 8, marginTop: 8
+              }}>
                 {filteredFiles.map(file => (
                   <div key={file.ma_bieu_mau} style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
+                    display: 'flex', alignItems: viewMode === 'grid' ? 'flex-start' : 'center', gap: 12,
+                    flexWrap: viewMode === 'grid' ? 'wrap' : 'nowrap',
                     padding: '10px 14px', borderRadius: 10,
                     border: '1px solid #f3f4f6', background: '#fff'
                   }}>
@@ -216,7 +260,10 @@ const FolderBrowser = ({ branchId }) => {
                     <Button type="primary" ghost size="small"
                       href={file.duong_dan_file} target="_blank"
                       icon={<DownloadOutlined />}
-                      style={{ borderRadius: 6, borderColor: COLOR_RED, color: COLOR_RED, flexShrink: 0 }}>
+                      style={{
+                        borderRadius: 6, borderColor: COLOR_RED, color: COLOR_RED, flexShrink: 0,
+                        marginLeft: viewMode === 'grid' ? 30 : 0
+                      }}>
                       Tải về
                     </Button>
                   </div>

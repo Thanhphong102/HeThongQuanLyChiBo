@@ -18,6 +18,7 @@ import ForceChangePasswordPage from './pages/Auth/ForceChangePasswordPage'; // [
 import TransferDashboard from './pages/Transfer/TransferDashboard';
 import TransferRequestForm from './pages/Transfer/TransferRequestForm';
 import TransferRequestDetail from './pages/Transfer/TransferRequestDetail';
+import NeuGuongPage from './pages/NeuGuong/NeuGuongPage'; // [NEW] Nêu gương
 
 // Component bảo vệ tuyến đường (Private Route)
 const PrivateRoute = () => {
@@ -63,6 +64,9 @@ function App() {
         <Route path="/transfer-requests" element={<TransferDashboard />} />
         <Route path="/transfer-requests/new" element={<TransferRequestForm />} />
         <Route path="/transfer-requests/:id" element={<TransferRequestDetail />} />
+
+        {/* Đề xuất Nêu gương */}
+        <Route path="/neu-guong" element={<NeuGuongPage />} />
       </Route>
       
       {/* Các đường dẫn lạ thì đẩy về Home */}

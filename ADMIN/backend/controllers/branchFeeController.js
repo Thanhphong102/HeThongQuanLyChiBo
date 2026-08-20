@@ -96,7 +96,7 @@ exports.togglePayment = async (req, res) => {
 
     try {
         const member = await db.query('SELECT muc_dong_phi FROM "dangvien" WHERE ma_dang_vien = $1', [ma_dang_vien]);
-        const amount = member.rows[0]?.muc_dong_phi || 50000;
+        const amount = member.rows[0]?.muc_dong_phi || 5000;
 
         const check = await db.query(
             `SELECT ma_giao_dich FROM "taichinh" 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Tag, Button, Space, Modal, Typography, message, Select, Input, Descriptions, List } from 'antd';
-import { EyeOutlined, DownloadOutlined } from '@ant-design/icons';
+import { EyeOutlined, DownloadOutlined, SwapOutlined, SettingOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import axiosClient from '../../services/axiosConfig';
 import TransferTimeline from '../../components/TransferTimeline';
+import PageHeader from '../../components/PageHeader';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -157,20 +158,51 @@ const TransferManagement = () => {
   ];
 
   return (
-    <Card 
-      title="Quản Lý Yêu Cầu Chuyển Đảng"
-      extra={
-        <Button type="primary" onClick={() => navigate('/chuyen-dang/huong-dan')}>
-          Cấu hình Hướng dẫn
-        </Button>
-      }
-    >
-      <Table 
-        columns={columns} 
-        dataSource={data} 
-        rowKey="id" 
-        loading={loading}
+    <div style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}>
+      <PageHeader
+        icon={<SwapOutlined />}
+        title="Quản lý Yêu cầu Chuyển Đảng"
+        subtitle="Tiếp nhận, thẩm định hồ sơ và theo dõi tiến độ chuyển sinh hoạt Đảng"
       />
+
+      <Card
+        style={{
+          borderRadius: 16,
+          border: 'none',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
+        }}
+        styles={{ body: { padding: 24 } }}
+      >
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          gap: 12, flexWrap: 'wrap', marginBottom: 20
+        }}>
+          <div>
+            <Text strong style={{ display: 'block', fontSize: 15, color: '#111827' }}>
+              Danh sách hồ sơ chuyển Đảng
+            </Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Theo dõi và xử lý các yêu cầu do Đảng viên gửi lên
+            </Text>
+          </div>
+          <Button
+            type="primary"
+            icon={<SettingOutlined />}
+            onClick={() => navigate('/chuyen-dang/huong-dan')}
+            style={{ borderRadius: 8, fontWeight: 600 }}
+          >
+            Cấu hình hướng dẫn
+          </Button>
+        </div>
+
+        <Table
+          columns={columns}
+          dataSource={data}
+          rowKey="id"
+          loading={loading}
+          scroll={{ x: 760 }}
+        />
+      </Card>
 
       <Modal
         title="Xử lý hồ sơ chuyển Đảng"
@@ -258,7 +290,7 @@ const TransferManagement = () => {
           </div>
         )}
       </Modal>
-    </Card>
+    </div>
   );
 };
 

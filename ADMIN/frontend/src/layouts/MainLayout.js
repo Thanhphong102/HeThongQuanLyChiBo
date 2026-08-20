@@ -14,11 +14,13 @@ import {
   UserSwitchOutlined,
   PictureOutlined,
   StarOutlined,    // Task 8: Icon cho Hoạt động
-  SwapOutlined
+  SwapOutlined,
+  TrophyOutlined    // [NEW] Nêu gương
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import NotificationPopover from '../components/NotificationPopover';
+import './MainLayout.css';
 
 // Import ảnh trực tiếp từ src/assets (Đảm bảo file tồn tại)
 import imgCoToQuoc from '../assets/co-to-quoc.png'; 
@@ -98,11 +100,17 @@ const MainLayout = () => {
       icon: <SwapOutlined />,
       label: <Link to="/chuyen-dang">Quản lý chuyển Đảng</Link>
     },
+    {
+      key: '/neu-guong',
+      icon: <TrophyOutlined />,
+      label: <Link to="/neu-guong">Quản lý Nêu gương</Link>   // [NEW]
+    },
   ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider 
+        className="admin-sidebar"
         trigger={null} collapsible collapsed={collapsed} breakpoint="lg" 
         collapsedWidth={screens.md ? 80 : 0} onBreakpoint={(broken) => setCollapsed(broken)} width={260}
         style={{ 
@@ -126,7 +134,7 @@ const MainLayout = () => {
           {!collapsed ? (
             <>
               <div style={{ 
-                  color: '#fff', fontSize: '16px', fontWeight: '800', textTransform: 'uppercase', 
+                  color: '#fff', fontSize: '15px', fontWeight: '800', textTransform: 'uppercase',
                   marginBottom: 12, lineHeight: '1.4', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'Inter, "Be Vietnam Pro", sans-serif',

@@ -75,7 +75,7 @@ const ImageGallery = () => {
     formData.append('file', fileList[0]);
     setLoading(true);
     try {
-      await axios.post('/media', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await axios.post('/media', formData);
       message.success('Upload thành công');
       setIsModalOpen(false);
       setFileList([]); setTitle('');

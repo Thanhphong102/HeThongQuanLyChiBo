@@ -22,6 +22,13 @@ const drive = google.drive({
  * Upload file lên Google Drive (Sử dụng OAuth2)
  */
 const uploadFileToDrive = async (fileObject) => {
+  if (!fileObject || !Buffer.isBuffer(fileObject.buffer)) {
+    throw new Error('File upload không có dữ liệu buffer');
+  }
+  if (!process.env.DRIVE_FOLDER_ID || !process.env.REFRESH_TOKEN) {
+    throw new Error('Thiếu cấu hình DRIVE_FOLDER_ID hoặc REFRESH_TOKEN');
+  }
+
   const bufferStream = new stream.PassThrough();
   bufferStream.end(fileObject.buffer);
 

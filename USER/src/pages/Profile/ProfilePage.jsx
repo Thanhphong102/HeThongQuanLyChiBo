@@ -7,6 +7,24 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
+const PROVINCES = [
+  "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "TP Hồ Chí Minh", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+];
+
+const MAJORS = [
+  "Khoa học máy tính", "Khoa học dữ liệu", "Hệ thống thông tin", "Công nghệ thông tin", "Kỹ thuật phần mềm",
+  "Kỹ thuật hệ thống công nghiệp", "Quản lý công nghiệp", "Logistics và Quản lý chuỗi cung ứng",
+  "Công nghệ kỹ thuật cơ điện tử", "Công nghệ kỹ thuật điện, điện tử", "Công nghệ kỹ thuật điều khiển và tự động hóa", "Công nghệ kỹ thuật năng lượng",
+  "Công nghệ thực phẩm", "Công nghệ sinh học", "Công nghệ kỹ thuật hóa học",
+  "Quản lý xây dựng", "Công nghệ kỹ thuật công trình xây dựng",
+  "Quản trị kinh doanh", "Kế toán", "Tài chính - Ngân hàng", "Luật", "Ngôn ngữ Anh"
+];
+
+const DEPARTMENTS = [
+  "Phòng Đào tạo", "Phòng Tổ chức - Hành chính", "Phòng Kế hoạch - Tài chính", "Phòng Quản trị - Thiết bị", "Phòng Khảo thí - Đảm bảo chất lượng", "Phòng Công tác chính trị - Quản lý sinh viên - Khởi nghiệp", "Phòng Quản lý khoa học công nghệ - Đổi mới sáng tạo - Hợp tác quốc tế",
+  "Khoa Công nghệ thông tin", "Khoa Điện - Điện tử", "Khoa Kinh tế - Quản lý công nghiệp", "Khoa Kỹ thuật xây dựng", "Khoa Công nghệ Sinh học - Công nghệ Thực phẩm - Hóa học", "Khoa Cơ bản"
+];
+
 const getMediaSrc = (duong_dan) => {
   if (!duong_dan) return '';
   if (duong_dan.includes('drive.google.com') || duong_dan.includes('docs.google.com')) {
@@ -77,6 +95,7 @@ const ProfilePage = () => {
                 lop: user.lop,
                 nganh_hoc: user.nganh_hoc,
                 ma_so_sinh_vien: user.ma_so_sinh_vien,
+                khoa_hoc: user.khoa_hoc,
                 ma_can_bo: user.ma_can_bo,
                 don_vi_cong_tac: user.don_vi_cong_tac,
                 chuc_vu_chuyen_mon: user.chuc_vu_chuyen_mon,
@@ -233,43 +252,70 @@ const ProfilePage = () => {
                             </Col>
                         </Row>
 
-                        {/* Tùy biến thông tin theo đối tượng Cán bộ / Sinh viên (Chỉ xem) */}
+                        {/* Tùy biến thông tin theo đối tượng Cán bộ / Sinh viên (Được phép sửa) */}
                         {user.doi_tuong === 'Can bo' ? (
-                            <Row gutter={16}>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="ma_can_bo" label="Mã Cán bộ">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="don_vi_cong_tac" label="Đơn vị công tác">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="chuc_vu_chuyen_mon" label="Chuyên môn">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <>
+                                <Row gutter={16}>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="ma_can_bo" label="Mã Cán bộ">
+                                            <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập Mã Cán bộ" />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="chuc_vu_chuyen_mon" label="Chuyên môn">
+                                            <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập Chuyên môn" />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col xs={24}>
+                                        <Form.Item name="don_vi_cong_tac" label="Đơn vị công tác">
+                                            <Select 
+                                                showSearch 
+                                                className="select-wrap-text" 
+                                                placeholder="Chọn đơn vị công tác"
+                                                popupMatchSelectWidth={false}
+                                            >
+                                                {DEPARTMENTS.map(d => <Select.Option key={d} value={d}>{d}</Select.Option>)}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </>
                         ) : (
-                            <Row gutter={16}>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="ma_so_sinh_vien" label="MSSV">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="lop" label="Lớp">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} md={8}>
-                                    <Form.Item name="nganh_hoc" label="Ngành học">
-                                        <Input.TextArea disabled autoSize={{ minRows: 1, maxRows: 3 }} className="bg-gray-50 text-gray-700 font-semibold" />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <>
+                                <Row gutter={16}>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="ma_so_sinh_vien" label="MSSV">
+                                            <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập MSSV" />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="lop" label="Lớp">
+                                            <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập Lớp" />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="nganh_hoc" label="Ngành học">
+                                            <Select 
+                                                showSearch 
+                                                className="select-wrap-text" 
+                                                placeholder="Chọn ngành học"
+                                                popupMatchSelectWidth={false}
+                                            >
+                                                {MAJORS.map(m => <Select.Option key={m} value={m}>{m}</Select.Option>)}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col xs={24} md={12}>
+                                        <Form.Item name="khoa_hoc" label="Khóa học">
+                                            <Input className="h-10 border-gray-300 rounded-lg" placeholder="2022" />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </>
                         )}
 
                         <Divider titlePlacement="left"><Text className="text-red-dang text-sm font-semibold">Thông tin Liên hệ (Được phép sửa)</Text></Divider>
@@ -309,50 +355,57 @@ const ProfilePage = () => {
                             </Col>
                         </Row>
 
-                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Cơ bản (Chỉ xem)</Text></Divider>
+                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Cơ bản (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_sinh" label="Ngày sinh">
-                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Chọn ngày sinh" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item name="gioi_tinh" label="Giới tính">
-                                    <Input disabled className="h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input className="h-10 border-gray-300 rounded-lg" placeholder="Nhập giới tính" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24}>
-                                <Form.Item name="que_quan" label="Quê quán">
-                                    <Input.TextArea disabled rows={2} className="bg-gray-50 text-gray-700 font-semibold" />
+                                <Form.Item name="que_quan" label="Quê quán (Tỉnh/Thành)">
+                                    <Select 
+                                        showSearch 
+                                        className="select-wrap-text" 
+                                        placeholder="Chọn tỉnh thành"
+                                        popupMatchSelectWidth={false}
+                                    >
+                                        {PROVINCES.map(p => <Select.Option key={p} value={p}>{p}</Select.Option>)}
+                                    </Select>
                                 </Form.Item>
                             </Col>
                         </Row>
 
 
-                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Chỉ xem)</Text></Divider>
+                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_vao_dang" label="Ngày Kết nạp (Vào Đảng)">
-                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Chọn ngày vào Đảng" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_chinh_thuc" label="Ngày Chính thức">
-                                    <DatePicker disabled format="DD/MM/YYYY" className="w-full h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <DatePicker format="DD/MM/YYYY" className="w-full h-10 border-gray-300 rounded-lg" placeholder="Chọn ngày chính thức" />
                                 </Form.Item>
                             </Col>
                         </Row>
 
-                        <Divider titlePlacement="left"><Text className="text-purple-600 text-sm font-semibold"><IdcardOutlined /> Giấy tờ & Thẻ Đảng viên</Text></Divider>
+                        <Divider titlePlacement="left"><Text className="text-purple-600 text-sm font-semibold"><IdcardOutlined /> Giấy tờ & Thẻ Đảng viên (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="so_dinh_danh" label="Số định danh công dân (CCCD)">
-                                    <Input disabled prefix={<IdcardOutlined className="text-gray-400" />} className="h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input prefix={<IdcardOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập CCCD" />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item name="so_the_dang_vien" label="Số thẻ Đảng viên">
-                                    <Input disabled prefix={<SafetyCertificateOutlined className="text-gray-400" />} className="h-10 bg-gray-50 text-gray-700 font-semibold" />
+                                    <Input prefix={<SafetyCertificateOutlined className="text-gray-400" />} className="h-10 border-gray-300 rounded-lg" placeholder="Nhập số thẻ" />
                                 </Form.Item>
                             </Col>
                         </Row>

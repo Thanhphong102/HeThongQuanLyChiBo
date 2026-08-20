@@ -95,9 +95,7 @@ const AlbumGallery = () => {
     });
 
     try {
-      const res = await axios.post('/media/album', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await axios.post('/media/album', formData);
       message.success(`Đã tải lên ${res.data.uploaded} ảnh`);
       setUploadModalOpen(false);
       setFileList([]);

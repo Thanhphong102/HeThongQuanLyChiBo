@@ -17,7 +17,8 @@ import {
   EnvironmentOutlined,
   MailOutlined,
   ThunderboltOutlined,
-  SwapOutlined
+  SwapOutlined,
+  TrophyOutlined
 } from '@ant-design/icons';
 
 import userApi from '../api/userApi'; // [NEW] Import API
@@ -32,15 +33,40 @@ import FloatingChatbot from '../components/FloatingChatbot'; // [NEW] Chatbot AI
 
 const { Header, Content, Footer } = Layout;
 
-// Định nghĩa Menu
+// Các route được gom theo nhóm để thanh điều hướng luôn gọn trên desktop.
 const menuItems = [
   { key: '/home', icon: <HomeOutlined />, label: 'TRANG CHỦ' },
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'TỔNG QUAN' },
-  { key: '/activities', icon: <ThunderboltOutlined />, label: 'HOẠT ĐỘNG' }, // [NEW] Hoạt động
-  { key: '/documents', icon: <FileTextOutlined />, label: 'KHO TÀI LIỆU' },
-  { key: '/media', icon: <PictureOutlined />, label: 'THƯ VIỆN ẢNH' },
-  { key: '/lookup', icon: <DollarOutlined />, label: 'TRA CỨU' },
-  { key: '/transfer-requests', icon: <SwapOutlined />, label: 'CHUYỂN ĐẢNG' },
+  {
+    key: 'activity-group',
+    icon: <ThunderboltOutlined />,
+    label: <span className="nav-group-label">HOẠT ĐỘNG <span className="nav-group-caret" aria-hidden="true">▼</span></span>,
+    popupClassName: 'party-nav-dropdown',
+    children: [
+      { key: '/activities', icon: <ThunderboltOutlined />, label: 'Hoạt động chi bộ' },
+      { key: '/neu-guong', icon: <TrophyOutlined />, label: 'Nêu gương' },
+    ],
+  },
+  {
+    key: 'resource-group',
+    icon: <FileTextOutlined />,
+    label: <span className="nav-group-label">TÀI NGUYÊN <span className="nav-group-caret" aria-hidden="true">▼</span></span>,
+    popupClassName: 'party-nav-dropdown',
+    children: [
+      { key: '/documents', icon: <FileTextOutlined />, label: 'Kho tài liệu' },
+      { key: '/media', icon: <PictureOutlined />, label: 'Thư viện ảnh' },
+    ],
+  },
+  {
+    key: 'service-group',
+    icon: <DollarOutlined />,
+    label: <span className="nav-group-label">NGHIỆP VỤ <span className="nav-group-caret" aria-hidden="true">▼</span></span>,
+    popupClassName: 'party-nav-dropdown',
+    children: [
+      { key: '/lookup', icon: <DollarOutlined />, label: 'Tra cứu Đảng phí' },
+      { key: '/transfer-requests', icon: <SwapOutlined />, label: 'Chuyển Đảng' },
+    ],
+  },
 ];
 
 const MainLayout = () => {
@@ -150,16 +176,16 @@ const MainLayout = () => {
           background: 'linear-gradient(135deg, #a91f23 0%, #8b1517 100%)',
           boxShadow: '0 4px 20px rgba(169, 31, 35, 0.4)'
       }}>
-        <div className="px-8">
+        <nav className="user-primary-nav" aria-label="Điều hướng chính">
             <Menu
                 mode="horizontal"
                 selectedKeys={[location.pathname]}
                 items={menuItems}
                 onClick={handleMenuClick}
                 className="custom-party-menu bg-transparent border-none font-medium text-base"
-                style={{ lineHeight: '46px' }}
+                style={{ lineHeight: '52px' }}
             />
-        </div>
+        </nav>
       </div>
 
       <Drawer

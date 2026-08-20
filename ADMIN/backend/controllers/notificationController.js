@@ -2,9 +2,9 @@ const db = require('../config/db');
 const { createNotification } = require('../services/sharedNotificationService');
 
 exports.getNotifications = async (req, res) => {
-    const branchId = req.user.branchId;
-    const userId = req.user.id;
-    let userRole = req.user.role; // 2: Chi ủy (Admin), khác: Đảng viên (User)
+    const branchId = Number(req.user.branchId);
+    const userId = Number(req.user.id);
+    let userRole = Number(req.user.role); // 2: Chi ủy (Admin), khác: Đảng viên (User)
     
     // Nếu gọi từ trang USER (?app=user), ép role thành User (để lấy thông báo của Đảng viên)
     if (req.query.app === 'user') {
@@ -59,18 +59,23 @@ exports.getNotifications = async (req, res) => {
         }
 
         // --- LẤY TẤT CẢ THÔNG BÁO TỪ BẢNG thongbao ---
-        let dbNotifyQuery = `
+        if (!Number.isInteger(userId) || !Number.isInteger(branchId)) {
+            return res.status(401).json({ message: 'Token thiếu thông tin người dùng hoặc chi bộ' });
+        }
+
+        // Tách truy vấn theo vai trò để các tham số luôn cùng kiểu integer với ma_nguoi_nhan.
+        const recipientSql = roleString === 'Admin'
+            ? `(quyen_nguoi_nhan = 'Admin' AND (ma_nguoi_nhan = $1 OR ma_nguoi_nhan IS NULL))`
+            : `(quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan IN ($1, $2))`;
+        const recipientParams = roleString === 'Admin' ? [branchId] : [userId, branchId];
+        const dbNotifyQuery = `
             SELECT * FROM "thongbao"
-            WHERE da_xoa = false AND (
-                (quyen_nguoi_nhan = 'All') OR
-                (quyen_nguoi_nhan = 'Admin' AND ma_nguoi_nhan = $1 AND $2 = 2) OR
-                (quyen_nguoi_nhan = 'Admin' AND ma_nguoi_nhan IS NULL AND $2 = 2) OR
-                (quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan = $3 AND $2 <> 2) OR
-                (quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan::text = $4::text AND $2 <> 2)
-            )
-            ORDER BY ngay_tao DESC LIMIT 50
+            WHERE da_xoa = false
+              AND (quyen_nguoi_nhan = 'All' OR ${recipientSql})
+            ORDER BY ngay_tao DESC
+            LIMIT 50
         `;
-        const dbNotifyRes = await db.query(dbNotifyQuery, [branchId, userRole, userId, branchId]);
+        const dbNotifyRes = await db.query(dbNotifyQuery, recipientParams);
 
         const notifications = dbNotifyRes.rows.map(n => ({
             id: n.ma_thong_bao || n.id,   // hỗ trợ cả 2 tên cột
@@ -115,23 +120,27 @@ exports.markAsUnread = async (req, res) => {
 
 // Đánh dấu TẤT CẢ thông báo là đã đọc (dùng cùng điều kiện lọc như getNotifications)
 exports.markAllAsRead = async (req, res) => {
-    const branchId = req.user.branchId;
-    const userId = req.user.id;
-    const userRole = req.user.role;
+    const branchId = Number(req.user.branchId);
+    const userId = Number(req.user.id);
+    const userRole = Number(req.user.role);
     try {
         // Dùng cùng bộ lọc như getNotifications để đảm bảo đánh dấu đúng TẤT CẢ thông báo
         // mà user này được nhìn thấy (bao gồm cả loại 'All', 'Admin', 'User')
+        if (!Number.isInteger(userId) || !Number.isInteger(branchId)) {
+            return res.status(401).json({ message: 'Token thiếu thông tin người dùng hoặc chi bộ' });
+        }
+        const recipientSql = userRole === 2
+            ? `(quyen_nguoi_nhan = 'Admin' AND (ma_nguoi_nhan = $1 OR ma_nguoi_nhan IS NULL))`
+            : `(quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan IN ($1, $2))`;
+        const recipientParams = userRole === 2 ? [branchId] : [userId, branchId];
         const updateSql = `
             UPDATE "thongbao" SET da_doc = true
             WHERE da_xoa = false AND da_doc = false AND (
                 (quyen_nguoi_nhan = 'All') OR
-                (quyen_nguoi_nhan = 'Admin' AND ma_nguoi_nhan = $1 AND $2 = 2) OR
-                (quyen_nguoi_nhan = 'Admin' AND ma_nguoi_nhan IS NULL AND $2 = 2) OR
-                (quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan = $3 AND $2 <> 2) OR
-                (quyen_nguoi_nhan = 'User' AND ma_nguoi_nhan::text = $4::text AND $2 <> 2)
+                ${recipientSql}
             )
         `;
-        await db.query(updateSql, [branchId, userRole, userId, branchId]);
+        await db.query(updateSql, recipientParams);
         res.json({ message: 'Đã đánh dấu tất cả là đã đọc' });
     } catch (error) {
         console.error('[markAllAsRead Error]:', error);

@@ -126,7 +126,8 @@ body {
 /* =============================================
    📌 MENU STYLING (RED PARTY THEME)
    ============================================= */
-.custom-party-menu .ant-menu-item {
+.custom-party-menu .ant-menu-item,
+.custom-party-menu .ant-menu-submenu-title {
     color: #ffffff !important;
     text-transform: uppercase;
     font-weight: 600;
@@ -137,19 +138,117 @@ body {
     letter-spacing: 0.5px;
 }
 
-.custom-party-menu .ant-menu-item:hover {
+.custom-party-menu .ant-menu-item:hover,
+.custom-party-menu .ant-menu-submenu:hover > .ant-menu-submenu-title {
     color: #fff1aa !important;
     background-color: rgba(255, 255, 255, 0.18) !important;
 }
 
-.custom-party-menu .ant-menu-item-selected {
+.custom-party-menu .ant-menu-item-selected,
+.custom-party-menu .ant-menu-submenu-selected > .ant-menu-submenu-title {
     color: #fff1aa !important;
     background-color: rgba(133, 18, 22, 0.85) !important;
     font-weight: 700 !important;
 }
 
-.custom-party-menu.ant-menu-horizontal > .ant-menu-item::after {
+.custom-party-menu.ant-menu-horizontal > .ant-menu-item::after,
+.custom-party-menu.ant-menu-horizontal > .ant-menu-submenu::after {
     border-bottom: none !important;
+}
+
+.user-primary-nav {
+    width: min(100%, 1120px);
+    margin: 0 auto;
+    padding: 6px 24px;
+}
+
+.custom-party-menu.ant-menu-horizontal {
+    display: flex;
+    justify-content: center;
+    gap: clamp(4px, 1.2vw, 18px);
+}
+
+.custom-party-menu.ant-menu-horizontal > .ant-menu-item,
+.custom-party-menu.ant-menu-horizontal > .ant-menu-submenu {
+    flex: 0 0 auto;
+}
+
+.custom-party-menu .ant-menu-submenu-arrow {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.nav-group-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-group-caret {
+    display: inline-block;
+    font-size: 10px;
+    line-height: 1;
+    color: #fff1aa;
+    opacity: 0.78;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.custom-party-menu .ant-menu-submenu-open .nav-group-caret {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup > .ant-menu,
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu,
+.party-nav-dropdown.ant-menu {
+    padding: 7px !important;
+    background-color: #f4d675 !important;
+    background-image: none !important;
+    border: 1px solid #e7bd3f !important;
+    border-radius: 10px !important;
+    box-shadow: 0 14px 34px rgba(102, 18, 21, 0.18) !important;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item,
+.party-nav-dropdown.ant-menu .ant-menu-item {
+    min-width: 210px;
+    margin: 2px 0 !important;
+    padding: 0 14px !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(111, 72, 0, 0.32);
+    background: transparent !important;
+    border-radius: 7px !important;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-weight: 600;
+    text-transform: none;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item .anticon,
+.party-nav-dropdown.ant-menu .ant-menu-item .anticon {
+    color: #ffffff !important;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item:hover,
+.party-nav-dropdown.ant-menu .ant-menu-item:hover {
+    color: #8b1517 !important;
+    background: #ffe600 !important;
+    text-shadow: none;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item:hover .anticon,
+.party-nav-dropdown.ant-menu .ant-menu-item:hover .anticon {
+    color: #8b1517 !important;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item-selected,
+.party-nav-dropdown.ant-menu .ant-menu-item-selected {
+    color: #8b1517 !important;
+    background: #ffe600 !important;
+    text-shadow: none;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item-selected .anticon,
+.party-nav-dropdown.ant-menu .ant-menu-item-selected .anticon {
+    color: #8b1517 !important;
 }
 
 /* =============================================
@@ -298,4 +397,19 @@ body {
     -webkit-text-fill-color: #1f2937 !important; /* Cần có cho WebKit browsers khi input bị disabled */
     background-color: #f3f4f6 !important; /* nền xám nhẹ nhàng */
     font-weight: 600 !important;
+}
+
+/* =============================================
+   🔥 DROPDOWN TEXT WRAP
+   ============================================= */
+.select-wrap-text .ant-select-selector {
+    height: auto !important;
+    min-height: 40px !important;
+}
+.select-wrap-text .ant-select-selection-item {
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.5 !important;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }

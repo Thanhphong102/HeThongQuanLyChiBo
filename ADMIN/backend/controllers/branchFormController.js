@@ -244,18 +244,20 @@ exports.getFilesInFolder = async (req, res) => {
  * Upload nhiều file vào thư mục
  */
 exports.uploadFilesToFolder = async (req, res) => {
-    const { id } = req.params;
+    const folderId = Number(req.params.id);
     const branchId = req.user.branchId;
     const userId   = req.user.id;
     const files    = req.files;
 
     if (!files || files.length === 0)
         return res.status(400).json({ message: 'Vui lòng chọn ít nhất 1 file' });
+    if (!Number.isInteger(folderId) || folderId <= 0)
+        return res.status(400).json({ message: 'Mã thư mục không hợp lệ' });
 
     try {
         const check = await db.query(
             'SELECT * FROM bieumau_folder WHERE ma_folder = $1 AND ma_chi_bo = $2',
-            [id, branchId]
+            [folderId, branchId]
         );
         if (check.rows.length === 0)
             return res.status(404).json({ message: 'Thư mục không tồn tại' });
@@ -267,19 +269,35 @@ exports.uploadFilesToFolder = async (req, res) => {
             try {
                 const driveData = await uploadFileToDrive(file);
                 const tieu_de   = file.originalname;
-                const result = await db.query(
-                    `INSERT INTO bieumau (tieu_de, duong_dan_file, ma_file_drive, ma_chi_bo, nguoi_tai_len, ma_folder)
-                     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-                    [tieu_de, driveData.webViewLink, driveData.id, branchId, userId, id]
-                );
-                uploaded.push(result.rows[0]);
+                try {
+                    const result = await db.query(
+                        `INSERT INTO bieumau (tieu_de, duong_dan_file, ma_file_drive, ma_chi_bo, nguoi_tai_len, ma_folder)
+                         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+                        [tieu_de, driveData.webViewLink, driveData.id, branchId, userId, folderId]
+                    );
+                    uploaded.push(result.rows[0]);
+                } catch (dbError) {
+                    // Không để lại file rác trên Drive nếu ghi PostgreSQL thất bại.
+                    await deleteFileFromDrive(driveData.id);
+                    throw dbError;
+                }
             } catch (err) {
                 console.error(`Lỗi upload ${file.originalname}:`, err);
-                errors.push(file.originalname);
+                errors.push({ file: file.originalname });
             }
         }
 
-        await db.query('UPDATE bieumau_folder SET ngay_cap_nhat = NOW() WHERE ma_folder = $1', [id]);
+        if (uploaded.length > 0) {
+            await db.query('UPDATE bieumau_folder SET ngay_cap_nhat = NOW() WHERE ma_folder = $1', [folderId]);
+        }
+
+        if (uploaded.length === 0) {
+            return res.status(502).json({
+                message: 'Không thể tải file lên Google Drive hoặc lưu vào cơ sở dữ liệu',
+                uploaded,
+                errors
+            });
+        }
 
         res.status(201).json({
             message: `Tải lên ${uploaded.length} file thành công${errors.length > 0 ? `, ${errors.length} thất bại` : ''}`,

@@ -3,7 +3,25 @@ const router  = express.Router();
 const controller = require('../controllers/branchFormController');
 const { verifyToken, isBranchAdmin } = require('../middleware/authMiddleware');
 const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { files: 20, fileSize: 50 * 1024 * 1024 }
+});
+
+const uploadFolderFiles = (req, res, next) => {
+  upload.array('files', 20)(req, res, (error) => {
+    if (!error) return next();
+
+    const isMultipartError = error instanceof multer.MulterError ||
+      /multipart|boundary/i.test(error.message || '');
+    console.error('[branch-forms upload middleware]:', error.message);
+    return res.status(isMultipartError ? 400 : 500).json({
+      message: isMultipartError
+        ? 'Dữ liệu tải lên không hợp lệ. Vui lòng chọn lại file và thử lại.'
+        : 'Không thể xử lý dữ liệu tải lên'
+    });
+  });
+};
 
 // Base URL: /api/branch-forms
 
@@ -29,7 +47,7 @@ router.put('/folders/:id',                          verifyToken, isBranchAdmin, 
 router.delete('/folders/:id',                       verifyToken, isBranchAdmin, controller.deleteFolder);
 
 // Upload nhiều file vào thư mục (Admin only)
-router.post('/folders/:id/upload',                  verifyToken, isBranchAdmin, upload.array('files', 20), controller.uploadFilesToFolder);
+router.post('/folders/:id/upload',                  verifyToken, isBranchAdmin, uploadFolderFiles, controller.uploadFilesToFolder);
 
 // ─── FILE Routes (giữ nguyên) ─────────────────────────────────────────────────
 router.get('/',         verifyToken, controller.getForms);

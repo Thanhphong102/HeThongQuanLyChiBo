@@ -39,7 +39,7 @@ CREATE TABLE public.dangvien (
   lop character varying,
   khoa_hoc character varying,
   nganh_hoc character varying,
-  muc_dong_phi numeric DEFAULT 50000,
+  muc_dong_phi numeric DEFAULT 5000,
   so_dinh_danh character varying,
   so_the_dang_vien character varying,
   anh_the text,
@@ -155,9 +155,11 @@ CREATE TABLE public.bieumau (
   ma_chi_bo integer NOT NULL,
   nguoi_tai_len integer,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  ma_folder integer,
   CONSTRAINT bieumau_pkey PRIMARY KEY (ma_bieu_mau),
   CONSTRAINT fk_forms_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo),
-  CONSTRAINT fk_forms_user FOREIGN KEY (nguoi_tai_len) REFERENCES public.dangvien(ma_dang_vien)
+  CONSTRAINT fk_forms_user FOREIGN KEY (nguoi_tai_len) REFERENCES public.dangvien(ma_dang_vien),
+  CONSTRAINT bieumau_ma_folder_fkey FOREIGN KEY (ma_folder) REFERENCES public.bieumau_folder(ma_folder)
 );
 CREATE TABLE public.thuvienanh (
   ma_hinh_anh integer NOT NULL DEFAULT nextval('media_library_id_seq'::regclass),
@@ -243,4 +245,99 @@ CREATE TABLE public.album (
   nguoi_tao integer,
   ngay_tao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT album_pkey PRIMARY KEY (ma_album)
+);
+CREATE TABLE public.TransferRequests (
+  id integer NOT NULL DEFAULT nextval('"TransferRequests_id_seq"'::regclass),
+  ma_dang_vien integer NOT NULL,
+  loai_chuyen character varying NOT NULL,
+  noi_chuyen_den text NOT NULL,
+  trang_thai character varying DEFAULT 'Da_Gui'::character varying,
+  ghi_chu_chi_uy text,
+  ngay_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  ngay_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT TransferRequests_pkey PRIMARY KEY (id),
+  CONSTRAINT TransferRequests_ma_dang_vien_fkey FOREIGN KEY (ma_dang_vien) REFERENCES public.dangvien(ma_dang_vien)
+);
+CREATE TABLE public.TransferDocuments (
+  id integer NOT NULL DEFAULT nextval('"TransferDocuments_id_seq"'::regclass),
+  request_id integer NOT NULL,
+  ten_tai_lieu character varying NOT NULL,
+  file_url text,
+  trang_thai_tai_lieu character varying DEFAULT 'Cho_Duyet'::character varying,
+  ghi_chu text,
+  ngay_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT TransferDocuments_pkey PRIMARY KEY (id),
+  CONSTRAINT TransferDocuments_request_id_fkey FOREIGN KEY (request_id) REFERENCES public.TransferRequests(id)
+);
+CREATE TABLE public.TransferLogs (
+  id integer NOT NULL DEFAULT nextval('"TransferLogs_id_seq"'::regclass),
+  request_id integer NOT NULL,
+  nguoi_thuc_hien_id integer NOT NULL,
+  hanh_dong character varying NOT NULL,
+  chi_tiet text,
+  thoi_gian timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT TransferLogs_pkey PRIMARY KEY (id),
+  CONSTRAINT TransferLogs_request_id_fkey FOREIGN KEY (request_id) REFERENCES public.TransferRequests(id)
+);
+CREATE TABLE public.TransferGuidelines (
+  id integer NOT NULL DEFAULT nextval('"TransferGuidelines_id_seq"'::regclass),
+  ma_chi_bo character varying NOT NULL,
+  loai_chuyen character varying NOT NULL,
+  noi_dung text,
+  documents jsonb DEFAULT '[]'::jsonb,
+  CONSTRAINT TransferGuidelines_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.dotneuguong (
+  ma_dot integer NOT NULL DEFAULT nextval('dotneuguong_ma_dot_seq'::regclass),
+  ten_dot character varying NOT NULL,
+  mo_ta text,
+  thang smallint NOT NULL,
+  nam smallint NOT NULL,
+  trang_thai character varying NOT NULL DEFAULT 'Mo'::character varying CHECK (trang_thai::text = ANY (ARRAY['Mo'::character varying, 'Da_Dong'::character varying]::text[])),
+  file_mau_bao_cao text,
+  ma_chi_bo integer,
+  nguoi_tao integer,
+  nguoi_cap_nhat integer,
+  thoi_gian_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT dotneuguong_pkey PRIMARY KEY (ma_dot),
+  CONSTRAINT fk_dotneuguong_chibo FOREIGN KEY (ma_chi_bo) REFERENCES public.chibo(ma_chi_bo)
+);
+CREATE TABLE public.hosoneuguong (
+  ma_ho_so integer NOT NULL DEFAULT nextval('hosoneuguong_ma_ho_so_seq'::regclass),
+  ma_dot integer NOT NULL,
+  ma_dang_vien integer NOT NULL,
+  trang_thai character varying NOT NULL DEFAULT 'Cho_Duyet'::character varying CHECK (trang_thai::text = ANY (ARRAY['Cho_Duyet'::character varying, 'Cho_Nop_Bao_Cao'::character varying, 'Dang_Xu_Ly'::character varying, 'Duoc_Cong_Nhan'::character varying, 'Bi_Tu_Choi'::character varying]::text[])),
+  ghi_chu_admin text,
+  file_bao_cao text,
+  ngay_nop timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  ngay_duyet timestamp with time zone,
+  ngay_cong_nhan timestamp with time zone,
+  thoi_gian_cap_nhat timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT hosoneuguong_pkey PRIMARY KEY (ma_ho_so),
+  CONSTRAINT fk_hosoneuguong_dot FOREIGN KEY (ma_dot) REFERENCES public.dotneuguong(ma_dot),
+  CONSTRAINT fk_hosoneuguong_dangvien FOREIGN KEY (ma_dang_vien) REFERENCES public.dangvien(ma_dang_vien)
+);
+CREATE TABLE public.hoatdongneuguong (
+  ma_hoat_dong integer NOT NULL DEFAULT nextval('hoatdongneuguong_ma_hoat_dong_seq'::regclass),
+  ma_ho_so integer NOT NULL,
+  ten_hoat_dong text NOT NULL,
+  file_minh_chung text,
+  ghi_chu text,
+  thu_tu smallint DEFAULT 1,
+  ngay_tao timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT hoatdongneuguong_pkey PRIMARY KEY (ma_hoat_dong),
+  CONSTRAINT fk_hoatdongneuguong_hoso FOREIGN KEY (ma_ho_so) REFERENCES public.hosoneuguong(ma_ho_so)
+);
+CREATE TABLE public.bieumau_folder (
+  ma_folder integer NOT NULL DEFAULT nextval('bieumau_folder_ma_folder_seq'::regclass),
+  ten_folder text NOT NULL,
+  mo_ta text,
+  ma_chi_bo integer,
+  nguoi_tao integer,
+  ngay_tao timestamp without time zone DEFAULT now(),
+  ngay_cap_nhat timestamp without time zone DEFAULT now(),
+  parent_folder_id integer,
+  CONSTRAINT bieumau_folder_pkey PRIMARY KEY (ma_folder),
+  CONSTRAINT bieumau_folder_parent_folder_id_fkey FOREIGN KEY (parent_folder_id) REFERENCES public.bieumau_folder(ma_folder)
 );

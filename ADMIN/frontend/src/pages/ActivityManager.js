@@ -331,9 +331,7 @@ const ActivityManager = () => {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      await axios.post(`/activities/${activityId}/upload`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await axios.post(`/activities/${activityId}/upload`, fd);
       message.success('Upload biên bản thành công');
       fetchActivities();
     } catch { message.error('Upload thất bại'); }

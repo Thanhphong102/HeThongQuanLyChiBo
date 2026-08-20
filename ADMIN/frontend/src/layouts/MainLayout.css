@@ -1,0 +1,30 @@
+.admin-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
+  scrollbar-gutter: stable;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.admin-sidebar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.admin-sidebar::-webkit-scrollbar-button {
+  display: none;
+}

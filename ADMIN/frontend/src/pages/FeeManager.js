@@ -187,12 +187,12 @@ const FeeManager = () => {
           <div>
             <div style={{ fontWeight: 700, color: '#111827', fontFamily: 'Be Vietnam Pro, sans-serif' }}>{t}</div>
             <div style={{ fontSize: 11, color: '#6b7280' }}>
-              Mức: <span style={{ color: COLOR_RED, fontWeight: 600 }}>{Number(r.muc_dong_phi || 50000).toLocaleString()} đ</span>
+              Mức: <span style={{ color: COLOR_RED, fontWeight: 600 }}>{Number(r.muc_dong_phi || 5000).toLocaleString()} đ</span>
             </div>
           </div>
           <Tooltip title="Sửa mức đóng">
             <Button type="text" size="small" icon={<EditOutlined />}
-              onClick={() => { setSelectedMember(r); setNewFee(r.muc_dong_phi || 50000); setIsFeeModalOpen(true); }} />
+              onClick={() => { setSelectedMember(r); setNewFee(r.muc_dong_phi || 5000); setIsFeeModalOpen(true); }} />
           </Tooltip>
         </div>
       )
