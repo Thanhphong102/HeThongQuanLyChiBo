@@ -1,214 +1,364 @@
 // src/pages/Documents/DocumentsPage.jsx
-import React, { useEffect, useState } from 'react';
-import { Tabs, Table, Button, Card, message, Tag, Input, Select, Space, Popover, Badge, Typography } from 'antd';
-import { DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Card, Table, Button, Tag, Input, Select, Space, Popover,
+  Badge, Typography, Spin, Empty, Breadcrumb
+} from 'antd';
+import {
+  DownloadOutlined, FilePdfOutlined, FileWordOutlined, FileExcelOutlined,
+  SearchOutlined, FilterOutlined, FolderOutlined, FileOutlined,
+  ArrowLeftOutlined, HomeOutlined
+} from '@ant-design/icons';
 import userApi from '../../api/userApi';
 import dayjs from 'dayjs';
 import { removeAccents } from '../../utils/stringUtils';
 
-const DocumentsPage = () => {
-  const [branchForms, setBranchForms] = useState([]); // Tab 1: Biểu mẫu chi bộ
-  const [schoolDocs, setSchoolDocs] = useState([]);   // Tab 2: Văn bản trường
-  const [loading, setLoading] = useState(false);
+const { Text, Title } = Typography;
+const COLOR_RED = '#a91f23';
 
-  // States cho tìm kiếm và bộ lọc
-  const [formSearch, setFormSearch] = useState('');
-  const [schoolSearch, setSchoolSearch] = useState('');
-  const [schoolTypeFilter, setSchoolTypeFilter] = useState('ALL');
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const getFileIcon = (filename = '', size = 18) => {
+  const n = filename.toLowerCase();
+  if (n.endsWith('.pdf'))  return <FilePdfOutlined  style={{ color: '#ef4444', fontSize: size }} />;
+  if (n.endsWith('.doc') || n.endsWith('.docx'))
+                            return <FileWordOutlined  style={{ color: '#3b82f6', fontSize: size }} />;
+  if (n.endsWith('.xls') || n.endsWith('.xlsx'))
+                            return <FileExcelOutlined style={{ color: '#22c55e', fontSize: size }} />;
+  return <FileOutlined style={{ color: '#6b7280', fontSize: size }} />;
+};
 
-  useEffect(() => {
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const user = JSON.parse(localStorage.getItem('user_info'));
-            
-            // 1. Lấy Biểu mẫu chi bộ
-            if (user && user.ma_chi_bo) {
-                const resForms = await userApi.getForms(user.ma_chi_bo);
-                setBranchForms(resForms.data || []);
-            }
+// ─── Tab Biểu mẫu Chi bộ (Folder Tree) ──────────────────────────────────────
+const FolderBrowser = ({ branchId }) => {
+  // Navigation: mảng breadcrumb
+  const [breadcrumb, setBreadcrumb] = useState([]); // [] = root
+  const currentFolderId = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1].id : null;
 
-            // 2. Lấy Văn bản cấp trường (MỚI THÊM)
-            const resDocs = await userApi.getSchoolDocuments();
-            setSchoolDocs(resDocs.data || []);
+  const [subfolders, setSubfolders] = useState([]);
+  const [files, setFiles]           = useState([]);
+  const [loading, setLoading]       = useState(false);
+  const [search, setSearch]         = useState('');
 
-        } catch (err) {
-            console.error("Lỗi tải tài liệu:", err);
-            // message.error("Không tải được dữ liệu tài liệu");
-        } finally {
-            setLoading(false);
-        }
-    };
-    fetchData();
-  }, []);
+  const fetchContent = useCallback(async () => {
+    if (!branchId) return;
+    setLoading(true);
+    try {
+      if (currentFolderId === null) {
+        // Root: lấy danh sách thư mục gốc
+        const res = await userApi.getFolderTree(branchId);
+        const rootFolders = res.data.filter(f => f.parent_folder_id === null);
+        setSubfolders(rootFolders);
+        setFiles([]);
+      } else {
+        // Trong folder: lấy subfolders + files
+        const res = await userApi.getFolderContents(currentFolderId);
+        setSubfolders(res.data.subfolders || []);
+        setFiles(res.data.files || []);
+      }
+    } catch {
+      // lỗi load yên lặng
+    } finally {
+      setLoading(false);
+    }
+  }, [branchId, currentFolderId]);
 
-  // Hàm render icon theo loại file (Tùy chọn cho đẹp)
-  const getFileIcon = (filename) => {
-      if (!filename) return <FilePdfOutlined />;
-      if (filename.endsWith('.doc') || filename.endsWith('.docx')) return <FileWordOutlined className="text-blue-600" />;
-      if (filename.endsWith('.xls') || filename.endsWith('.xlsx')) return <FileExcelOutlined className="text-green-600" />;
-      return <FilePdfOutlined className="text-red-600" />;
+  useEffect(() => { fetchContent(); }, [fetchContent]);
+
+  const openFolder = (folder) => {
+    setSearch('');
+    setBreadcrumb(prev => [...prev, { id: folder.ma_folder, name: folder.ten_folder }]);
   };
 
-  // Cấu hình cột cho Văn bản Trường
-  const schoolDocColumns = [
-    { 
-        title: 'Tên Văn bản', 
-        dataIndex: 'ten_tai_lieu', 
-        key: 'name', 
-        render: (text) => <span className="font-semibold text-red-800">{getFileIcon(text)} {text}</span> 
-    },
-    { 
-        title: 'Loại', 
-        dataIndex: 'loai_tai_lieu', 
-        key: 'type',
-        render: t => <Tag color="blue">{t || 'Văn bản'}</Tag>
-    },
-    { 
-        title: 'Ngày ban hành', 
-        dataIndex: 'ngay_tai_len', 
-        key: 'date', 
-        render: d => dayjs(d).format('DD/MM/YYYY') 
-    },
-    { 
-      title: 'Tải về', 
-      key: 'action', 
-      render: (_, record) => (
-        <Button 
-            type="primary" ghost size="small"
-            href={record.duong_dan} // Link Drive lấy từ DB
-            target="_blank" 
-            icon={<DownloadOutlined />}
-        >
-          Xem/Tải
-        </Button>
-      ) 
-    },
-  ];
+  const goToRoot = () => { setSearch(''); setBreadcrumb([]); };
 
-  // Cấu hình cột cho Biểu mẫu Chi bộ
-  const formColumns = [
-    { 
-        title: 'Tên Biểu mẫu', 
-        dataIndex: 'tieu_de', 
-        key: 'title', 
-        render: text => <span className="font-semibold text-blue-800">{text}</span> 
-    },
-    { title: 'Ngày đăng', dataIndex: 'ngay_tao', key: 'date', render: d => dayjs(d).format('DD/MM/YYYY') },
-    { 
-      title: 'Tải về', 
-      key: 'action', 
-      render: (_, record) => (
-        <Button 
-            type="primary" ghost size="small"
-            href={record.duong_dan_file} 
-            target="_blank" 
-            icon={<DownloadOutlined />}
-        >
-          Xem/Tải
-        </Button>
-      ) 
-    },
-  ];
+  const goToBreadcrumb = (index) => {
+    setSearch('');
+    setBreadcrumb(prev => prev.slice(0, index + 1));
+  };
 
-  // Lọc dữ liệu Biểu mẫu chi bộ
-  const filteredForms = branchForms.filter(f => 
-    removeAccents(f.tieu_de).includes(removeAccents(formSearch))
+  // Lọc theo search
+  const filteredFolders = subfolders.filter(f =>
+    removeAccents(f.ten_folder).includes(removeAccents(search))
+  );
+  const filteredFiles = files.filter(f =>
+    removeAccents(f.tieu_de).includes(removeAccents(search))
   );
 
-  // Lọc dữ liệu Văn bản trường
+  const isEmpty = filteredFolders.length === 0 && filteredFiles.length === 0;
+
+  return (
+    <div>
+      {/* Breadcrumb */}
+      <div style={{
+        background: '#f9fafb', borderRadius: 8, padding: '8px 14px',
+        marginBottom: 14, border: '1px solid #e5e7eb'
+      }}>
+        <Breadcrumb
+          items={[
+            {
+              title: (
+                <span onClick={goToRoot} style={{ cursor: 'pointer', color: COLOR_RED }}>
+                  <HomeOutlined /> Biểu mẫu Chi bộ
+                </span>
+              )
+            },
+            ...breadcrumb.map((b, i) => ({
+              title: (
+                <span
+                  onClick={() => i < breadcrumb.length - 1 ? goToBreadcrumb(i) : undefined}
+                  style={{
+                    cursor: i < breadcrumb.length - 1 ? 'pointer' : 'default',
+                    color: i < breadcrumb.length - 1 ? COLOR_RED : '#111827',
+                    fontWeight: i === breadcrumb.length - 1 ? 700 : 400
+                  }}
+                >
+                  📁 {b.name}
+                </span>
+              )
+            }))
+          ]}
+        />
+      </div>
+
+      {/* Toolbar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+        <Space>
+          {breadcrumb.length > 0 && (
+            <Button size="small" icon={<ArrowLeftOutlined />}
+              onClick={() => { setSearch(''); setBreadcrumb(prev => prev.slice(0, -1)); }}
+              style={{ borderRadius: 6 }}>
+              Quay lại
+            </Button>
+          )}
+        </Space>
+        <Input
+          prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+          placeholder="Tìm kiếm..."
+          allowClear
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ width: 220, borderRadius: 8 }}
+        />
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
+      ) : isEmpty ? (
+        <Empty description={currentFolderId ? 'Thư mục trống' : 'Chưa có biểu mẫu nào'} />
+      ) : (
+        <div>
+          {/* Thư mục con */}
+          {filteredFolders.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <Text style={{ fontSize: 11, color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                THƯ MỤC
+              </Text>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: 10, marginTop: 8
+              }}>
+                {filteredFolders.map(folder => (
+                  <div
+                    key={folder.ma_folder}
+                    onClick={() => openFolder(folder)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 14px', borderRadius: 10,
+                      border: '1.5px solid #e5e7eb', cursor: 'pointer',
+                      background: '#fff', transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = COLOR_RED}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = '#e5e7eb'}
+                  >
+                    <FolderOutlined style={{ fontSize: 22, color: '#D97706', flexShrink: 0 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: '#111827',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {folder.ten_folder}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                        {folder.so_luong_file || 0} file
+                        {folder.so_luong_thu_muc_con > 0 && ` · ${folder.so_luong_thu_muc_con} thư mục`}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* File */}
+          {filteredFiles.length > 0 && (
+            <div>
+              <Text style={{ fontSize: 11, color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                TÀI LIỆU
+              </Text>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+                {filteredFiles.map(file => (
+                  <div key={file.ma_bieu_mau} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 14px', borderRadius: 10,
+                    border: '1px solid #f3f4f6', background: '#fff'
+                  }}>
+                    {getFileIcon(file.tieu_de)}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <a href={file.duong_dan_file} target="_blank" rel="noreferrer"
+                        style={{ fontWeight: 600, fontSize: 13, color: '#111827',
+                          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+                        {file.tieu_de}
+                      </a>
+                      <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                        {dayjs(file.ngay_tao).format('DD/MM/YYYY')}
+                        {file.nguoi_dang ? ` · ${file.nguoi_dang}` : ''}
+                      </div>
+                    </div>
+                    <Button type="primary" ghost size="small"
+                      href={file.duong_dan_file} target="_blank"
+                      icon={<DownloadOutlined />}
+                      style={{ borderRadius: 6, borderColor: COLOR_RED, color: COLOR_RED, flexShrink: 0 }}>
+                      Tải về
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Trang chính ─────────────────────────────────────────────────────────────
+const DocumentsPage = () => {
+  const [schoolDocs, setSchoolDocs] = useState([]);
+  const [loading, setLoading]       = useState(false);
+  const [schoolSearch, setSchoolSearch]       = useState('');
+  const [schoolTypeFilter, setSchoolTypeFilter] = useState('ALL');
+  const [activeTab, setActiveTab]   = useState('forms');
+
+  const user = JSON.parse(localStorage.getItem('user_info') || '{}');
+
+  useEffect(() => {
+    const fetchSchool = async () => {
+      setLoading(true);
+      try {
+        const res = await userApi.getSchoolDocuments();
+        setSchoolDocs(res.data || []);
+      } catch {}
+      finally { setLoading(false); }
+    };
+    fetchSchool();
+  }, []);
+
+  const getFileIcon2 = (filename) => {
+    if (!filename) return <FilePdfOutlined />;
+    if (filename.endsWith('.doc') || filename.endsWith('.docx')) return <FileWordOutlined className="text-blue-600" />;
+    if (filename.endsWith('.xls') || filename.endsWith('.xlsx')) return <FileExcelOutlined className="text-green-600" />;
+    return <FilePdfOutlined className="text-red-600" />;
+  };
+
+  const schoolDocColumns = [
+    { title: 'Tên Văn bản', dataIndex: 'ten_tai_lieu', render: text => <span className="font-semibold text-red-800">{getFileIcon2(text)} {text}</span> },
+    { title: 'Loại', dataIndex: 'loai_tai_lieu', render: t => <Tag color="blue">{t || 'Văn bản'}</Tag> },
+    { title: 'Ngày ban hành', dataIndex: 'ngay_tai_len', render: d => dayjs(d).format('DD/MM/YYYY') },
+    { title: 'Tải về', render: (_, record) => (
+        <Button type="primary" ghost size="small" href={record.duong_dan} target="_blank" icon={<DownloadOutlined />}>Xem/Tải</Button>
+    )},
+  ];
+
+  const DOC_TYPES = ['Nghị quyết', 'Quyết định', 'Thông báo', 'Báo cáo', 'Kế hoạch', 'Hướng dẫn', 'Công văn', 'Biên bản', 'Tờ trình', 'Chương trình', 'Khác'];
+
   const filteredSchoolDocs = schoolDocs.filter(d => {
     const matchSearch = removeAccents(d.ten_tai_lieu).includes(removeAccents(schoolSearch));
-    const matchType = schoolTypeFilter === 'ALL' ? true : d.loai_tai_lieu === schoolTypeFilter;
+    const matchType   = schoolTypeFilter === 'ALL' ? true : d.loai_tai_lieu === schoolTypeFilter;
     return matchSearch && matchType;
   });
-
-  const DOC_TYPES = [
-    'Nghị quyết', 'Quyết định', 'Thông báo', 'Báo cáo', 'Kế hoạch',
-    'Hướng dẫn', 'Công văn', 'Biên bản', 'Tờ trình', 'Chương trình', 'Khác'
-  ];
-
-  const items = [
-    {
-      key: '1',
-      label: 'BIỂU MẪU CHI BỘ',
-      children: (
-        <div className="space-y-4 pt-2">
-          <Input 
-            prefix={<SearchOutlined className="text-gray-400" />}
-            placeholder="Tìm kiếm biểu mẫu..." 
-            allowClear 
-            onChange={e => setFormSearch(e.target.value)} 
-            style={{ width: 400, borderRadius: 8 }} 
-          />
-          <Table dataSource={filteredForms} columns={formColumns} rowKey="ma_quy_trinh" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
-        </div>
-      ),
-    },
-    {
-      key: '2',
-      label: 'VĂN BẢN CẤP TRƯỜNG',
-      children: (
-        <div className="space-y-4 pt-2">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Input 
-              prefix={<SearchOutlined className="text-gray-400" />}
-              placeholder="Tìm kiếm văn bản..." 
-              allowClear 
-              onChange={e => setSchoolSearch(e.target.value)} 
-              style={{ width: '100%', maxWidth: 400, borderRadius: 8 }} 
-            />
-            <Popover 
-                content={
-                    <div className="flex flex-col gap-4 w-64 p-2">
-                        <div>
-                            <Typography.Text strong className="block mb-1 text-gray-700">Loại văn bản</Typography.Text>
-                            <Select 
-                              value={schoolTypeFilter} 
-                              style={{ width: '100%', borderRadius: 8 }} 
-                              onChange={value => setSchoolTypeFilter(value)}
-                              options={[
-                                { value: 'ALL', label: 'Tất cả loại văn bản' },
-                                ...DOC_TYPES.map(t => ({ value: t, label: t }))
-                              ]}
-                            />
-                        </div>
-                        {schoolTypeFilter !== 'ALL' && (
-                            <Button 
-                                type="link" 
-                                danger 
-                                onClick={() => setSchoolTypeFilter('ALL')}
-                                className="p-0 text-left"
-                            >
-                                Xóa bộ lọc
-                            </Button>
-                        )}
-                    </div>
-                } 
-                title={<span className="font-bold text-gray-800 border-b pb-2 block">Bộ lọc nâng cao</span>} 
-                trigger="click" 
-                placement="bottomRight"
-            >
-                <Badge count={schoolTypeFilter !== 'ALL' ? 1 : 0} size="small" color="#a91f23">
-                    <Button icon={<FilterOutlined />} className="font-semibold text-gray-700 flex items-center gap-2">
-                        Bộ lọc
-                    </Button>
-                </Badge>
-            </Popover>
-          </div>
-          <Table dataSource={filteredSchoolDocs} columns={schoolDocColumns} rowKey="ma_tai_lieu" loading={loading} pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }} scroll={{ x: 'max-content' }} />
-        </div>
-      ),
-    },
-  ];
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <Card variant="borderless" className="shadow-md">
-          <h2 className="text-2xl font-bold text-red-dang mb-4 uppercase border-b pb-2">
-            Kho Tài liệu & Văn bản
-          </h2>
-          <Tabs defaultActiveKey="2" items={items} type="card" size="large" />
+        <h2 className="text-2xl font-bold text-red-dang mb-4 uppercase border-b pb-2">
+          Kho Tài liệu & Văn bản
+        </h2>
+
+        {/* Tab custom */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+          {[
+            { key: 'forms',  label: '📁 BIỂU MẪU CHI BỘ' },
+            { key: 'school', label: '🏫 VĂN BẢN CẤP TRƯỜNG' },
+          ].map(tab => (
+            <Button
+              key={tab.key}
+              type={activeTab === tab.key ? 'primary' : 'default'}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                borderRadius: 8, fontWeight: 600,
+                ...(activeTab === tab.key
+                  ? { background: COLOR_RED, borderColor: COLOR_RED }
+                  : { borderColor: '#e5e7eb' })
+              }}
+            >
+              {tab.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Tab: Biểu mẫu Chi bộ — Folder Browser */}
+        {activeTab === 'forms' && (
+          <FolderBrowser branchId={user?.ma_chi_bo} />
+        )}
+
+        {/* Tab: Văn bản cấp trường */}
+        {activeTab === 'school' && (
+          <div className="space-y-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Input
+                prefix={<SearchOutlined className="text-gray-400" />}
+                placeholder="Tìm kiếm văn bản..."
+                allowClear
+                onChange={e => setSchoolSearch(e.target.value)}
+                style={{ width: '100%', maxWidth: 400, borderRadius: 8 }}
+              />
+              <Popover
+                content={
+                  <div className="flex flex-col gap-4 w-64 p-2">
+                    <div>
+                      <Typography.Text strong className="block mb-1 text-gray-700">Loại văn bản</Typography.Text>
+                      <Select value={schoolTypeFilter} style={{ width: '100%' }}
+                        onChange={v => setSchoolTypeFilter(v)}
+                        options={[
+                          { value: 'ALL', label: 'Tất cả loại văn bản' },
+                          ...DOC_TYPES.map(t => ({ value: t, label: t }))
+                        ]}
+                      />
+                    </div>
+                    {schoolTypeFilter !== 'ALL' && (
+                      <Button type="link" danger onClick={() => setSchoolTypeFilter('ALL')} className="p-0 text-left">
+                        Xóa bộ lọc
+                      </Button>
+                    )}
+                  </div>
+                }
+                title={<span className="font-bold text-gray-800">Bộ lọc nâng cao</span>}
+                trigger="click" placement="bottomRight"
+              >
+                <Badge count={schoolTypeFilter !== 'ALL' ? 1 : 0} size="small" color={COLOR_RED}>
+                  <Button icon={<FilterOutlined />} className="font-semibold text-gray-700">Bộ lọc</Button>
+                </Badge>
+              </Popover>
+            </div>
+            <Table
+              dataSource={filteredSchoolDocs}
+              columns={schoolDocColumns}
+              rowKey="ma_tai_lieu"
+              loading={loading}
+              pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }}
+              scroll={{ x: 'max-content' }}
+            />
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -118,10 +118,19 @@ const userApi = {
   },
 
   // --- 4. NHÓM TÀI LIỆU & BIỂU MẪU ---
-  // Lấy biểu mẫu của chi bộ
+  // Lấy biểu mẫu của chi bộ (legacy)
   getForms: (ma_chi_bo) => {
-    // Truyền params để backend biết lọc theo chi bộ nào (nếu cần)
     return axiosClient.get(`/branch-forms`, { params: { ma_chi_bo } });
+  },
+
+  // Lấy cây thư mục gốc của chi bộ (hỗ trợ nested folders)
+  getFolderTree: (branchId) => {
+    return axiosClient.get(`/branch-forms/public/${branchId}/folders`);
+  },
+
+  // Lấy subfolder + file trong 1 thư mục
+  getFolderContents: (folderId) => {
+    return axiosClient.get(`/branch-forms/public/folder/${folderId}/contents`);
   },
 
   // 1. Lấy Văn bản cấp Trường (SuperAdmin up)
