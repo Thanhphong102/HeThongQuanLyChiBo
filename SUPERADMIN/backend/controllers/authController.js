@@ -12,6 +12,10 @@ exports.login = async (req, res) => {
         const user = result.rows[0];
 
         // KIỂM TRA TRẠNG THÁI HOẠT ĐỘNG
+        if (user.da_xoa === true) {
+            return res.status(403).json({ message: 'Tài khoản này đã được lưu trữ. Vui lòng liên hệ quản trị viên.' });
+        }
+
         if (user.hoat_dong === false) {
             return res.status(403).json({ message: 'Tài khoản này đã bị khóa/ẩn!' });
         }

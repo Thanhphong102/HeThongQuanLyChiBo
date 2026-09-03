@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Table, Tag, Button, Modal, Form, Input, message, Tooltip, Space,
-  Popconfirm, Typography, Alert, Row, Col, Statistic, Divider
+  Popconfirm, Typography, Alert, Row, Col, Statistic, Divider, Select
 } from 'antd';
 import {
   UserSwitchOutlined, KeyOutlined, LockOutlined, UnlockOutlined,
   SearchOutlined, MailOutlined,
-  CopyOutlined
+  CopyOutlined, InboxOutlined, RollbackOutlined
 } from '@ant-design/icons';
 import axios from '../services/axiosConfig';
 import PageHeader from '../components/PageHeader';
@@ -21,6 +21,9 @@ const MemberAccountManager = () => {
   const [members, setMembers]   = useState([]);
   const [loading, setLoading]   = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [archiveFilter, setArchiveFilter] = useState('false');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [archiving, setArchiving] = useState(false);
 
   // Modal Cấp TK
   const [isGrantOpen, setIsGrantOpen]     = useState(false);
@@ -36,14 +39,30 @@ const MemberAccountManager = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/branch-members', { params: { pageSize: 100, search: searchText } });
+      const res = await axios.get('/branch-members', {
+        params: { pageSize: 100, search: searchText, archived: archiveFilter }
+      });
       setMembers(res.data.data);
     } catch { message.error('Lỗi tải dữ liệu'); }
     finally { setLoading(false); }
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchMembers(); }, [searchText]);
+  useEffect(() => { fetchMembers(); }, [searchText, archiveFilter]);
+
+  const handleArchive = async (memberIds, archived) => {
+    setArchiving(true);
+    try {
+      const response = await axios.put('/branch-members/archive', { memberIds, archived });
+      message.success(response.data.message);
+      setSelectedRowKeys([]);
+      fetchMembers();
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể cập nhật tài khoản');
+    } finally {
+      setArchiving(false);
+    }
+  };
 
   // --- XỬ LÝ CẤP TÀI KHOẢN ---
   const handleGrantAccount = async (values) => {
@@ -110,6 +129,7 @@ const MemberAccountManager = () => {
       title: 'Trạng thái',
       key: 'trang_thai',
       render: (_, r) => {
+        if (r.da_xoa) return <Tag color="gold" style={{ borderRadius: 6 }}>Đã lưu trữ</Tag>;
         if (!r.ten_dang_nhap) return <Tag style={{ borderRadius: 6 }}>Chưa kích hoạt</Tag>;
         if (r.buoc_doi_mat_khau) return <Tag color="warning" style={{ borderRadius: 6 }}>⏳ Chờ đổi MK</Tag>;
         return r.hoat_dong
@@ -122,6 +142,13 @@ const MemberAccountManager = () => {
       key: 'action',
       align: 'center',
       render: (_, record) => {
+        if (record.da_xoa) {
+          return (
+            <Popconfirm title="Khôi phục tài khoản này?" onConfirm={() => handleArchive([record.ma_dang_vien], false)} okText="Khôi phục" cancelText="Hủy">
+              <Button size="small" icon={<RollbackOutlined />} loading={archiving}>Khôi phục</Button>
+            </Popconfirm>
+          );
+        }
         if (!record.ten_dang_nhap) {
           return (
             <Button type="primary" size="small" icon={<UserSwitchOutlined />}
@@ -172,6 +199,18 @@ const MemberAccountManager = () => {
                 />
               </Popconfirm>
             </Tooltip>
+            <Tooltip title="Lưu trữ tài khoản">
+              <Popconfirm
+                title="Lưu trữ tài khoản này?"
+                description="Tài khoản sẽ không thể đăng nhập nhưng dữ liệu lịch sử vẫn được giữ lại."
+                onConfirm={() => handleArchive([record.ma_dang_vien], true)}
+                okText="Lưu trữ"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+              >
+                <Button size="small" danger icon={<InboxOutlined />} />
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       }
@@ -210,15 +249,34 @@ const MemberAccountManager = () => {
         style={{ borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
         styles={{ body: { padding: 0 } }}
         title={
-          <div style={{ padding: '16px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ padding: '16px 24px 0', display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 600, fontSize: 15 }}>Danh sách Đảng viên</span>
-            <Input
-              placeholder="Tìm theo tên..."
-              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-              style={{ width: 260, borderRadius: 8 }}
-              onChange={e => setSearchText(e.target.value)}
-              allowClear
-            />
+            <Space wrap>
+              <Select
+                value={archiveFilter}
+                style={{ width: 160 }}
+                onChange={value => { setArchiveFilter(value); setSelectedRowKeys([]); }}
+                options={[{ value: 'false', label: 'Đang sử dụng' }, { value: 'true', label: 'Đã lưu trữ' }]}
+              />
+              <Input
+                placeholder="Tìm theo tên..."
+                prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+                style={{ width: 260, borderRadius: 8 }}
+                onChange={e => setSearchText(e.target.value)}
+                allowClear
+              />
+              <Popconfirm
+                title={archiveFilter === 'true' ? 'Khôi phục các tài khoản đã chọn?' : 'Lưu trữ các tài khoản đã chọn?'}
+                onConfirm={() => handleArchive(selectedRowKeys, archiveFilter !== 'true')}
+                okText={archiveFilter === 'true' ? 'Khôi phục' : 'Lưu trữ'}
+                cancelText="Hủy"
+                disabled={!selectedRowKeys.length}
+              >
+                <Button danger={archiveFilter !== 'true'} icon={archiveFilter === 'true' ? <RollbackOutlined /> : <InboxOutlined />} disabled={!selectedRowKeys.length} loading={archiving}>
+                  {archiveFilter === 'true' ? 'Khôi phục' : 'Lưu trữ'} ({selectedRowKeys.length})
+                </Button>
+              </Popconfirm>
+            </Space>
           </div>
         }
       >
@@ -228,6 +286,11 @@ const MemberAccountManager = () => {
           dataSource={members}
           rowKey="ma_dang_vien"
           loading={loading}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+            getCheckboxProps: record => ({ disabled: Number(record.cap_quyen) !== 3 })
+          }}
           pagination={{ pageSize: 10, showSizeChanger: false }}
           style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
         />

@@ -5,5 +5,6 @@ const { verifyToken, isSuperAdmin } = require('../middleware/authMiddleware');
 
 // Định nghĩa route gốc là / (sẽ được ghép thành /api/members)
 router.get('/', verifyToken, isSuperAdmin, memberController.getAllMembers);
+router.put('/archive', verifyToken, isSuperAdmin, memberController.setArchived);
 
 module.exports = router;

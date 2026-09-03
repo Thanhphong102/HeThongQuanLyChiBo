@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Table, Button, Modal, Form, Input, Select, Tag, message, Space, Popconfirm, Tooltip, Row, Col } from 'antd';
-import { UserAddOutlined, KeyOutlined, LockOutlined, UnlockOutlined, SearchOutlined, TeamOutlined, EditOutlined } from '@ant-design/icons';
+import { UserAddOutlined, KeyOutlined, LockOutlined, UnlockOutlined, SearchOutlined, TeamOutlined, EditOutlined, InboxOutlined, RollbackOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import axios from '../services/axiosConfig';
 
@@ -37,6 +37,13 @@ const AccountManager = () => {
   const [branchFilter, setBranchFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [archiveFilter, setArchiveFilter] = useState('false');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [archiving, setArchiving] = useState(false);
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    catch { return {}; }
+  })();
 
   // Modal: Cấp tài khoản mới
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,14 +71,14 @@ const AccountManager = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      let url = '/members?';
-      if (searchText) url += `search=${encodeURIComponent(searchText)}&`;
-      if (branchFilter) url += `branch=${branchFilter}&`;
-      if (roleFilter) url += `permission=${roleFilter}&`;
-      if (statusFilter !== '') url += `status=${statusFilter}`;
-
       const [resUsers, resBranches] = await Promise.all([
-        axios.get(url),
+        axios.get('/members', { params: {
+          search: searchText || undefined,
+          branch: branchFilter || undefined,
+          permission: roleFilter || undefined,
+          status: statusFilter === '' ? undefined : statusFilter,
+          archived: archiveFilter
+        } }),
         axios.get('/branches')
       ]);
       setUsers(resUsers.data.data || []);
@@ -84,7 +91,7 @@ const AccountManager = () => {
   useEffect(() => { 
     const delay = setTimeout(() => fetchData(), 500);
     return () => clearTimeout(delay);
-  }, [searchText, branchFilter, roleFilter, statusFilter]);
+  }, [searchText, branchFilter, roleFilter, statusFilter, archiveFilter]);
 
   // Auto sync ngầm để cập nhật dữ liệu từ Admin
   // Sử dụng recursive setTimeout thay vì setInterval để tránh tình trạng request đè lên nhau gây ERR_INSUFFICIENT_RESOURCES
@@ -94,14 +101,14 @@ const AccountManager = () => {
 
     const silentFetch = async () => {
       try {
-        let url = '/members?';
-        if (searchText) url += `search=${encodeURIComponent(searchText)}&`;
-        if (branchFilter) url += `branch=${branchFilter}&`;
-        if (roleFilter) url += `permission=${roleFilter}&`;
-        if (statusFilter !== '') url += `status=${statusFilter}`;
-  
         const [resUsers, resBranches] = await Promise.all([
-          axios.get(url),
+          axios.get('/members', { params: {
+            search: searchText || undefined,
+            branch: branchFilter || undefined,
+            permission: roleFilter || undefined,
+            status: statusFilter === '' ? undefined : statusFilter,
+            archived: archiveFilter
+          } }),
           axios.get('/branches')
         ]);
         if (isMounted) {
@@ -123,7 +130,21 @@ const AccountManager = () => {
         isMounted = false;
         clearTimeout(timerId);
     };
-  }, [searchText, branchFilter, roleFilter, statusFilter]);
+  }, [searchText, branchFilter, roleFilter, statusFilter, archiveFilter]);
+
+  const handleArchive = async (memberIds, archived) => {
+    setArchiving(true);
+    try {
+      const response = await axios.put('/members/archive', { memberIds, archived });
+      message.success(response.data.message);
+      setSelectedRowKeys([]);
+      fetchData();
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể cập nhật tài khoản');
+    } finally {
+      setArchiving(false);
+    }
+  };
 
   const showModal = () => { form.resetFields(); setIsModalOpen(true); };
   
@@ -262,6 +283,9 @@ const AccountManager = () => {
     {
       title: 'Trạng thái', key: 'trang_thai', align: 'center', width: 145,
       render: (_, record) => {
+        if (record.da_xoa) {
+          return <span style={{ display: 'inline-block', background: '#fffbeb', color: '#a16207', border: '1px solid #fde68a', borderRadius: 20, padding: '2px 12px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>Đã lưu trữ</span>;
+        }
         const active = isActiveStatus(record);
         return active
           ? <span style={{ display: 'inline-block', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: 20, padding: '2px 12px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>● Hoạt động</span>
@@ -271,6 +295,13 @@ const AccountManager = () => {
     {
       title: 'Thao tác', key: 'action', align: 'center', width: 150,
       render: (_, record) => {
+        if (record.da_xoa) {
+          return (
+            <Popconfirm title="Khôi phục tài khoản này?" onConfirm={() => handleArchive([record.ma_dang_vien], false)} okText="Khôi phục" cancelText="Hủy">
+              <Button size="small" icon={<RollbackOutlined />} loading={archiving}>Khôi phục</Button>
+            </Popconfirm>
+          );
+        }
         const active = isActiveStatus(record);
         return (
           <Space>
@@ -304,6 +335,18 @@ const AccountManager = () => {
                 />
               </Tooltip>
             </Popconfirm>
+            {Number(record.cap_quyen) !== 1 && Number(record.ma_dang_vien) !== Number(currentUser.ma_dang_vien) && (
+              <Popconfirm
+                title="Lưu trữ tài khoản này?"
+                description="Tài khoản sẽ không thể đăng nhập nhưng toàn bộ dữ liệu lịch sử vẫn được giữ lại."
+                onConfirm={() => handleArchive([record.ma_dang_vien], true)}
+                okText="Lưu trữ"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+              >
+                <Tooltip title="Lưu trữ tài khoản"><Button size="small" danger icon={<InboxOutlined />} /></Tooltip>
+              </Popconfirm>
+            )}
           </Space>
         );
       },
@@ -375,7 +418,37 @@ const AccountManager = () => {
                 <Select.Option value="false">Đã khóa</Select.Option>
               </Select>
             </Col>
+            <Col xs={24} sm={12} lg={6}>
+              <Select
+                style={{ height: 40, width: '100%' }}
+                value={archiveFilter}
+                onChange={value => { setArchiveFilter(value); setSelectedRowKeys([]); }}
+                options={[
+                  { value: 'false', label: 'Tài khoản đang sử dụng' },
+                  { value: 'true', label: 'Tài khoản đã lưu trữ' }
+                ]}
+              />
+            </Col>
           </Row>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+            <Popconfirm
+              title={archiveFilter === 'true' ? 'Khôi phục các tài khoản đã chọn?' : 'Lưu trữ các tài khoản đã chọn?'}
+              description={archiveFilter === 'true' ? undefined : 'Người dùng sẽ không thể đăng nhập nhưng dữ liệu lịch sử vẫn được giữ lại.'}
+              onConfirm={() => handleArchive(selectedRowKeys, archiveFilter !== 'true')}
+              okText={archiveFilter === 'true' ? 'Khôi phục' : 'Lưu trữ'}
+              cancelText="Hủy"
+              disabled={!selectedRowKeys.length}
+            >
+              <Button
+                danger={archiveFilter !== 'true'}
+                icon={archiveFilter === 'true' ? <RollbackOutlined /> : <InboxOutlined />}
+                disabled={!selectedRowKeys.length}
+                loading={archiving}
+              >
+                {archiveFilter === 'true' ? 'Khôi phục' : 'Lưu trữ'} ({selectedRowKeys.length})
+              </Button>
+            </Popconfirm>
+          </div>
         </div>
 
         <Table 
@@ -383,6 +456,13 @@ const AccountManager = () => {
           dataSource={users} 
           rowKey="ma_dang_vien" 
           loading={loading} 
+          rowSelection={{
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+            getCheckboxProps: record => ({
+              disabled: Number(record.cap_quyen) === 1 || Number(record.ma_dang_vien) === Number(currentUser.ma_dang_vien)
+            })
+          }}
           pagination={{ pageSize: 8 }} 
           className="border-t border-gray-100"
           rowClassName="hover:bg-gray-50 transition-colors"

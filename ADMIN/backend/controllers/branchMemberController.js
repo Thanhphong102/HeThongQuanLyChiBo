@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt'); // <--- Đảm bảo đã import bcrypt
 // 1. GET: Lấy danh sách (Code đầy đủ)
 exports.getBranchMembers = async (req, res) => {
     const branchId = req.user.branchId;
-    const { page = 1, pageSize = 10, status, search, doi_tuong, gioi_tinh } = req.query;
+    const { page = 1, pageSize = 10, status, search, doi_tuong, gioi_tinh, archived = 'false' } = req.query;
     const offset = (page - 1) * pageSize;
 
     try {
@@ -13,6 +13,14 @@ exports.getBranchMembers = async (req, res) => {
         
         const params = [branchId];
         let paramIndex = 2;
+
+        if (String(archived).toLowerCase() === 'true') {
+            query += ' AND da_xoa = true';
+            countQuery += ' AND da_xoa = true';
+        } else if (String(archived).toLowerCase() !== 'all') {
+            query += ' AND COALESCE(da_xoa, false) = false';
+            countQuery += ' AND COALESCE(da_xoa, false) = false';
+        }
 
         if (status) {
             const clause = ` AND trang_thai_dang_vien = $${paramIndex}`;
@@ -54,6 +62,43 @@ exports.getBranchMembers = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Lỗi lấy danh sách' });
+    }
+};
+
+exports.setArchived = async (req, res) => {
+    const branchId = Number(req.user.branchId);
+    const actorId = Number(req.user.id);
+    const archived = req.body.archived !== false;
+    const memberIds = [...new Set(
+        (Array.isArray(req.body.memberIds) ? req.body.memberIds : [])
+            .map(Number)
+            .filter(id => Number.isInteger(id) && id > 0)
+    )];
+
+    if (!memberIds.length) {
+        return res.status(400).json({ message: 'Vui lòng chọn ít nhất một tài khoản.' });
+    }
+
+    try {
+        const result = await db.query(
+            `UPDATE "dangvien"
+             SET da_xoa = $1, nguoi_cap_nhat = $2, thoi_gian_cap_nhat = NOW()
+             WHERE ma_dang_vien = ANY($3::int[])
+               AND ma_chi_bo = $4
+               AND cap_quyen = 3
+               AND ma_dang_vien <> $2
+             RETURNING ma_dang_vien`,
+            [archived, actorId, memberIds, branchId]
+        );
+
+        res.json({
+            message: archived ? 'Đã lưu trữ tài khoản được chọn.' : 'Đã khôi phục tài khoản được chọn.',
+            updatedCount: result.rowCount,
+            skippedCount: memberIds.length - result.rowCount
+        });
+    } catch (error) {
+        console.error('Lỗi cập nhật trạng thái lưu trữ:', error);
+        res.status(500).json({ message: 'Không thể cập nhật trạng thái lưu trữ tài khoản.' });
     }
 };
 

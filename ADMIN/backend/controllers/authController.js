@@ -28,6 +28,10 @@ exports.login = async (req, res) => {
         
         const user = result.rows[0];
 
+        if (user.da_xoa === true) {
+            return res.status(403).json({ message: 'Tài khoản này đã được lưu trữ. Vui lòng liên hệ quản trị viên.' });
+        }
+
         if (user.hoat_dong === false) {
             return res.status(403).json({ message: 'Tài khoản này đã bị khóa/ẩn!' });
         }
@@ -478,7 +482,7 @@ exports.forgotPassword = async (req, res) => {
     try {
         // Tìm tài khoản theo email
         const result = await db.query(
-            'SELECT ma_dang_vien, ho_ten, email, ten_dang_nhap FROM "dangvien" WHERE email = $1 AND hoat_dong = true',
+            'SELECT ma_dang_vien, ho_ten, email, ten_dang_nhap FROM "dangvien" WHERE email = $1 AND hoat_dong = true AND COALESCE(da_xoa, false) = false',
             [email.trim()]
         );
 

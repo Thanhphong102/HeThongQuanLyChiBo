@@ -2,17 +2,17 @@ const db = require('../config/db');
 
 exports.getStats = async (req, res) => {
     try {
-        const usersCount = await db.query('SELECT COUNT(*) FROM "dangvien"');
+        const usersCount = await db.query('SELECT COUNT(*) FROM "dangvien" WHERE COALESCE(da_xoa, false) = false');
         const branchCount = await db.query('SELECT COUNT(*) FROM "chibo"');
         const totalIncome = await db.query(`SELECT SUM(so_tien) FROM "taichinh" WHERE loai_giao_dich = 'Thu'`);
-        const chiinhThucCount = await db.query(`SELECT COUNT(*) FROM "dangvien" WHERE trang_thai_dang_vien = 'Chinh thuc'`);
-        const duBiCount = await db.query(`SELECT COUNT(*) FROM "dangvien" WHERE trang_thai_dang_vien = 'Du bi'`);
+        const chiinhThucCount = await db.query(`SELECT COUNT(*) FROM "dangvien" WHERE trang_thai_dang_vien = 'Chinh thuc' AND COALESCE(da_xoa, false) = false`);
+        const duBiCount = await db.query(`SELECT COUNT(*) FROM "dangvien" WHERE trang_thai_dang_vien = 'Du bi' AND COALESCE(da_xoa, false) = false`);
 
         // Chart 1: Số Đảng viên theo từng Chi bộ (trừ Đảng ủy Trường)
         const chart1Query = `
             SELECT cb.ma_chi_bo as id, cb.ten_chi_bo AS "name", COUNT(dv.ma_dang_vien) AS "value"
             FROM chibo cb
-            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo
+            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo AND COALESCE(dv.da_xoa, false) = false
             WHERE cb.trang_thai = true AND cb.ten_chi_bo != 'ĐẢNG ỦY TRƯỜNG'
             GROUP BY cb.ma_chi_bo, cb.ten_chi_bo
             ORDER BY "value" DESC
@@ -26,7 +26,7 @@ exports.getStats = async (req, res) => {
                    SUM(CASE WHEN dv.gioi_tinh = 'Nu' OR dv.gioi_tinh = 'Nữ' THEN 1 ELSE 0 END) as nu,
                    COUNT(dv.ma_dang_vien) as tong
             FROM chibo cb
-            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo
+            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo AND COALESCE(dv.da_xoa, false) = false
             WHERE cb.trang_thai = true AND cb.ten_chi_bo != 'ĐẢNG ỦY TRƯỜNG'
             GROUP BY cb.ma_chi_bo, cb.ten_chi_bo
             ORDER BY cb.ten_chi_bo
@@ -40,7 +40,7 @@ exports.getStats = async (req, res) => {
                    SUM(CASE WHEN dv.trang_thai_dang_vien = 'Du bi' THEN 1 ELSE 0 END) as du_bi,
                    COUNT(dv.ma_dang_vien) as tong
             FROM chibo cb
-            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo
+            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo AND COALESCE(dv.da_xoa, false) = false
             WHERE cb.trang_thai = true AND cb.ten_chi_bo != 'ĐẢNG ỦY TRƯỜNG'
             GROUP BY cb.ma_chi_bo, cb.ten_chi_bo
             ORDER BY cb.ten_chi_bo
@@ -56,7 +56,7 @@ exports.getStats = async (req, res) => {
                    SUM(CASE WHEN EXTRACT(YEAR FROM AGE(dv.ngay_sinh)) > 30 THEN 1 ELSE 0 END) as "tren_30",
                    SUM(CASE WHEN dv.ngay_sinh IS NULL THEN 1 ELSE 0 END) as "chua_cap_nhat"
             FROM chibo cb
-            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo
+            LEFT JOIN dangvien dv ON cb.ma_chi_bo = dv.ma_chi_bo AND COALESCE(dv.da_xoa, false) = false
             WHERE cb.trang_thai = true AND cb.ten_chi_bo != 'ĐẢNG ỦY TRƯỜNG'
             GROUP BY cb.ma_chi_bo, cb.ten_chi_bo
             ORDER BY cb.ten_chi_bo

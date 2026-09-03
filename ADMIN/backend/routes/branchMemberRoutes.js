@@ -5,6 +5,7 @@ const { verifyToken, isBranchAdmin } = require('../middleware/authMiddleware');
 
 router.get('/', verifyToken, isBranchAdmin, controller.getBranchMembers);
 router.post('/', verifyToken, isBranchAdmin, controller.createMember);
+router.put('/archive', verifyToken, isBranchAdmin, controller.setArchived);
 router.put('/:id', verifyToken, isBranchAdmin, controller.updateMember);
 
 // API Mới:
