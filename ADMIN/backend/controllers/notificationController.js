@@ -122,7 +122,12 @@ exports.markAsUnread = async (req, res) => {
 exports.markAllAsRead = async (req, res) => {
     const branchId = Number(req.user.branchId);
     const userId = Number(req.user.id);
-    const userRole = Number(req.user.role);
+    let userRole = Number(req.user.role);
+
+    // Tài khoản Chi ủy có thể mở cổng User; khi đó phải cập nhật tập thông báo User.
+    if (req.query.app === 'user') {
+        userRole = 1;
+    }
     try {
         // Dùng cùng bộ lọc như getNotifications để đảm bảo đánh dấu đúng TẤT CẢ thông báo
         // mà user này được nhìn thấy (bao gồm cả loại 'All', 'Admin', 'User')
@@ -162,11 +167,18 @@ exports.deleteNotification = async (req, res) => {
 
 // Xóa (Soft delete) tất cả thông báo
 exports.deleteAllNotifications = async (req, res) => {
-    const branchId = req.user.branchId;
-    const userId = req.user.id;
-    const userRole = req.user.role; 
+    const branchId = Number(req.user.branchId);
+    const userId = Number(req.user.id);
+    let userRole = Number(req.user.role);
+
+    if (req.query.app === 'user') {
+        userRole = 1;
+    }
 
     try {
+        if (!Number.isInteger(userId) || !Number.isInteger(branchId)) {
+            return res.status(401).json({ message: 'Token thiếu thông tin người dùng hoặc chi bộ' });
+        }
         if (userRole === 2) {
             await db.query('UPDATE "thongbao" SET da_xoa = true WHERE quyen_nguoi_nhan = $1 AND ma_nguoi_nhan = $2', ['Admin', branchId]);
         } else {

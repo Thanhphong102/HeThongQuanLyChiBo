@@ -44,7 +44,7 @@ const userApi = {
 
   // [NEW] Đánh dấu tất cả đã đọc
   markAllNotificationsRead: () => {
-    return axiosClient.put('/notifications/read-all');
+    return axiosClient.put('/notifications/read-all?app=user');
   },
 
   deleteNotification: (id) => {
@@ -52,7 +52,7 @@ const userApi = {
   },
 
   deleteAllNotifications: () => {
-    return axiosClient.delete(`/notifications/all`);
+    return axiosClient.delete('/notifications/all?app=user');
   },
 
   // --- 2. NHÓM HOẠT ĐỘNG (LỊCH HỌP) ---
@@ -93,9 +93,6 @@ const userApi = {
   },
 
   // --- 3. NHÓM TIN TỨC ---
-  // Lấy danh sách tin tức
-  getMedia: () => axiosClient.get('/media'),
-
   getAlbums: () => axiosClient.get('/albums'),
   getAlbumById: (id) => axiosClient.get(`/albums/${id}`),
 

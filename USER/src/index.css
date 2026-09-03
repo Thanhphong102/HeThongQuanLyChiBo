@@ -482,8 +482,11 @@ body {
     .user-notification-dropdown.ant-dropdown {
         right: 10px !important;
         left: auto !important;
+        inset-inline-start: auto !important;
+        inset-inline-end: 10px !important;
         min-width: 0 !important;
         max-width: calc(100vw - 20px);
+        margin-inline: 0 !important;
     }
 
     .user-notification-dropdown .user-notification-panel {
