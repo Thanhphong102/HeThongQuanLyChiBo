@@ -1,17 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Col, DatePicker, Descriptions, Drawer, Form, Input, Modal, Popconfirm, Row, Select, Space, Statistic, Table, Tag, Tooltip, message } from 'antd';
-import { CheckOutlined, ClockCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileDoneOutlined, PlusOutlined, ReloadOutlined, SendOutlined, TeamOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileDoneOutlined, PlusOutlined, ReloadOutlined, SendOutlined, TeamOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import axios from '../services/axiosConfig';
 import PageHeader from '../components/PageHeader';
 import RichTextEditor, { RichTextContent } from '../components/RichTextEditor';
+import './TaskManager.css';
 
 const statusMeta = {
   Nhap: ['default','Nháp'], Dang_mo: ['processing','Đang mở'], Da_dong: ['success','Đã đóng'], Da_huy: ['error','Đã hủy'],
   Chua_xem: ['default','Chưa xem'], Chua_nop: ['warning','Chưa nộp'], Da_nop: ['blue','Đã nộp'], Nop_tre: ['orange','Nộp trễ'], Can_bo_sung: ['volcano','Cần bổ sung'], Da_duyet: ['green','Đã duyệt'], Khong_dat: ['red','Không đạt'],
 };
 const StatusTag = ({ value }) => <Tag color={statusMeta[value]?.[0]}>{statusMeta[value]?.[1] || value}</Tag>;
+
+const taskTypeMeta = {
+  Cuoc_thi: ['Cuộc thi', 'task-type--gold'],
+  Hoc_tap: ['Học tập', 'task-type--blue'],
+  Bao_cao: ['Báo cáo', 'task-type--cyan'],
+  Phong_trao: ['Phong trào', 'task-type--red'],
+  Khac: ['Khác', 'task-type--neutral'],
+};
+
+const TaskTypeTag = ({ value }) => {
+  const [label, className] = taskTypeMeta[value] || [value?.replaceAll('_', ' ') || 'Khác', 'task-type--neutral'];
+  return <span className={`task-type ${className}`}>{label}</span>;
+};
 
 const TaskManager = () => {
   const [tasks,setTasks] = useState([]);
@@ -36,7 +50,11 @@ const TaskManager = () => {
       ]);
       setTasks(taskRes.data || []);
       const memberRows = Array.isArray(memberRes.data) ? memberRes.data : memberRes.data?.data;
-      setMembers((memberRows || []).filter(item => Number(item.cap_quyen) === 3 && item.hoat_dong !== false));
+      setMembers((memberRows || []).filter(item =>
+        [2, 3].includes(Number(item.cap_quyen)) &&
+        item.hoat_dong !== false &&
+        item.da_xoa !== true
+      ));
     } catch (error) { message.error(error.response?.data?.message || 'Lỗi tải nhiệm vụ'); }
     finally { setLoading(false); }
   };
@@ -84,10 +102,10 @@ const TaskManager = () => {
   };
 
   const columns = [
-    {title:'Nhiệm vụ',dataIndex:'tieu_de',render:(text,row)=><div><b>{text}</b><div style={{fontSize:12,color:'#8c8c8c'}}>{row.loai_nhiem_vu?.replaceAll('_',' ')} · hạn {row.han_nop?dayjs(row.han_nop).format('DD/MM/YYYY HH:mm'):'Không giới hạn'}</div></div>},
+    {title:'Nhiệm vụ',dataIndex:'tieu_de',render:(text,row)=><div className="admin-task-cell"><div className="admin-task-cell__meta"><TaskTypeTag value={row.loai_nhiem_vu}/><span><ClockCircleOutlined/> {row.han_nop?dayjs(row.han_nop).format('DD/MM/YYYY HH:mm'):'Không giới hạn'}</span></div><b className="admin-task-cell__title">{text}</b></div>},
     {title:'Trạng thái',dataIndex:'trang_thai',width:110,render:value=><StatusTag value={value}/>},
-    {title:'Tiến độ',width:165,render:(_,row)=><span><b>{row.da_nop||0}</b>/{row.tong_nguoi_nhan||0} đã nộp · <b>{row.da_duyet||0}</b> duyệt</span>},
-    {title:'Thao tác',width:270,render:(_,row)=><Space wrap><Tooltip title="Chi tiết"><Button icon={<EyeOutlined/>} onClick={()=>openDetail(row.ma_nhiem_vu)}/></Tooltip><Tooltip title="Sửa nhiệm vụ"><Button icon={<EditOutlined/>} onClick={()=>openEdit(row)}/></Tooltip><Tooltip title="Nhắc chưa nộp"><Button icon={<SendOutlined/>} onClick={()=>remind(row.ma_nhiem_vu)}/></Tooltip>{row.trang_thai==='Dang_mo'?<Button onClick={()=>setStatus(row.ma_nhiem_vu,'Da_dong')}>Đóng</Button>:<Button onClick={()=>setStatus(row.ma_nhiem_vu,'Dang_mo')}>Mở</Button>}<Popconfirm title="Xóa nhiệm vụ?" onConfirm={()=>remove(row.ma_nhiem_vu)}><Button danger icon={<DeleteOutlined/>}/></Popconfirm></Space>},
+    {title:'Tiến độ',width:190,render:(_,row)=>{const total=Number(row.tong_nguoi_nhan)||0;const submitted=Number(row.da_nop)||0;const percent=total?Math.round(submitted/total*100):0;return <div className="admin-task-progress"><div><b>{submitted}/{total}</b><span>{percent}% đã nộp</span></div><div className="admin-task-progress__track"><span style={{width:`${percent}%`}}/></div><small><CheckCircleOutlined/> {row.da_duyet||0} đã duyệt</small></div>}},
+    {title:'Thao tác',width:285,render:(_,row)=><Space wrap className="admin-task-actions"><Tooltip title="Xem chi tiết"><Button className="task-action task-action--view" icon={<EyeOutlined/>} onClick={()=>openDetail(row.ma_nhiem_vu)}/></Tooltip><Tooltip title="Sửa nhiệm vụ"><Button className="task-action task-action--edit" icon={<EditOutlined/>} onClick={()=>openEdit(row)}/></Tooltip><Tooltip title="Nhắc người chưa nộp"><Button className="task-action task-action--remind" icon={<SendOutlined/>} onClick={()=>remind(row.ma_nhiem_vu)}/></Tooltip>{row.trang_thai==='Dang_mo'?<Button className="task-state-button" onClick={()=>setStatus(row.ma_nhiem_vu,'Da_dong')}>Đóng</Button>:<Button className="task-state-button task-state-button--open" onClick={()=>setStatus(row.ma_nhiem_vu,'Dang_mo')}>Mở</Button>}<Popconfirm title="Xóa nhiệm vụ?" onConfirm={()=>remove(row.ma_nhiem_vu)}><Button danger className="task-action" icon={<DeleteOutlined/>}/></Popconfirm></Space>},
   ];
   const recipientColumns = [
     {title:'Đảng viên',dataIndex:'ho_ten',render:(text,row)=><div><b>{text}</b><div style={{fontSize:12,color:'#8c8c8c'}}>{row.ma_so_sinh_vien||row.email}</div></div>},
@@ -96,11 +114,11 @@ const TaskManager = () => {
     {title:'Thao tác',width:110,render:(_,row)=><Button disabled={!['Da_nop','Nop_tre','Can_bo_sung'].includes(row.trang_thai)} onClick={()=>{setReviewing(row);reviewForm.setFieldsValue({trang_thai:'Da_duyet',diem_so:row.diem_so,phan_hoi_chi_uy:row.phan_hoi_chi_uy})}}>Duyệt</Button>},
   ];
 
-  return <div style={{fontFamily:'Be Vietnam Pro, sans-serif'}}>
+  return <div className="task-manager-page">
     <PageHeader icon={<FileDoneOutlined/>} title="Nhiệm vụ & Minh chứng" subtitle="Giao nhiệm vụ, theo dõi tiến độ và tổng hợp minh chứng của Đảng viên"/>
-    <Row gutter={[16,16]} style={{marginBottom:18}}><Col xs={24} md={8}><Card><Statistic title="Nhiệm vụ đang mở" value={stats.open} prefix={<ClockCircleOutlined/>}/></Card></Col><Col xs={24} md={8}><Card><Statistic title="Lượt được giao" value={stats.recipients} prefix={<TeamOutlined/>}/></Card></Col><Col xs={24} md={8}><Card><Statistic title="Đã duyệt" value={stats.done} prefix={<CheckOutlined/>}/></Card></Col></Row>
-    <Card style={{borderRadius:16,boxShadow:'0 2px 16px rgba(0,0,0,.07)'}}>
-      <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap',marginBottom:18}}><Space wrap><Input.Search placeholder="Tìm nhiệm vụ..." allowClear onChange={e=>setSearch(e.target.value)} style={{width:240}}/><Select value={filter} onChange={setFilter} style={{width:145}} options={[{value:'all',label:'Tất cả'},{value:'Nhap',label:'Nháp'},{value:'Dang_mo',label:'Đang mở'},{value:'Da_dong',label:'Đã đóng'},{value:'Da_huy',label:'Đã hủy'}]}/><Button icon={<ReloadOutlined/>} onClick={load}/></Space><Button type="primary" icon={<PlusOutlined/>} onClick={openCreate}>Giao nhiệm vụ</Button></div>
+    <Row gutter={[16,16]} className="task-stat-grid"><Col xs={24} md={8}><Card className="task-stat-card task-stat-card--red"><div className="task-stat-card__icon"><ClockCircleOutlined/></div><Statistic title="Nhiệm vụ đang mở" value={stats.open}/><span className="task-stat-card__hint">Đang chờ Đảng viên thực hiện</span></Card></Col><Col xs={24} md={8}><Card className="task-stat-card task-stat-card--blue"><div className="task-stat-card__icon"><TeamOutlined/></div><Statistic title="Lượt được giao" value={stats.recipients}/><span className="task-stat-card__hint">Tổng lượt nhận nhiệm vụ</span></Card></Col><Col xs={24} md={8}><Card className="task-stat-card task-stat-card--green"><div className="task-stat-card__icon"><CheckOutlined/></div><Statistic title="Đã duyệt" value={stats.done}/><span className="task-stat-card__hint">Minh chứng đã được công nhận</span></Card></Col></Row>
+    <Card className="task-manager-panel">
+      <div className="task-manager-toolbar"><div><h3>Danh sách nhiệm vụ</h3><p>Quản lý tiến độ và minh chứng trong một nơi</p></div><Space wrap className="task-manager-toolbar__controls"><Input.Search placeholder="Tìm nhiệm vụ..." allowClear onChange={e=>setSearch(e.target.value)} className="task-search"/><Select value={filter} onChange={setFilter} className="task-filter" options={[{value:'all',label:'Tất cả'},{value:'Nhap',label:'Nháp'},{value:'Dang_mo',label:'Đang mở'},{value:'Da_dong',label:'Đã đóng'},{value:'Da_huy',label:'Đã hủy'}]}/><Tooltip title="Tải lại"><Button icon={<ReloadOutlined/>} onClick={load}/></Tooltip><Button type="primary" className="task-create-button" icon={<PlusOutlined/>} onClick={openCreate}>Giao nhiệm vụ</Button></Space></div>
       <Table rowKey="ma_nhiem_vu" loading={loading} dataSource={filtered} columns={columns} scroll={{x:850}}/>
     </Card>
 

@@ -8,7 +8,11 @@ const notifyUsers = async (userIds, title, content, type) => {
   if (!ids.length) return;
   await db.query(`
     INSERT INTO thongbao (ma_nguoi_nhan, quyen_nguoi_nhan, tieu_de, noi_dung, loai_thong_bao)
-    SELECT id, 'User', $2, $3, $4 FROM unnest($1::int[]) AS id
+    SELECT dv.ma_dang_vien, 'User', $2, $3, $4
+    FROM dangvien dv
+    WHERE dv.ma_dang_vien = ANY($1::int[])
+      AND dv.hoat_dong = true
+      AND COALESCE(dv.da_xoa, false) = false
   `, [ids, title, content, type]);
 };
 
@@ -17,12 +21,15 @@ exports.listAdmin = async (req, res) => {
   try {
     const result = await db.query(`
       SELECT nv.*,
-        COUNT(nn.ma_nguoi_nhan)::int AS tong_nguoi_nhan,
-        COUNT(*) FILTER (WHERE nn.trang_thai IN ('Da_nop','Nop_tre','Can_bo_sung','Da_duyet','Khong_dat'))::int AS da_nop,
-        COUNT(*) FILTER (WHERE nn.trang_thai IN ('Chua_xem','Chua_nop'))::int AS chua_nop,
-        COUNT(*) FILTER (WHERE nn.trang_thai = 'Da_duyet')::int AS da_duyet
+        COUNT(dv.ma_dang_vien)::int AS tong_nguoi_nhan,
+        COUNT(*) FILTER (WHERE dv.ma_dang_vien IS NOT NULL AND nn.trang_thai IN ('Da_nop','Nop_tre','Can_bo_sung','Da_duyet','Khong_dat'))::int AS da_nop,
+        COUNT(*) FILTER (WHERE dv.ma_dang_vien IS NOT NULL AND nn.trang_thai IN ('Chua_xem','Chua_nop'))::int AS chua_nop,
+        COUNT(*) FILTER (WHERE dv.ma_dang_vien IS NOT NULL AND nn.trang_thai = 'Da_duyet')::int AS da_duyet
       FROM nhiemvu nv
       LEFT JOIN nhiemvu_nguoinhan nn ON nn.ma_nhiem_vu = nv.ma_nhiem_vu
+      LEFT JOIN dangvien dv ON dv.ma_dang_vien = nn.ma_dang_vien
+        AND dv.hoat_dong = true
+        AND COALESCE(dv.da_xoa, false) = false
       WHERE nv.ma_chi_bo = $1
       GROUP BY nv.ma_nhiem_vu
       ORDER BY nv.thoi_gian_tao DESC
@@ -41,10 +48,23 @@ exports.create = async (req, res) => {
   try {
     let ids = Array.isArray(recipient_ids) ? recipient_ids.map(Number).filter(Number.isInteger) : [];
     if (assign_all) {
-      const members = await db.query('SELECT ma_dang_vien FROM dangvien WHERE ma_chi_bo = $1 AND hoat_dong = true AND cap_quyen = 3', [req.user.branchId]);
+      const members = await db.query(`
+        SELECT ma_dang_vien FROM dangvien
+        WHERE ma_chi_bo = $1
+          AND hoat_dong = true
+          AND COALESCE(da_xoa, false) = false
+          AND cap_quyen IN (2, 3)
+      `, [req.user.branchId]);
       ids = members.rows.map(row => row.ma_dang_vien);
     } else if (ids.length) {
-      const valid = await db.query('SELECT ma_dang_vien FROM dangvien WHERE ma_chi_bo = $1 AND hoat_dong = true AND ma_dang_vien = ANY($2::int[])', [req.user.branchId, ids]);
+      const valid = await db.query(`
+        SELECT ma_dang_vien FROM dangvien
+        WHERE ma_chi_bo = $1
+          AND hoat_dong = true
+          AND COALESCE(da_xoa, false) = false
+          AND cap_quyen IN (2, 3)
+          AND ma_dang_vien = ANY($2::int[])
+      `, [req.user.branchId, ids]);
       ids = valid.rows.map(row => row.ma_dang_vien);
     }
     if (!ids.length) return res.status(400).json({ message: 'Vui lòng chọn ít nhất một Đảng viên nhận nhiệm vụ' });
@@ -77,6 +97,8 @@ exports.getAdminDetail = async (req, res) => {
         COALESCE(json_agg(json_build_object('ma_minh_chung',mc.ma_minh_chung,'ten_file',mc.ten_file,'file_url',mc.file_url,'mime_type',mc.mime_type,'kich_thuoc',mc.kich_thuoc)) FILTER (WHERE mc.ma_minh_chung IS NOT NULL), '[]') AS minh_chung
       FROM nhiemvu_nguoinhan nn
       JOIN dangvien dv ON dv.ma_dang_vien = nn.ma_dang_vien
+        AND dv.hoat_dong = true
+        AND COALESCE(dv.da_xoa, false) = false
       LEFT JOIN nhiemvu_minhchung mc ON mc.ma_nguoi_nhan = nn.ma_nguoi_nhan
       WHERE nn.ma_nhiem_vu = $1
       GROUP BY nn.ma_nguoi_nhan, dv.ma_dang_vien
@@ -114,7 +136,14 @@ exports.updateStatus = async (req, res) => {
     const result = await db.query(`UPDATE nhiemvu SET trang_thai=$1,nguoi_cap_nhat=$2,thoi_gian_cap_nhat=NOW() WHERE ma_nhiem_vu=$3 AND ma_chi_bo=$4 RETURNING *`, [req.body.trang_thai, req.user.id, req.params.id, req.user.branchId]);
     if (!result.rows.length) return res.status(404).json({ message: 'Nhiệm vụ không tồn tại' });
     if (req.body.trang_thai === 'Dang_mo') {
-      const users = await db.query('SELECT ma_dang_vien FROM nhiemvu_nguoinhan WHERE ma_nhiem_vu=$1', [req.params.id]);
+      const users = await db.query(`
+        SELECT nn.ma_dang_vien
+        FROM nhiemvu_nguoinhan nn
+        JOIN dangvien dv ON dv.ma_dang_vien = nn.ma_dang_vien
+        WHERE nn.ma_nhiem_vu = $1
+          AND dv.hoat_dong = true
+          AND COALESCE(dv.da_xoa, false) = false
+      `, [req.params.id]);
       await notifyUsers(users.rows.map(row => row.ma_dang_vien), 'Nhiệm vụ được mở', result.rows[0].tieu_de, `TASK_${req.params.id}`);
     }
     res.json(result.rows[0]);
@@ -162,7 +191,17 @@ exports.review = async (req, res) => {
 exports.remind = async (req, res) => {
   if (!isAdmin(req)) return res.status(403).json({ message: 'Yêu cầu quyền Chi ủy' });
   try {
-    const result = await db.query(`SELECT nn.ma_dang_vien,nv.tieu_de FROM nhiemvu_nguoinhan nn JOIN nhiemvu nv ON nv.ma_nhiem_vu=nn.ma_nhiem_vu WHERE nv.ma_nhiem_vu=$1 AND nv.ma_chi_bo=$2 AND nn.trang_thai IN ('Chua_xem','Chua_nop','Can_bo_sung')`, [req.params.id, req.user.branchId]);
+    const result = await db.query(`
+      SELECT nn.ma_dang_vien,nv.tieu_de
+      FROM nhiemvu_nguoinhan nn
+      JOIN nhiemvu nv ON nv.ma_nhiem_vu=nn.ma_nhiem_vu
+      JOIN dangvien dv ON dv.ma_dang_vien=nn.ma_dang_vien
+      WHERE nv.ma_nhiem_vu=$1
+        AND nv.ma_chi_bo=$2
+        AND nn.trang_thai IN ('Chua_xem','Chua_nop','Can_bo_sung')
+        AND dv.hoat_dong = true
+        AND COALESCE(dv.da_xoa, false) = false
+    `, [req.params.id, req.user.branchId]);
     if (!result.rows.length) return res.json({ message: 'Không có Đảng viên cần nhắc', count: 0 });
     await notifyUsers(result.rows.map(row => row.ma_dang_vien), 'Nhắc hoàn thành nhiệm vụ', result.rows[0].tieu_de, `TASK_${req.params.id}`);
     res.json({ message: `Đã gửi nhắc nhở tới ${result.rows.length} Đảng viên`, count: result.rows.length });

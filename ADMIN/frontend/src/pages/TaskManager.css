@@ -1,0 +1,93 @@
+.task-manager-page {
+  --task-red: #a91f23;
+  --task-navy: #073b78;
+  --task-gold: #c89212;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.task-stat-grid { margin-bottom: 20px; }
+
+.task-stat-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 146px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(14, 34, 62, .07);
+}
+
+.task-stat-card::after {
+  content: '';
+  position: absolute;
+  width: 112px;
+  height: 112px;
+  right: -36px;
+  top: -42px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .06;
+}
+
+.task-stat-card .ant-card-body { position: relative; padding: 22px 24px 18px 82px; }
+.task-stat-card .ant-statistic-title { color: #6f7785; font-weight: 600; }
+.task-stat-card .ant-statistic-content { color: #152033; font-weight: 750; font-variant-numeric: tabular-nums; }
+.task-stat-card__icon { position: absolute; left: 22px; top: 24px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; font-size: 22px; color: #fff; }
+.task-stat-card__hint { display: block; margin-top: 8px; color: #8b93a1; font-size: 12px; }
+.task-stat-card--red { color: var(--task-red); border-color: #f1d6d7; background: linear-gradient(110deg, #fff 58%, #fff5f5); }
+.task-stat-card--red .task-stat-card__icon { background: var(--task-red); }
+.task-stat-card--blue { color: var(--task-navy); border-color: #dce8f6; background: linear-gradient(110deg, #fff 58%, #f2f7fd); }
+.task-stat-card--blue .task-stat-card__icon { background: var(--task-navy); }
+.task-stat-card--green { color: #23764b; border-color: #d9eee3; background: linear-gradient(110deg, #fff 58%, #f1faf5); }
+.task-stat-card--green .task-stat-card__icon { background: #23764b; }
+
+.task-manager-panel { border: 0; border-radius: 20px; box-shadow: 0 12px 34px rgba(14, 34, 62, .08); }
+.task-manager-panel .ant-card-body { padding: 0; }
+.task-manager-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 22px 24px 18px; border-bottom: 1px solid #edf0f4; }
+.task-manager-toolbar h3 { margin: 0; color: #172235; font-size: 18px; font-weight: 750; }
+.task-manager-toolbar p { margin: 3px 0 0; color: #8a93a2; font-size: 12px; }
+.task-manager-toolbar__controls { justify-content: flex-end; }
+.task-search { width: 220px; }
+.task-filter { width: 138px; }
+.task-create-button { height: 40px; border-radius: 10px; background: var(--task-navy); box-shadow: 0 6px 14px rgba(7, 59, 120, .18); }
+.task-manager-panel .ant-table-wrapper { padding: 0 14px 14px; }
+.task-manager-panel .ant-table-thead > tr > th { background: #f7f9fc; color: #4e596a; font-size: 12px; letter-spacing: .02em; }
+.task-manager-panel .ant-table-tbody > tr > td { padding-top: 16px; padding-bottom: 16px; }
+.task-manager-panel .ant-table-tbody > tr:hover > td { background: #fbfcfe !important; }
+
+.admin-task-cell { display: grid; gap: 8px; max-width: 520px; }
+.admin-task-cell__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #8b93a1; font-size: 12px; }
+.admin-task-cell__title { color: #182236; line-height: 1.45; text-wrap: pretty; }
+.task-type { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 9px; border-radius: 7px; font-size: 11px; font-weight: 700; }
+.task-type--gold { color: #7c5700; background: #fff4cf; }
+.task-type--blue { color: #175aa4; background: #eaf3ff; }
+.task-type--cyan { color: #126a70; background: #e4f7f7; }
+.task-type--red { color: #941e23; background: #fdebec; }
+.task-type--neutral { color: #5f6877; background: #eef1f5; }
+
+.admin-task-progress { display: grid; gap: 6px; min-width: 155px; }
+.admin-task-progress > div:first-child { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #747e8c; }
+.admin-task-progress > div:first-child b { color: #192437; font-size: 14px; }
+.admin-task-progress__track { height: 6px; overflow: hidden; border-radius: 6px; background: #e8edf3; }
+.admin-task-progress__track span { display: block; height: 100%; border-radius: inherit; background: #c89212; transition: width .25s ease; }
+.admin-task-progress small { color: #39805c; }
+.task-action { border-radius: 9px; }
+.task-action--view { color: #135fac; border-color: #c9dcf2; background: #f3f8fe; }
+.task-action--edit { color: #8a6500; border-color: #ead79b; background: #fff9e8; }
+.task-action--remind { color: #7a3fa0; border-color: #dfccec; background: #fbf5ff; }
+.task-state-button { border-radius: 9px; color: #8e292d; border-color: #e6b9bb; }
+.task-state-button--open { color: #23764b; border-color: #b9ddca; }
+.task-action:hover, .task-state-button:hover, .task-create-button:hover { transform: translateY(-1px); }
+.task-action:active, .task-state-button:active, .task-create-button:active { transform: translateY(0) scale(.98); }
+
+@media (max-width: 991px) {
+  .task-manager-toolbar { align-items: flex-start; flex-direction: column; }
+  .task-manager-toolbar__controls { width: 100%; justify-content: flex-start; }
+}
+
+@media (max-width: 575px) {
+  .task-stat-card { min-height: 126px; }
+  .task-manager-toolbar { padding: 18px 16px; }
+  .task-manager-toolbar__controls, .task-manager-toolbar__controls .ant-space-item { width: 100%; }
+  .task-search, .task-filter, .task-create-button { width: 100%; }
+  .task-manager-panel .ant-table-wrapper { padding-inline: 8px; }
+}
