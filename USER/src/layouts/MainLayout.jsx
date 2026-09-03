@@ -25,16 +25,25 @@ import {
 } from '@ant-design/icons';
 
 import userApi from '../api/userApi'; // [NEW] Import API
-import dayjs from 'dayjs'; // [NEW] DayJS format
-
 // 👇 THAY THẾ LINK NGOÀI BẰNG IMPORT FILE LOCAL (Vite sẽ xử lý)
 // ❗ Đảm bảo 2 file này nằm trong thư mục src/assets
 
 
 import NotificationPopover from '../components/Header/NotificationPopover';
 import FloatingChatbot from '../components/FloatingChatbot'; // [NEW] Chatbot AI
+import { getMediaUrl } from '../utils/mediaUrl';
 
 const { Header, Content, Footer } = Layout;
+
+const FALLBACK_USER = { ho_ten: 'Đảng viên', ten_chi_bo: 'Chi bộ Sinh viên' };
+
+const readCachedUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user_info')) || FALLBACK_USER;
+  } catch {
+    return FALLBACK_USER;
+  }
+};
 
 // Các route được gom theo nhóm để thanh điều hướng luôn gọn trên desktop.
 const menuItems = [
@@ -78,12 +87,33 @@ const menuItems = [
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(readCachedUser);
   const [visibleMobileMenu, setVisibleMobileMenu] = useState(false);
 
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem('user_info'));
-    setUser(userInfo || { ho_ten: 'Đảng viên', ten_chi_bo: 'Chi bộ Sinh viên' });
+    const syncUser = (event) => {
+      setUser(event?.detail || readCachedUser());
+    };
+
+    window.addEventListener('storage', syncUser);
+    window.addEventListener('user-profile-updated', syncUser);
+
+    userApi.getProfile()
+      .then((response) => {
+        const profile = response.data || response;
+        if (profile) {
+          localStorage.setItem('user_info', JSON.stringify(profile));
+          setUser(profile);
+        }
+      })
+      .catch(() => {
+        // Header vẫn sử dụng dữ liệu đã lưu nếu API tạm thời chưa sẵn sàng.
+      });
+
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('user-profile-updated', syncUser);
+    };
   }, []);
 
   const handleMenuClick = ({ key }) => {
@@ -167,7 +197,7 @@ const MainLayout = () => {
                     </div>
                     <Avatar 
                         size="large" 
-                        src={user.anh_the ? (user.anh_the.startsWith('/uploads') ? `http://localhost:5001${user.anh_the}` : user.anh_the) : null}
+                        src={getMediaUrl(user.anh_the) || null}
                         icon={!user.anh_the && <UserOutlined />} 
                         style={{ backgroundColor: '#a91f23', color: '#fff1aa', objectFit: 'cover' }}
                     />
@@ -195,6 +225,7 @@ const MainLayout = () => {
       </div>
 
       <Drawer
+        rootClassName="user-mobile-nav-drawer"
         title={<span style={{ color: '#fff', fontWeight: 'bold' }}>MENU ĐIỀU HƯỚNG</span>}
         placement="left"
         onClose={() => setVisibleMobileMenu(false)}

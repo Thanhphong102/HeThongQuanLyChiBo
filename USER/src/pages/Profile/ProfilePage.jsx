@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined, SaveOutlined, MailOutlined, PhoneOutlined, 
 import dayjs from 'dayjs';
 import userApi from '../../api/userApi';
 import { useNavigate } from 'react-router-dom';
+import { getMediaUrl } from '../../utils/mediaUrl';
 
 const { Title, Text } = Typography;
 
@@ -35,21 +36,6 @@ const DEPARTMENTS = [
   "Phòng Đào tạo", "Phòng Tổ chức - Hành chính", "Phòng Kế hoạch - Tài chính", "Phòng Quản trị - Thiết bị", "Phòng Khảo thí - Đảm bảo chất lượng", "Phòng Công tác chính trị - Quản lý sinh viên - Khởi nghiệp", "Phòng Quản lý khoa học công nghệ - Đổi mới sáng tạo - Hợp tác quốc tế",
   "Khoa Công nghệ thông tin", "Khoa Điện - Điện tử", "Khoa Kinh tế - Quản lý công nghiệp", "Khoa Kỹ thuật xây dựng", "Khoa Công nghệ Sinh học - Công nghệ Thực phẩm - Hóa học", "Khoa Cơ bản"
 ];
-
-const getMediaSrc = (duong_dan) => {
-  if (!duong_dan) return '';
-  if (duong_dan.includes('drive.google.com') || duong_dan.includes('docs.google.com')) {
-    const idMatch = duong_dan.match(/[-\w]{25,}/);
-    if (idMatch) {
-      const fileId = idMatch[0];
-      return `https://lh3.googleusercontent.com/d/${fileId}`;
-    }
-  }
-  if (duong_dan.startsWith('/uploads')) {
-    return `http://localhost:5001${duong_dan}`;
-  }
-  return duong_dan;
-};
 
 const ProfilePage = () => {
     const [profileForm] = Form.useForm();
@@ -133,6 +119,7 @@ const ProfilePage = () => {
             if (updatedUser) {
                 setUser(updatedUser);
                 localStorage.setItem('user_info', JSON.stringify(updatedUser));
+                window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: updatedUser }));
                 message.success('Cập nhật hồ sơ thành công!');
             }
         } catch (error) {
@@ -178,6 +165,7 @@ const ProfilePage = () => {
             const updatedUser = res.data.user;
             setUser(updatedUser);
             localStorage.setItem('user_info', JSON.stringify(updatedUser)); // update global cache
+            window.dispatchEvent(new CustomEvent('user-profile-updated', { detail: updatedUser }));
             
             message.success('Cập nhật ảnh thẻ thành công!');
             onSuccess("Ok");
@@ -202,16 +190,16 @@ const ProfilePage = () => {
     const tabItems = [
         {
             key: '1',
-            label: <span className="font-semibold px-4 text-base"><UserOutlined /> Thông Tin Cá Nhân</span>,
+            label: <span className="profile-tab-label font-semibold text-base"><UserOutlined /> Thông Tin Cá Nhân</span>,
             children: (
-                <div className="p-6 max-w-6xl mx-auto">
+                <div className="profile-tab-content p-6 max-w-6xl mx-auto">
                     <Row gutter={[32, 32]}>
                         {/* --- CỘT TRÁI: ẢNH ĐẠI DIỆN --- */}
                         <Col xs={24} lg={8}>
                             <div className="bg-white p-6 shadow-sm rounded-xl w-full flex flex-col items-center border border-gray-100">
                                 <Avatar 
                                     size={180} 
-                                    src={getMediaSrc(avatarUrl || user.anh_the)} 
+                                    src={getMediaUrl(avatarUrl || user.anh_the)}
                                     icon={<UserOutlined />} 
                                     className="shadow-sm border-4 border-gray-50 mb-6 bg-gray-100 object-cover"
                                 />
@@ -237,7 +225,7 @@ const ProfilePage = () => {
                                 form={profileForm}
                                 layout="vertical"
                                 onFinish={onFinishProfile}
-                                className="bg-white p-8 mb-8 shadow-sm rounded-xl border border-gray-100"
+                                className="profile-form bg-white p-8 mb-8 shadow-sm rounded-xl border border-gray-100"
                             >
                         <Divider titlePlacement="left"><Text type="secondary" className="text-sm">Thông tin nội bộ (Chỉ xem)</Text></Divider>
                         <Row gutter={16}>
@@ -393,7 +381,7 @@ const ProfilePage = () => {
                         </Row>
 
 
-                        <Divider titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Được phép sửa)</Text></Divider>
+                        <Divider className="profile-section-title" titlePlacement="left"><Text className="text-blue-500 text-sm font-semibold">Thông tin Sinh hoạt (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="ngay_vao_dang" label="Ngày Kết nạp (Vào Đảng)">
@@ -407,7 +395,7 @@ const ProfilePage = () => {
                             </Col>
                         </Row>
 
-                        <Divider titlePlacement="left"><Text className="text-purple-600 text-sm font-semibold"><IdcardOutlined /> Giấy tờ & Thẻ Đảng viên (Được phép sửa)</Text></Divider>
+                        <Divider className="profile-section-title" titlePlacement="left"><Text className="text-purple-600 text-sm font-semibold"><IdcardOutlined /> Giấy tờ & Thẻ Đảng viên (Được phép sửa)</Text></Divider>
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item name="so_dinh_danh" label="Số định danh công dân (CCCD)">
@@ -421,7 +409,7 @@ const ProfilePage = () => {
                             </Col>
                         </Row>
 
-                        <div className="flex justify-end mt-8 border-t pt-6">
+                        <div className="profile-actions flex justify-end mt-8 border-t pt-6">
                             <Button type="primary" htmlType="submit" loading={submitting} 
                                 className="bg-red-dang hover:!bg-red-800 border-none h-11 px-8 font-bold rounded-lg shadow-md text-base transition-transform hover:scale-105"
                                 icon={<SaveOutlined />}
@@ -437,9 +425,9 @@ const ProfilePage = () => {
         },
         {
             key: '2',
-            label: <span className="font-semibold px-4 text-base"><LockOutlined /> Đổi Mật Khẩu</span>,
+            label: <span className="profile-tab-label font-semibold text-base"><LockOutlined /> Đổi Mật Khẩu</span>,
             children: (
-                <div className="p-8 max-w-lg mx-auto">
+                <div className="profile-password-content p-8 max-w-lg mx-auto">
                     <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg mb-6 text-sm text-center font-medium">
                         Lưu ý: Mật khẩu mới bảo vệ tài khoản cá nhân của bạn. Xin vui lòng không chia sẻ cho người lạ.
                     </div>
@@ -489,7 +477,7 @@ const ProfilePage = () => {
     ];
 
     return (
-        <div className="animate-fade-in">
+        <div className="user-profile-page animate-fade-in">
             <Title level={2} className="text-red-dang border-b pb-2 mb-6">
                 <UserOutlined className="mr-2" /> HỒ SƠ ĐẢNG VIÊN
             </Title>

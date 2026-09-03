@@ -363,6 +363,121 @@ body {
         width: min(94vw, 620px) !important;
     }
 
+    /* Drawer điều hướng: giữ sắc đỏ của hệ thống, thay nền xanh đen ở menu con. */
+    .user-mobile-nav-drawer .custom-mobile-menu.ant-menu-dark .ant-menu-sub.ant-menu-inline {
+        background: #781217 !important;
+        box-shadow: inset 0 1px 0 rgba(255, 241, 170, 0.14), inset 0 -1px 0 rgba(255, 241, 170, 0.14);
+    }
+
+    .user-mobile-nav-drawer .custom-mobile-menu.ant-menu-dark .ant-menu-sub.ant-menu-inline .ant-menu-item {
+        background: transparent !important;
+        margin-inline: 10px !important;
+        width: calc(100% - 20px) !important;
+    }
+
+    .user-mobile-nav-drawer .custom-mobile-menu.ant-menu-dark .ant-menu-sub.ant-menu-inline .ant-menu-item:hover {
+        background: rgba(255, 241, 170, 0.12) !important;
+    }
+
+    .user-mobile-nav-drawer .custom-mobile-menu.ant-menu-dark .ant-menu-sub.ant-menu-inline .ant-menu-item-selected {
+        background: #5e0d11 !important;
+    }
+
+    /* Hồ sơ: hai tab luôn vừa màn hình và các tiêu đề dài được xuống dòng. */
+    .user-profile-page .profile-tabs > .ant-tabs-nav {
+        padding-inline: 8px !important;
+    }
+
+    .user-profile-page .profile-tabs .ant-tabs-nav-list {
+        width: 100%;
+        transform: none !important;
+    }
+
+    .user-profile-page .profile-tabs .ant-tabs-tab {
+        flex: 1 1 50%;
+        justify-content: center;
+        min-width: 0;
+        margin: 0 !important;
+        padding: 14px 4px !important;
+    }
+
+    .user-profile-page .profile-tab-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 0;
+        padding-inline: 0 !important;
+        font-size: 13px !important;
+        line-height: 1.25;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .user-profile-page .profile-tab-content,
+    .user-profile-page .profile-password-content {
+        padding: 14px !important;
+    }
+
+    .user-profile-page .profile-form {
+        padding: 18px 14px !important;
+    }
+
+    .user-profile-page .profile-section-title .ant-divider-inner-text {
+        max-width: calc(100vw - 90px);
+        padding-inline: 10px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.45;
+        text-align: left;
+    }
+
+    .user-profile-page .profile-actions {
+        justify-content: center;
+    }
+
+    .user-profile-page .profile-actions .ant-btn {
+        max-width: 100%;
+    }
+
+    /* Danh bạ Chi ủy: tên chi bộ dài được hiển thị đầy đủ trên màn hình hẹp. */
+    .contact-page__hero {
+        padding: 20px 18px !important;
+        border-radius: 14px !important;
+    }
+
+    .contact-page__hero .ant-typography {
+        overflow-wrap: anywhere;
+    }
+
+    .contact-page__directory .ant-card-head-title {
+        white-space: normal;
+        overflow: visible;
+    }
+
+    .contact-page__branch-name {
+        align-items: flex-start !important;
+        line-height: 1.45;
+    }
+
+    .contact-page__branch-name span:last-child {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .contact-page__person > .ant-card-body {
+        padding: 14px !important;
+    }
+
+    .contact-page__person-info {
+        min-width: 0;
+    }
+
+    .contact-page__person-info a {
+        overflow-wrap: anywhere;
+    }
+
     .rich-editor__toolbar {
         gap: 2px;
         padding: 6px;
@@ -492,6 +607,43 @@ body {
     line-height: 1.5 !important;
     padding-top: 6px;
     padding-bottom: 6px;
+}
+
+.contact-page__hero {
+    margin-bottom: 22px;
+    padding: 24px 28px;
+    color: #fff;
+    background: linear-gradient(135deg, #8f151a, #b52328);
+    border-radius: 18px;
+}
+
+.contact-page__hero h2.ant-typography {
+    margin: 0;
+    color: #fff;
+}
+
+.contact-page__hero > .ant-typography {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.contact-page__directory {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.contact-page__branch-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.contact-page__person {
+    height: 100%;
+}
+
+.contact-page__person-info h5.ant-typography {
+    margin: 7px 0;
 }
 
 @media (min-width: 769px) and (max-width: 1199px) {
