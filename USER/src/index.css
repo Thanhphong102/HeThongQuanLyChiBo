@@ -478,6 +478,24 @@ body {
         overflow-wrap: anywhere;
     }
 
+    /* Popup thông báo neo vào mép phải thay vì bị bộ chống tràn đẩy sát mép trái. */
+    .user-notification-dropdown.ant-dropdown {
+        right: 10px !important;
+        left: auto !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 20px);
+    }
+
+    .user-notification-dropdown .user-notification-panel {
+        width: min(20rem, calc(100vw - 20px));
+        max-width: 100%;
+    }
+
+    .user-notification-dropdown .user-notification-list {
+        max-height: min(20rem, calc(100dvh - 13rem));
+        overscroll-behavior: contain;
+    }
+
     .rich-editor__toolbar {
         gap: 2px;
         padding: 6px;
@@ -644,6 +662,10 @@ body {
 
 .contact-page__person-info h5.ant-typography {
     margin: 7px 0;
+}
+
+.user-notification-panel {
+    width: 20rem;
 }
 
 @media (min-width: 769px) and (max-width: 1199px) {

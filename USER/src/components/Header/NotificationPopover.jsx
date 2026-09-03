@@ -36,9 +36,12 @@ const NotificationPopover = () => {
     };
 
     useEffect(() => {
-        fetchNotifs();
+        const initialTimer = window.setTimeout(fetchNotifs, 0);
         const interval = setInterval(fetchNotifs, 3000);
-        return () => clearInterval(interval);
+        return () => {
+            window.clearTimeout(initialTimer);
+            clearInterval(interval);
+        };
     }, []);
 
     // FIX: Dùng `item.id` (không phải item.ma_thong_bao) vì backend map sang `id`
@@ -133,8 +136,9 @@ const NotificationPopover = () => {
         <Dropdown 
             trigger={['click']} 
             placement="bottomRight"
+            classNames={{ root: 'user-notification-dropdown' }}
             popupRender={() => (
-                <div className="bg-white rounded-xl shadow-2xl w-80 overflow-hidden border border-gray-100">
+                <div className="user-notification-panel bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
                     {/* Header */}
                     <div className="p-3 text-white font-bold flex justify-between items-center" style={{ backgroundColor: '#7a1618' }}>
                         <span>THÔNG BÁO</span>
@@ -155,7 +159,7 @@ const NotificationPopover = () => {
                         </div>
                     </div>
 
-                    <div className="max-h-80 overflow-y-auto">
+                    <div className="user-notification-list max-h-80 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <div className="p-4 text-center text-gray-500">Chưa có thông báo nào</div>
                         ) : (
