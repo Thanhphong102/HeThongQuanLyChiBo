@@ -166,7 +166,10 @@ exports.getAttendanceList = async (req, res) => {
     const { id } = req.params; 
     const branchId = req.user.branchId;
     try {
-        const meetingRes = await db.query('SELECT thoi_gian, loai_hinh FROM "lichsinhhoat" WHERE ma_lich = $1', [id]);
+        const meetingRes = await db.query(
+            'SELECT thoi_gian, loai_hinh FROM "lichsinhhoat" WHERE ma_lich = $1 AND ma_chi_bo = $2',
+            [id, branchId]
+        );
         if (meetingRes.rows.length === 0) return res.status(404).json({ message: 'Không tìm thấy lịch họp' });
         const meeting = meetingRes.rows[0];
 
@@ -178,7 +181,8 @@ exports.getAttendanceList = async (req, res) => {
             LEFT JOIN "diemdanh" dd ON d.ma_dang_vien = dd.ma_dang_vien AND dd.ma_lich = $1
             WHERE d.ma_chi_bo = $2
               AND COALESCE(d.thoi_gian_tao, '1970-01-01'::timestamp) <= $3
-              AND (d.hoat_dong = true OR dd.ma_dang_vien IS NOT NULL)
+              AND d.hoat_dong = true
+              AND COALESCE(d.da_xoa, false) = false
         `;
         const params = [id, branchId, meeting.thoi_gian];
 
@@ -199,9 +203,32 @@ exports.getAttendanceList = async (req, res) => {
 exports.saveAttendance = async (req, res) => {
     const { id } = req.params; 
     const { attendanceData } = req.body; 
+    const branchId = req.user.branchId;
     try {
+        const meeting = await db.query(
+            'SELECT ma_lich FROM "lichsinhhoat" WHERE ma_lich = $1 AND ma_chi_bo = $2',
+            [id, branchId]
+        );
+        if (meeting.rows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy lịch họp thuộc Chi bộ.' });
+        }
+
         await db.query('BEGIN');
-        for (const item of attendanceData) {
+        const submittedItems = Array.isArray(attendanceData) ? attendanceData : [];
+        const submittedIds = submittedItems.map(item => Number(item.ma_dang_vien)).filter(Number.isInteger);
+        const eligibleMembers = submittedIds.length
+            ? await db.query(
+                `SELECT ma_dang_vien FROM "dangvien"
+                 WHERE ma_chi_bo = $1
+                   AND hoat_dong = true
+                   AND COALESCE(da_xoa, false) = false
+                   AND ma_dang_vien = ANY($2::int[])`,
+                [branchId, submittedIds]
+            )
+            : { rows: [] };
+        const eligibleIds = new Set(eligibleMembers.rows.map(row => Number(row.ma_dang_vien)));
+
+        for (const item of submittedItems.filter(item => eligibleIds.has(Number(item.ma_dang_vien)))) {
             const sql = `
                 INSERT INTO "diemdanh" (ma_lich, ma_dang_vien, trang_thai_tham_gia, ghi_chu)
                 VALUES ($1, $2, $3, $4)

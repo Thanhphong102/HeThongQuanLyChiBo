@@ -30,7 +30,9 @@ exports.getFeeData = async (req, res) => {
         
         const members = await db.query(
             `SELECT ma_dang_vien, ho_ten, muc_dong_phi FROM "dangvien" 
-             WHERE ma_chi_bo = $1 AND hoat_dong = true 
+             WHERE ma_chi_bo = $1
+               AND hoat_dong = true
+               AND COALESCE(da_xoa, false) = false
              ORDER BY ten_dang_nhap ASC`,
             [branchId]
         );
@@ -95,8 +97,18 @@ exports.togglePayment = async (req, res) => {
     const { ma_dang_vien, month, year } = req.body;
 
     try {
-        const member = await db.query('SELECT muc_dong_phi FROM "dangvien" WHERE ma_dang_vien = $1', [ma_dang_vien]);
-        const amount = member.rows[0]?.muc_dong_phi || 5000;
+        const member = await db.query(
+            `SELECT muc_dong_phi FROM "dangvien"
+             WHERE ma_dang_vien = $1
+               AND ma_chi_bo = $2
+               AND hoat_dong = true
+               AND COALESCE(da_xoa, false) = false`,
+            [ma_dang_vien, branchId]
+        );
+        if (member.rows.length === 0) {
+            return res.status(404).json({ message: 'Đảng viên không còn hoạt động hoặc đã được lưu trữ.' });
+        }
+        const amount = member.rows[0].muc_dong_phi || 5000;
 
         const check = await db.query(
             `SELECT ma_giao_dich FROM "taichinh" 
@@ -127,7 +139,18 @@ exports.togglePayment = async (req, res) => {
 exports.updateFeeLevel = async (req, res) => {
     const { ma_dang_vien, muc_dong_phi } = req.body;
     try {
-        await db.query('UPDATE "dangvien" SET muc_dong_phi = $1, nguoi_cap_nhat = $2 WHERE ma_dang_vien = $3', [muc_dong_phi, req.user.id, ma_dang_vien]);
+        const result = await db.query(
+            `UPDATE "dangvien"
+             SET muc_dong_phi = $1, nguoi_cap_nhat = $2
+             WHERE ma_dang_vien = $3
+               AND ma_chi_bo = $4
+               AND hoat_dong = true
+               AND COALESCE(da_xoa, false) = false`,
+            [muc_dong_phi, req.user.id, ma_dang_vien, req.user.branchId]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Đảng viên không còn hoạt động hoặc đã được lưu trữ.' });
+        }
         res.json({ message: 'Đã cập nhật mức đóng phí' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi cập nhật mức phí' });
