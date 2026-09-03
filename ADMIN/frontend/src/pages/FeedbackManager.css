@@ -1,0 +1,8 @@
+.feedback-page { font-family: 'Be Vietnam Pro', sans-serif; }
+.feedback-list-card { border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,.07); }
+.feedback-meta { margin-top: 3px; color: #8c8c8c; font-size: 12px; }
+.feedback-thread { margin-top: 20px; }
+.feedback-composer { margin-top: 18px; padding: 14px; background: #fafafa; border: 1px solid #e7e7e7; border-radius: 14px; }
+.feedback-composer__actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.feedback-composer__actions .ant-btn { min-width: 148px; height: 40px; border-radius: 9px; font-weight: 600; }
+@media (max-width: 575px) { .feedback-composer { padding: 10px; } .feedback-composer__actions .ant-btn { width: 100%; } }

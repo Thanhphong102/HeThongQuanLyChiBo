@@ -4,6 +4,8 @@ import { PlusOutlined, StopOutlined, BankOutlined, EditOutlined, SearchOutlined 
 import { motion } from 'framer-motion';
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const { Option } = Select;
 
@@ -114,7 +116,7 @@ const BranchManager = () => {
           </Form.Item>
 
           <Form.Item name="mo_ta" label={<span className="font-semibold">Mô tả chức năng nhiệm vụ</span>}>
-            <Input.TextArea rows={3} placeholder="Mô tả ngắn gọn..." className="rounded-lg" />
+            <ReactQuill theme="snow" placeholder="Mô tả ngắn gọn..." modules={{toolbar:[[{header:[2,3,false]}],['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}],[{align:[]}],['link'],['clean']]}} />
           </Form.Item>
 
           <Form.Item name="ngay_thanh_lap" label={<span className="font-semibold">Ngày thành lập</span>}>

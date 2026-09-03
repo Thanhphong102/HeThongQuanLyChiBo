@@ -395,7 +395,14 @@ const MemberManager = () => {
                     <Descriptions.Item label="Trạng thái Đảng"><Tag color={selectedMember.trang_thai_dang_vien === 'Chinh thuc' ? 'green' : selectedMember.trang_thai_dang_vien === 'Chuyen di' ? 'purple' : 'orange'}>{
                         ({ 'Chinh thuc': 'Chính thức', 'Du bi': 'Dự bị', 'Chuyen di': 'Đã chuyển đi' })[selectedMember.trang_thai_dang_vien] || selectedMember.trang_thai_dang_vien
                     }</Tag></Descriptions.Item>
-                    <Descriptions.Item label="Chức vụ">{selectedMember.chuc_vu_dang}</Descriptions.Item>
+                    <Descriptions.Item label="Chức vụ">{({
+                        'Bi thu': 'Bí thư',
+                        'Bi thu chi bo': 'Bí thư chi bộ',
+                        'Pho bi thu': 'Phó bí thư',
+                        'Pho bi thu chi bo': 'Phó bí thư chi bộ',
+                        'Chi uy vien': 'Chi ủy viên',
+                        'Dang vien': 'Đảng viên'
+                    })[selectedMember.chuc_vu_dang] || selectedMember.chuc_vu_dang || 'Đảng viên'}</Descriptions.Item>
                     <Descriptions.Item label="Đối tượng" span={2} style={{ background: '#fafafa' }}><b>{selectedMember.doi_tuong}</b></Descriptions.Item>
                     {selectedMember.doi_tuong === 'Sinh vien' ? (
                         <>

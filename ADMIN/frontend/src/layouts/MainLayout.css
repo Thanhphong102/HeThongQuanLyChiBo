@@ -28,3 +28,71 @@
 .admin-sidebar::-webkit-scrollbar-button {
   display: none;
 }
+
+.admin-sidebar .ant-menu-submenu-title {
+  margin-block: 4px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.admin-sidebar .ant-menu-sub {
+  margin: 0 4px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+.admin-sidebar .ant-menu-sub .ant-menu-item {
+  width: calc(100% - 8px);
+  margin-inline: 4px;
+  padding-inline: 14px !important;
+  font-size: 13px;
+}
+
+.admin-sidebar .ant-menu-sub .ant-menu-title-content {
+  min-width: 0;
+  overflow: visible;
+}
+
+.admin-sidebar .ant-menu-sub .ant-menu-title-content > a {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.admin-sidebar .ant-menu-submenu-arrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.admin-sidebar .ant-menu-item,
+.admin-sidebar .ant-menu-submenu-title {
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.admin-sidebar .ant-menu-item:active,
+.admin-sidebar .ant-menu-submenu-title:active {
+  transform: translateY(1px);
+}
+
+.admin-main-content {
+  margin: clamp(14px, 2vw, 24px);
+}
+
+.admin-page-shell {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: clamp(16px, 2vw, 28px);
+}
+
+.admin-page-shell .ant-modal .ant-form,
+.admin-page-shell .ant-drawer .ant-form {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .admin-main-content { margin: 10px 8px; }
+  .admin-page-shell { padding: 12px 4px; }
+  .admin-page-shell .ant-card-body { padding: 14px !important; }
+  .admin-page-shell .ant-table-wrapper { overflow-x: auto; }
+  .admin-page-shell .ant-statistic-title { font-size: 12px; }
+  .admin-page-shell h1 { font-size: 1.75rem !important; }
+  .admin-page-shell h2 { font-size: 1.45rem !important; }
+}

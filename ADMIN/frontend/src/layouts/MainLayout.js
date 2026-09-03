@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Avatar, Dropdown, message, theme, Button, Grid } from 'antd';
 import { 
   DashboardOutlined, 
@@ -15,7 +15,10 @@ import {
   PictureOutlined,
   StarOutlined,    // Task 8: Icon cho Hoạt động
   SwapOutlined,
-  TrophyOutlined    // [NEW] Nêu gương
+  TrophyOutlined,    // [NEW] Nêu gương
+  FileDoneOutlined,
+  CustomerServiceOutlined,
+  MessageOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -28,10 +31,19 @@ import imgCoDang from '../assets/co-dang.jpg';
 
 const { Header, Sider, Content } = Layout;
 
+const groupForPath = (path) => {
+  if (['/dang-vien', '/tai-khoan-dang-vien'].includes(path)) return 'group-members';
+  if (['/sinh-hoat', '/dang-phi', '/nhan-chi-tieu', '/chuyen-dang', '/neu-guong'].includes(path)) return 'group-operations';
+  if (['/bieu-mau', '/thu-vien', '/hoat-dong', '/nhiem-vu'].includes(path)) return 'group-content';
+  if (['/lien-he', '/gop-y', '/lien-he-gop-y'].includes(path)) return 'group-support';
+  return null;
+};
+
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [openKeys, setOpenKeys] = useState([]);
   const user = JSON.parse(localStorage.getItem('user'));
   const { token: { colorBgContainer } } = theme.useToken();
   const screens = Grid.useBreakpoint();
@@ -48,62 +60,50 @@ const MainLayout = () => {
     { key: '1', label: 'Đăng xuất', icon: <LogoutOutlined />, onClick: handleLogout }
   ];
 
-  // CẤU HÌNH MENU SIDEBAR
+  useEffect(() => {
+    const activeGroup = groupForPath(location.pathname);
+    if (activeGroup) setOpenKeys(keys => keys.includes(activeGroup) ? keys : [...keys, activeGroup]);
+  }, [location.pathname]);
+
+  // CẤU HÌNH MENU SIDEBAR THEO NHÓM
   const menuItems = [
     { 
       key: '/dashboard', 
       icon: <DashboardOutlined />, 
       label: <Link to="/dashboard">Tổng quan</Link> 
     },
-    { 
-      key: '/dang-vien', 
-      icon: <TeamOutlined />, 
-      label: <Link to="/dang-vien">Hồ sơ Đảng viên</Link> 
-    },
-    { 
-      key: '/tai-khoan-dang-vien', // <--- MỤC MỚI
-      icon: <UserSwitchOutlined />, 
-      label: <Link to="/tai-khoan-dang-vien">Tài khoản Đảng viên</Link> 
-    },
-    { 
-      key: '/sinh-hoat', 
-      icon: <CalendarOutlined />, 
-      label: <Link to="/sinh-hoat">Sinh hoạt & Điểm danh</Link> 
-    },
-    { 
-      key: '/dang-phi', 
-      icon: <DollarCircleOutlined />, 
-      label: <Link to="/dang-phi">Thu Đảng phí</Link> 
-    },
-    { 
-      key: '/bieu-mau', 
-      icon: <FileTextOutlined />, 
-      label: <Link to="/bieu-mau">Biểu mẫu nội bộ</Link> 
-    },
-    { 
-      key: '/thu-vien', 
-      icon: <PictureOutlined />,
-      label: <Link to="/thu-vien">Thư viện Ảnh/Video</Link> 
-    },
-    { 
-      key: '/hoat-dong', 
-      icon: <StarOutlined />,
-      label: <Link to="/hoat-dong">Quản lý Hoạt động</Link>  // Task 8
-    },
-    { 
-      key: '/nhan-chi-tieu', 
-      icon: <AimOutlined />,
-      label: <Link to="/nhan-chi-tieu">Nhận chỉ tiêu</Link> // Task 9
-    },
-    { 
-      key: '/chuyen-dang', 
-      icon: <SwapOutlined />,
-      label: <Link to="/chuyen-dang">Quản lý chuyển Đảng</Link>
+    {
+      key: 'group-members', icon: <TeamOutlined />, label: 'Đảng viên',
+      children: [
+        { key: '/dang-vien', icon: <TeamOutlined />, label: <Link to="/dang-vien">Hồ sơ Đảng viên</Link> },
+        { key: '/tai-khoan-dang-vien', icon: <UserSwitchOutlined />, label: <Link to="/tai-khoan-dang-vien">Tài khoản Đảng viên</Link> },
+      ],
     },
     {
-      key: '/neu-guong',
-      icon: <TrophyOutlined />,
-      label: <Link to="/neu-guong">Quản lý Nêu gương</Link>   // [NEW]
+      key: 'group-operations', icon: <CalendarOutlined />, label: 'Nghiệp vụ Chi bộ',
+      children: [
+        { key: '/sinh-hoat', icon: <CalendarOutlined />, label: <Link to="/sinh-hoat">Sinh hoạt & Điểm danh</Link> },
+        { key: '/dang-phi', icon: <DollarCircleOutlined />, label: <Link to="/dang-phi">Thu Đảng phí</Link> },
+        { key: '/nhan-chi-tieu', icon: <AimOutlined />, label: <Link to="/nhan-chi-tieu">Nhận chỉ tiêu</Link> },
+        { key: '/chuyen-dang', icon: <SwapOutlined />, label: <Link to="/chuyen-dang">Quản lý chuyển Đảng</Link> },
+        { key: '/neu-guong', icon: <TrophyOutlined />, label: <Link to="/neu-guong">Quản lý Nêu gương</Link> },
+      ],
+    },
+    {
+      key: 'group-content', icon: <FileTextOutlined />, label: 'Nội dung & Tài liệu',
+      children: [
+        { key: '/bieu-mau', icon: <FileTextOutlined />, label: <Link to="/bieu-mau">Biểu mẫu nội bộ</Link> },
+        { key: '/thu-vien', icon: <PictureOutlined />, label: <Link to="/thu-vien">Thư viện Ảnh/Video</Link> },
+        { key: '/hoat-dong', icon: <StarOutlined />, label: <Link to="/hoat-dong">Quản lý Hoạt động</Link> },
+        { key: '/nhiem-vu', icon: <FileDoneOutlined />, label: <Link to="/nhiem-vu">Nhiệm vụ & Minh chứng</Link> },
+      ],
+    },
+    {
+      key: 'group-support', icon: <CustomerServiceOutlined />, label: 'Hỗ trợ',
+      children: [
+        { key: '/lien-he', icon: <CustomerServiceOutlined />, label: <Link to="/lien-he">Quản lý Liên hệ</Link> },
+        { key: '/gop-y', icon: <MessageOutlined />, label: <Link to="/gop-y">Quản lý Góp ý</Link> },
+      ],
     },
   ];
 
@@ -175,6 +175,8 @@ const MainLayout = () => {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
+          openKeys={collapsed ? [] : openKeys}
+          onOpenChange={setOpenKeys}
           items={menuItems}
           style={{
             background: 'transparent',
@@ -225,14 +227,14 @@ const MainLayout = () => {
           </div>
         </Header>
 
-        <Content style={{ margin: '24px', overflow: 'initial' }}>
+        <Content className="admin-main-content" style={{ overflow: 'initial' }}>
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28 }}
+            className="admin-page-shell"
             style={{
-              padding: 28,
               minHeight: 360,
               background: 'transparent',
               fontFamily: 'Be Vietnam Pro, sans-serif',

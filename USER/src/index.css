@@ -156,6 +156,32 @@ body {
     border-bottom: none !important;
 }
 
+/* Khung nội dung thống nhất cho toàn bộ cổng Đảng viên */
+.user-content-area {
+    padding: clamp(18px, 2.2vw, 34px);
+}
+
+.user-content-shell {
+    width: min(100%, 1180px);
+    min-height: 80vh;
+    margin-inline: auto;
+}
+
+.user-content-shell > * {
+    width: 100%;
+}
+
+/* Form dài không kéo hết màn hình desktop; bảng và thư viện vẫn dùng đủ container. */
+.user-content-shell .ant-card .ant-form {
+    width: min(100%, 920px);
+    margin-inline: auto;
+}
+
+.user-content-shell .ant-modal .ant-form,
+.user-content-shell .ant-drawer .ant-form {
+    width: 100%;
+}
+
 .user-primary-nav {
     width: min(100%, 1120px);
     margin: 0 auto;
@@ -197,24 +223,28 @@ body {
     opacity: 1;
 }
 
-.party-nav-dropdown.ant-menu-submenu-popup > .ant-menu,
-.party-nav-dropdown.ant-menu-submenu-popup .ant-menu,
-.party-nav-dropdown.ant-menu {
+.party-nav-dropdown.ant-menu-submenu-popup {
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.party-nav-dropdown.ant-menu-submenu-popup > .ant-menu {
     padding: 7px !important;
-    background-color: #f4d675 !important;
+    background-color: #fff1aa !important;
     background-image: none !important;
-    border: 1px solid #e7bd3f !important;
+    border: 1px solid #efd96a !important;
     border-radius: 10px !important;
     box-shadow: 0 14px 34px rgba(102, 18, 21, 0.18) !important;
 }
 
-.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item,
-.party-nav-dropdown.ant-menu .ant-menu-item {
-    min-width: 210px;
+.party-nav-dropdown.ant-menu-submenu-popup > .ant-menu .ant-menu-item {
+    min-width: 275px;
     margin: 2px 0 !important;
     padding: 0 14px !important;
-    color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(111, 72, 0, 0.32);
+    color: #a51d22 !important;
+    text-shadow: none;
     background: transparent !important;
     border-radius: 7px !important;
     font-family: 'Be Vietnam Pro', sans-serif;
@@ -222,15 +252,22 @@ body {
     text-transform: none;
 }
 
+.party-nav-dropdown.ant-menu-submenu-popup .ant-menu-title-content {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
+
 .party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item .anticon,
 .party-nav-dropdown.ant-menu .ant-menu-item .anticon {
-    color: #ffffff !important;
+    color: #a51d22 !important;
 }
 
 .party-nav-dropdown.ant-menu-submenu-popup .ant-menu-item:hover,
 .party-nav-dropdown.ant-menu .ant-menu-item:hover {
     color: #8b1517 !important;
     background: #ffe600 !important;
+    box-shadow: inset 0 0 0 2px #d9a400;
     text-shadow: none;
 }
 
@@ -243,6 +280,7 @@ body {
 .party-nav-dropdown.ant-menu .ant-menu-item-selected {
     color: #8b1517 !important;
     background: #ffe600 !important;
+    box-shadow: inset 0 0 0 2px #d9a400;
     text-shadow: none;
 }
 
@@ -285,6 +323,14 @@ body {
    📱 MOBILE RESPONSIVE - QR SCANNER
    ============================================= */
 @media (max-width: 768px) {
+    .user-content-area {
+        padding: 14px 12px;
+    }
+
+    .user-content-shell {
+        min-height: 70vh;
+    }
+
     .ant-modal-content {
         margin: 8px !important;
         border-radius: 16px !important;
@@ -292,6 +338,40 @@ body {
 
     .ant-card {
         border-radius: 12px !important;
+    }
+
+    .user-content-shell .ant-card-head {
+        min-height: 48px;
+        padding-inline: 16px;
+    }
+
+    .user-content-shell .ant-card-body {
+        padding: 16px !important;
+    }
+
+    .user-content-shell h1,
+    .user-content-shell .ant-typography h1 {
+        font-size: 1.75rem !important;
+    }
+
+    .user-content-shell h2,
+    .user-content-shell .ant-typography h2 {
+        font-size: 1.45rem !important;
+    }
+
+    .ant-drawer-content-wrapper {
+        width: min(94vw, 620px) !important;
+    }
+
+    .rich-editor__toolbar {
+        gap: 2px;
+        padding: 6px;
+    }
+
+    .rich-editor__toolbar button {
+        min-width: 28px;
+        height: 28px;
+        padding-inline: 5px;
     }
 
     .qr-scan-area {
@@ -412,4 +492,17 @@ body {
     line-height: 1.5 !important;
     padding-top: 6px;
     padding-bottom: 6px;
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+    .user-content-area { padding: 24px; }
+    .user-content-shell { width: min(100%, 1040px); }
+}
+
+@media (max-width: 575px) {
+    .user-content-area { padding: 10px 8px; }
+    .user-content-shell .ant-card-body { padding: 13px !important; }
+    .user-content-shell .ant-form-item { margin-bottom: 16px; }
+    .ant-picker-range { width: 100%; }
+    .ant-space-compact { align-items: stretch; }
 }

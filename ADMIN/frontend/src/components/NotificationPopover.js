@@ -57,7 +57,11 @@ const NotificationPopover = () => {
 
   const handleItemClick = async (item) => {
     // Điều hướng theo type
-    if (item.type.startsWith('TRANSFER_')) {
+    if (item.type.startsWith('TASK_')) {
+      navigate('/nhiem-vu');
+    } else if (item.type.startsWith('FEEDBACK_')) {
+      navigate('/gop-y');
+    } else if (item.type.startsWith('TRANSFER_')) {
       const id = item.type.split('_')[1];
       if (id === 'REMINDER') {
         navigate('/chuyen-dang');

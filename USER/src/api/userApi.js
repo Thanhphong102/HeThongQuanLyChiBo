@@ -163,7 +163,21 @@ const userApi = {
   // --- 8. CHATBOT AI ---
   chatWithBot: (message) => {
     return axiosClient.post('/ai/chat', { message });
-  }
+  },
+
+  // --- 9. NHIỆM VỤ & MINH CHỨNG ---
+  getMyTasks: () => axiosClient.get('/tasks/mine'),
+  getMyTask: (id) => axiosClient.get(`/tasks/mine/${id}`),
+  submitTaskEvidence: (recipientId, formData) => axiosClient.post(`/tasks/recipients/${recipientId}/submit`, formData, {
+    headers: { 'Content-Type': undefined },
+  }),
+
+  // --- 10. LIÊN HỆ & GÓP Ý ---
+  getBranchContact: () => axiosClient.get('/support/contact'),
+  getMyFeedback: () => axiosClient.get('/support/feedback'),
+  createFeedback: (data) => axiosClient.post('/support/feedback', data),
+  getFeedback: (id) => axiosClient.get(`/support/feedback/${id}`),
+  replyFeedback: (id, noi_dung) => axiosClient.post(`/support/feedback/${id}/replies`, { noi_dung }),
 };
 
 export default userApi;

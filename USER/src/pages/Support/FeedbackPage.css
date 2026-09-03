@@ -1,0 +1,14 @@
+.feedback-hero { margin-bottom: 22px; padding: 24px 28px; color: #fff; background: linear-gradient(135deg,#8f151a,#b52328); border-radius: 18px; }
+.feedback-hero .ant-typography { color: #fff; }
+.feedback-hero h2.ant-typography { margin: 0; }
+.feedback-hero span.ant-typography { color: rgba(255,255,255,.84); }
+.feedback-form-actions, .feedback-composer__actions { display: flex; justify-content: flex-end; }
+.feedback-form-actions .ant-btn, .feedback-composer__actions .ant-btn { min-width: 148px; height: 40px; border-radius: 9px; font-weight: 600; }
+.feedback-history { margin-top: 16px; }
+.feedback-meta { color: #8c8c8c; font-size: 12px; }
+.feedback-summary { border-radius: 14px; }
+.feedback-summary__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.feedback-thread { margin-top: 16px; }
+.feedback-composer { margin-top: 18px; padding: 14px; background: #fffaf5; border: 1px solid #eaded4; border-radius: 14px; }
+.feedback-composer__actions { margin-top: 12px; }
+@media (max-width: 575px) { .feedback-hero { padding: 20px; } .feedback-composer { padding: 10px; } .feedback-form-actions .ant-btn, .feedback-composer__actions .ant-btn { width: 100%; } }

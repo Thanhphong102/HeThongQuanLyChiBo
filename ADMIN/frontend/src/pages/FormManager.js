@@ -15,6 +15,7 @@ import {
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
 import PageHeader from '../components/PageHeader';
+import RichTextEditor from '../components/RichTextEditor';
 
 const { Text } = Typography;
 const { Dragger } = Upload;
@@ -519,7 +520,7 @@ const FormManager = () => {
             <Input size="large" placeholder="Ví dụ: Biểu mẫu tháng 8/2026" style={{ borderRadius: 8 }} />
           </Form.Item>
           <Form.Item name="mo_ta" label="Mô tả (tuỳ chọn)">
-            <Input.TextArea rows={2} placeholder="Ghi chú nội dung..." style={{ borderRadius: 8 }} />
+            <RichTextEditor minHeight={100} placeholder="Ghi chú nội dung..." />
           </Form.Item>
           <Button type="primary" htmlType="submit" block size="large"
             style={{ background: COLOR_RED, borderColor: COLOR_RED, borderRadius: 8, fontWeight: 600 }}>

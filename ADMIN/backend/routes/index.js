@@ -20,6 +20,8 @@ const albumRoutes             = require('./albumRoutes');
 const aiRoutes                = require('./aiRoutes');                // [NEW] AI Smart Paste
 const transferRoutes          = require('./transferRoutes');
 const neuguongRoutes          = require('./neuguongRoutes');           // [NEW] Nêu gương
+const taskRoutes              = require('./taskRoutes');
+const supportRoutes           = require('./supportRoutes');
 // Gom nhóm các route
 router.use('/auth',              authRoutes);
 router.use('/branch-admin',      branchRoutes);
@@ -39,5 +41,7 @@ router.use('/albums',            albumRoutes);
 router.use('/ai',                aiRoutes);               // [NEW] AI Smart Paste
 router.use('/transfer-requests', transferRoutes);
 router.use('/neu-guong',         neuguongRoutes);         // [NEW] Nêu gương
+router.use('/tasks',             taskRoutes);
+router.use('/support',           supportRoutes);
 
 module.exports = router;

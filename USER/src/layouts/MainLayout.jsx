@@ -18,7 +18,10 @@ import {
   MailOutlined,
   ThunderboltOutlined,
   SwapOutlined,
-  TrophyOutlined
+  TrophyOutlined,
+  FileDoneOutlined,
+  CustomerServiceOutlined,
+  MessageOutlined
 } from '@ant-design/icons';
 
 import userApi from '../api/userApi'; // [NEW] Import API
@@ -45,6 +48,7 @@ const menuItems = [
     children: [
       { key: '/activities', icon: <ThunderboltOutlined />, label: 'Hoạt động chi bộ' },
       { key: '/neu-guong', icon: <TrophyOutlined />, label: 'Nêu gương' },
+      { key: '/tasks', icon: <FileDoneOutlined />, label: 'Nhiệm vụ & Minh chứng' },
     ],
   },
   {
@@ -65,6 +69,8 @@ const menuItems = [
     children: [
       { key: '/lookup', icon: <DollarOutlined />, label: 'Tra cứu Đảng phí' },
       { key: '/transfer-requests', icon: <SwapOutlined />, label: 'Chuyển Đảng' },
+      { key: '/contact', icon: <CustomerServiceOutlined />, label: 'Liên hệ Chi ủy' },
+      { key: '/feedback', icon: <MessageOutlined />, label: 'Góp ý' },
     ],
   },
 ];
@@ -229,8 +235,8 @@ const MainLayout = () => {
       </Drawer>
 
       {/* --- PHẦN 3: CONTENT --- */}
-      <Content className="p-4 md:p-8" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%)' }}>
-        <div className="max-w-7xl mx-auto min-h-[80vh]">
+      <Content className="user-content-area" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%)' }}>
+        <div className="user-content-shell">
             <Outlet /> 
         </div>
       </Content>

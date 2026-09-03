@@ -8,6 +8,7 @@ const allRoutes = require('./routes/index'); // Import file tổng hợp routes
 
 // Khởi chạy các Cronjobs
 require('./services/transferCron');
+require('./services/taskReminderCron');
 
 // --- 1. CẤU HÌNH CORS (QUAN TRỌNG) ---
 // // Cho phép Frontend (Port 5173) gọi API sang Backend (Port 5001)

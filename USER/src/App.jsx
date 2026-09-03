@@ -19,6 +19,9 @@ import TransferDashboard from './pages/Transfer/TransferDashboard';
 import TransferRequestForm from './pages/Transfer/TransferRequestForm';
 import TransferRequestDetail from './pages/Transfer/TransferRequestDetail';
 import NeuGuongPage from './pages/NeuGuong/NeuGuongPage'; // [NEW] Nêu gương
+import TasksPage from './pages/Tasks/TasksPage';
+import ContactPage from './pages/Support/ContactPage';
+import FeedbackPage from './pages/Support/FeedbackPage';
 
 // Component bảo vệ tuyến đường (Private Route)
 const PrivateRoute = () => {
@@ -67,6 +70,10 @@ function App() {
 
         {/* Đề xuất Nêu gương */}
         <Route path="/neu-guong" element={<NeuGuongPage />} />
+        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/support" element={<Navigate to="/contact" replace />} />
       </Route>
       
       {/* Các đường dẫn lạ thì đẩy về Home */}

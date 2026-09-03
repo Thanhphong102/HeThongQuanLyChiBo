@@ -12,9 +12,10 @@ import {
 import dayjs from 'dayjs';
 import axiosClient from '../../services/axiosConfig';
 import PageHeader from '../../components/PageHeader';
+import RichTextEditor from '../../components/RichTextEditor';
 
 const { Text, Paragraph } = Typography;
-const { TextArea } = Input;
+const TextArea = RichTextEditor;
 
 // ============================================================
 // Helper: Tag trạng thái hồ sơ

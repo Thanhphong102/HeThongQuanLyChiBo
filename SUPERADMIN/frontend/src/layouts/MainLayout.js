@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import './MainLayout.css';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -196,14 +197,14 @@ const MainLayout = () => {
         </Header>
 
         {/* CONTENT */}
-        <Content style={{ margin: '24px', overflow: 'initial' }}>
+        <Content className="superadmin-main-content" style={{ overflow: 'initial' }}>
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
+            className="superadmin-page-shell"
             style={{ 
-                padding: 24, 
                 minHeight: 360, 
                 background: colorBgContainer, 
                 borderRadius: '12px', 

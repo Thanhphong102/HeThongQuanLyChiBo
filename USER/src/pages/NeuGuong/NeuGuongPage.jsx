@@ -11,9 +11,10 @@ import {
 import dayjs from 'dayjs';
 import neuGuongApi from '../../api/neuGuongApi';
 import userApi from '../../api/userApi';
+import RichTextEditor from '../../components/RichTextEditor';
 
 const { Title, Text, Paragraph } = Typography;
-const { TextArea } = Input;
+const TextArea = RichTextEditor;
 
 // ============================================================
 // Helper: Trạng thái hồ sơ

@@ -13,6 +13,7 @@ import {
 import axios from '../services/axiosConfig';
 import dayjs from 'dayjs';
 import PageHeader from '../components/PageHeader';
+import RichTextEditor from '../components/RichTextEditor';
 
 const COLOR_RED    = '#CE1126';
 const COLOR_GREEN  = '#22c55e';
@@ -420,7 +421,7 @@ const EventsManager = () => {
             <Input placeholder="VD: Tình nguyện mùa hè xanh 2026" style={{ borderRadius: 8 }} />
           </Form.Item>
           <Form.Item name="mo_ta" label="Mô tả">
-            <Input.TextArea rows={3} style={{ borderRadius: 8 }} placeholder="Mô tả chi tiết hoạt động..." />
+            <RichTextEditor minHeight={130} placeholder="Mô tả chi tiết hoạt động..." />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>

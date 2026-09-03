@@ -18,6 +18,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { fuzzySearch } from '../utils/stringUtils';
 import PageHeader from '../components/PageHeader';
+import RichTextEditor from '../components/RichTextEditor';
 
 const { Text } = Typography;
 
@@ -546,7 +547,7 @@ const ActivityManager = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="noi_dung_du_kien" label="Nội dung dự kiến"><Input.TextArea rows={3} style={{ borderRadius: 8 }} /></Form.Item>
+          <Form.Item name="noi_dung_du_kien" label="Nội dung dự kiến"><RichTextEditor minHeight={130}/></Form.Item>
           <Button type="primary" htmlType="submit" block
             style={{ background: COLOR_RED, borderColor: COLOR_RED, borderRadius: 8, height: 40, fontWeight: 600 }}>
             {editingActivity ? 'Cập nhật' : 'Lưu lịch họp'}

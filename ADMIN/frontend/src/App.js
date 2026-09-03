@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import Layout & Auth
 import MainLayout from './layouts/MainLayout';
@@ -21,6 +21,9 @@ import TargetReceiver from './pages/TargetReceiver'; // Task 9: Nhận chỉ ti�
 import TransferManagement from './pages/Transfer/TransferManagement'; // Quản lý chuyển đảng
 import GuidelineConfig from './pages/Transfer/GuidelineConfig'; // Cấu hình hướng dẫn chuyển đảng
 import NeuGuongManager from './pages/NeuGuong/NeuGuongManager'; // [NEW] Nêu gương
+import TaskManager from './pages/TaskManager';
+import ContactManager from './pages/ContactManager';
+import FeedbackManager from './pages/FeedbackManager';
 
 function App() {
   return (
@@ -50,6 +53,10 @@ function App() {
             <Route path="/chuyen-dang" element={<TransferManagement />} />
             <Route path="/chuyen-dang/huong-dan" element={<GuidelineConfig />} />
             <Route path="/neu-guong" element={<NeuGuongManager />} /> {/* [NEW] Nêu gương */}
+            <Route path="/nhiem-vu" element={<TaskManager />} />
+            <Route path="/lien-he" element={<ContactManager />} />
+            <Route path="/gop-y" element={<FeedbackManager />} />
+            <Route path="/lien-he-gop-y" element={<Navigate to="/lien-he" replace />} />
           </Route>
         </Route>
 

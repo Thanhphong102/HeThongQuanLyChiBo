@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import axiosClient from '../../services/axiosConfig';
 import TransferTimeline from '../../components/TransferTimeline';
 import PageHeader from '../../components/PageHeader';
+import RichTextEditor from '../../components/RichTextEditor';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -270,13 +271,7 @@ const TransferManagement = () => {
                 </div>
                 <div>
                   <Text strong>Ghi chú phản hồi (Nếu cần bổ sung/hủy):</Text>
-                  <TextArea 
-                    rows={3} 
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    style={{ marginTop: 8 }}
-                    placeholder="VD: Cần bổ sung bản tự kiểm điểm có chữ ký..."
-                  />
+                  <RichTextEditor value={note} onChange={setNote} minHeight={110} placeholder="VD: Cần bổ sung bản tự kiểm điểm có chữ ký..." />
                 </div>
                 <Button type="primary" onClick={handleUpdateStatus} style={{ marginTop: 8 }}>
                   Lưu Trạng Thái & Ghi Log

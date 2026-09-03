@@ -46,7 +46,11 @@ const NotificationPopover = () => {
         if (e) e.stopPropagation();
         
         // Điều hướng dựa vào type
-        if (item.type.startsWith('TRANSFER_')) {
+        if (item.type.startsWith('TASK_')) {
+            navigate('/tasks');
+        } else if (item.type.startsWith('FEEDBACK_')) {
+            navigate('/feedback');
+        } else if (item.type.startsWith('TRANSFER_')) {
             const id = item.type.split('_')[1];
             if (id === 'NEW') {
                 navigate('/transfer-requests/new');

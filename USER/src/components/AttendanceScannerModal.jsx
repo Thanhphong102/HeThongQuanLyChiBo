@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Modal, Button, Spin, message, Typography, Upload } from 'antd';
+import { Modal, Button, Spin, message, Typography, Upload, Alert, Select } from 'antd';
 import { QrcodeOutlined, EnvironmentOutlined, CheckCircleOutlined, PictureOutlined, CameraOutlined } from '@ant-design/icons';
 import { Html5Qrcode } from 'html5-qrcode';
 import userApi from '../api/userApi';
@@ -12,86 +12,115 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   const [status, setStatus] = useState('SCANNING'); // 'SCANNING', 'GEOLOCATING', 'SUCCESS', 'ERROR'
   const [cameraError, setCameraError] = useState(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraStarting, setCameraStarting] = useState(false);
+  const [cameras, setCameras] = useState([]);
+  const [selectedCameraId, setSelectedCameraId] = useState(null);
   const html5QrCodeRef = useRef(null);
+  const startingRef = useRef(false);
+  const stoppingRef = useRef(false);
+  const mountedRef = useRef(false);
+
+  const isEmbeddedBrowser = /FBAN|FBAV|Instagram|Zalo|Line\//i.test(navigator.userAgent);
 
   useEffect(() => {
-    let isMounted = true;
-    
-    if (isOpen && status === 'SCANNING') {
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new Html5Qrcode("qr-reader-modern");
-      }
-      
-      // Attempt auto-start after a short delay
-      const startTimer = setTimeout(() => {
-        if (!isMounted) return;
-        startCamera();
-      }, 500);
-
-      return () => {
-        clearTimeout(startTimer);
-      };
-    }
-
+    mountedRef.current = true;
+    if (isOpen && status === 'SCANNING') setCameraError(null);
     return () => {
-      isMounted = false;
+      mountedRef.current = false;
       stopCamera();
     };
   }, [isOpen, status]);
 
-  const startCamera = async () => {
-    setCameraError(null);
-    const html5QrCode = html5QrCodeRef.current;
-    if (!html5QrCode) return;
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) stopCamera();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
-    const elem = document.getElementById("qr-reader-modern");
-    if (!elem) return;
+  const getCameraMessage = (error) => {
+    const name = error?.name || '';
+    if (!window.isSecureContext) return 'Camera chỉ hoạt động trên kết nối HTTPS an toàn.';
+    if (name === 'NotAllowedError') return 'Trình duyệt chưa được cấp quyền camera. Hãy bật quyền Camera trong cài đặt trang rồi thử lại.';
+    if (name === 'NotFoundError') return 'Không tìm thấy camera trên thiết bị này.';
+    if (name === 'NotReadableError') return 'Camera đang được ứng dụng khác sử dụng. Hãy đóng ứng dụng đó rồi thử lại.';
+    if (isEmbeddedBrowser) return 'Trình duyệt tích hợp có thể không hỗ trợ camera. Hãy mở trang bằng Safari hoặc Chrome.';
+    return 'Không thể mở camera. Vui lòng kiểm tra quyền truy cập hoặc dùng ảnh QR từ thư viện.';
+  };
+
+  const startCamera = async (requestedCameraId = selectedCameraId) => {
+    if (startingRef.current || stoppingRef.current || isCameraActive) return;
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError(getCameraMessage({ name: 'UnsupportedError' }));
+      return;
+    }
+
+    startingRef.current = true;
+    setCameraStarting(true);
+    setCameraError(null);
 
     try {
-      // Configuration that is safer for mobile
-      const config = { 
-        fps: 10, 
-        aspectRatio: window.innerWidth < 600 ? 1.0 : undefined 
-      };
+      if (!document.getElementById('qr-reader-modern')) throw new Error('Scanner container is not ready');
+      if (!html5QrCodeRef.current) html5QrCodeRef.current = new Html5Qrcode('qr-reader-modern');
 
-      await html5QrCode.start(
-        { facingMode: "environment" }, 
-        config, 
+      let availableCameras = cameras;
+      if (!availableCameras.length) {
+        availableCameras = await Html5Qrcode.getCameras();
+        if (!availableCameras.length) throw Object.assign(new Error('No camera'), { name: 'NotFoundError' });
+        if (mountedRef.current) setCameras(availableCameras);
+      }
+
+      const rearCamera = availableCameras.find(camera => /back|rear|environment|sau/i.test(camera.label));
+      const cameraId = requestedCameraId || rearCamera?.id || availableCameras[availableCameras.length - 1].id;
+      if (mountedRef.current) setSelectedCameraId(cameraId);
+
+      await html5QrCodeRef.current.start(
+        cameraId,
+        { fps: 10, qrbox: { width: 230, height: 230 }, aspectRatio: 1 },
         onScanSuccess, 
         onScanFailure
       );
-      setIsCameraActive(true);
+
+      const video = document.querySelector('#qr-reader-modern video');
+      if (video) {
+        video.setAttribute('playsinline', 'true');
+        video.muted = true;
+        await video.play().catch(() => undefined);
+      }
+      if (mountedRef.current) setIsCameraActive(true);
     } catch (err) {
-      console.warn("Lỗi bật camera sau:", err);
-      // Fallback to 'user' facing or any available camera
-      try {
-        await html5QrCode.start(
-          { facingMode: "user" }, 
-          { fps: 10 }, 
-          onScanSuccess, 
-          onScanFailure
-        );
-        setIsCameraActive(true);
-      } catch (fallbackErr) {
-        console.error("Camera fallback failed:", fallbackErr);
-        setCameraError("Không thể mở máy ảnh tự động. Vui lòng kiểm tra quyền truy cập hoặc bấm nút Bật Camera bên dưới.");
+      console.error('Camera start failed:', err);
+      if (mountedRef.current) {
+        setCameraError(getCameraMessage(err));
         setIsCameraActive(false);
       }
+    } finally {
+      startingRef.current = false;
+      if (mountedRef.current) setCameraStarting(false);
     }
   };
 
   const stopCamera = async () => {
-      // Safely stop camera if scanning is active
-      if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
-          try { 
-            await html5QrCodeRef.current.stop(); 
-            html5QrCodeRef.current.clear();
-          } catch(e) {
-            console.warn('Error stopping camera:', e);
-          }
+      if (stoppingRef.current) return;
+      stoppingRef.current = true;
+      try {
+        if (html5QrCodeRef.current?.isScanning) await html5QrCodeRef.current.stop();
+        if (html5QrCodeRef.current) html5QrCodeRef.current.clear();
+      } catch(e) {
+        console.warn('Error stopping camera:', e);
+      } finally {
+        html5QrCodeRef.current = null;
+        stoppingRef.current = false;
+        if (mountedRef.current) setIsCameraActive(false);
       }
-      setIsCameraActive(false);
   }
+
+  const changeCamera = async (cameraId) => {
+    await stopCamera();
+    if (mountedRef.current) setSelectedCameraId(cameraId);
+    setTimeout(() => startCamera(cameraId), 100);
+  };
 
   const onScanSuccess = async (decodedText) => {
       await stopCamera();
@@ -124,13 +153,10 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
   const handleFileUpload = async (file) => {
       if (!file) return false;
 
-      if (!html5QrCodeRef.current) {
-          html5QrCodeRef.current = new Html5Qrcode("qr-reader-modern");
-      }
-      
       try {
           await stopCamera();
           setLoading(true);
+          html5QrCodeRef.current = new Html5Qrcode("qr-reader-modern");
           const decodedText = await html5QrCodeRef.current.scanFile(file, true);
           onScanSuccess(decodedText);
       } catch (err) {
@@ -215,6 +241,9 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
       stopCamera();
       setStatus('SCANNING');
       setScanResult(null);
+      setCameraError(null);
+      setCameras([]);
+      setSelectedCameraId(null);
       onClose();
   };
 
@@ -256,10 +285,20 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
                               </div>
                             )}
 
-                            {!isCameraActive && !cameraError && (
+                            {!isCameraActive && !cameraError && cameraStarting && (
                               <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                                 <Spin />
                                 <span className="mt-2 text-sm">Đang khởi động camera...</span>
+                              </div>
+                            )}
+
+                            {!isCameraActive && !cameraError && !cameraStarting && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-5 text-gray-300">
+                                <CameraOutlined style={{ fontSize: 38, marginBottom: 12 }} />
+                                <p className="text-sm mb-4">Bấm nút bên dưới để cấp quyền và bật camera.</p>
+                                <Button type="primary" icon={<CameraOutlined />} onClick={() => startCamera()}>
+                                  Bật camera
+                                </Button>
                               </div>
                             )}
 
@@ -267,12 +306,33 @@ const AttendanceScannerModal = ({ isOpen, onClose, meetingId, meetingTitle, atte
                               <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800 p-4 text-center">
                                 <span className="text-red-400 mb-2 text-3xl">!</span>
                                 <p className="text-white text-sm">{cameraError}</p>
-                                <Button type="primary" onClick={startCamera} className="mt-4 bg-blue-500">
+                                <Button type="primary" onClick={() => startCamera()} className="mt-4 bg-blue-500">
                                   Thử Bật Lại Camera
                                 </Button>
                               </div>
                             )}
                         </div>
+
+                        {isCameraActive && cameras.length > 1 && (
+                          <Select
+                            value={selectedCameraId}
+                            onChange={changeCamera}
+                            style={{ width: '100%', marginTop: 12 }}
+                            options={cameras.map((camera, index) => ({
+                              value: camera.id,
+                              label: camera.label || `Camera ${index + 1}`,
+                            }))}
+                          />
+                        )}
+
+                        {isEmbeddedBrowser && (
+                          <Alert
+                            type="warning"
+                            showIcon
+                            style={{ width: '100%', marginTop: 12 }}
+                            message="Nếu camera vẫn đen, hãy mở liên kết bằng Safari hoặc Chrome."
+                          />
+                        )}
 
                         <p className="text-center text-gray-500 mt-4 text-sm font-medium flex items-center">
                             <CameraOutlined className="mr-2 text-lg text-red-dang" /> 

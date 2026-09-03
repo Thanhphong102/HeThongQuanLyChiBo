@@ -7,6 +7,17 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
+const PARTY_POSITION_LABELS = {
+  'Bi thu': 'Bí thư',
+  'Bi thu chi bo': 'Bí thư chi bộ',
+  'Pho bi thu': 'Phó bí thư',
+  'Pho bi thu chi bo': 'Phó bí thư chi bộ',
+  'Chi uy vien': 'Chi ủy viên',
+  'Dang vien': 'Đảng viên',
+};
+
+const formatPartyPosition = (value) => PARTY_POSITION_LABELS[value] || value;
+
 const PROVINCES = [
   "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "TP Hồ Chí Minh", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
 ];
@@ -80,7 +91,7 @@ const ProfilePage = () => {
         if (!loading && user && Object.keys(user).length > 0) {
             profileForm.setFieldsValue({
                 ho_ten: user.ho_ten,
-                chuc_vu_dang: user.chuc_vu_dang,
+                chuc_vu_dang: formatPartyPosition(user.chuc_vu_dang),
                 ten_chi_bo: user.ten_chi_bo,
                 ngay_sinh: user.ngay_sinh ? dayjs(user.ngay_sinh) : null,
                 gioi_tinh: user.gioi_tinh,
