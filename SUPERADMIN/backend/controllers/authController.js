@@ -99,7 +99,9 @@ exports.register = async (req, res) => {
         await db.query(sql, [ho_ten, email, ten_dang_nhap, hashedPassword, ma_chi_bo, cap_quyen || 3, finalChucVu]);
         
         // Gọi service gửi email
-        await emailService.sendAccountCreationEmail(email, ho_ten, ten_dang_nhap, autoPassword);
+        await emailService.sendAccountCreationEmail(email, ho_ten, ten_dang_nhap, autoPassword, {
+            portal: parseInt(cap_quyen) === 2 ? 'admin' : 'user'
+        });
 
         res.status(201).json({ message: 'Cấp tài khoản thành công! Đã gửi thông tin qua email.' });
     } catch (error) {
@@ -114,10 +116,10 @@ exports.resetPassword = async (req, res) => {
 
     try {
         // Lấy thông tin user để gửi mail
-        const userRes = await db.query('SELECT ho_ten, email, ten_dang_nhap FROM "dangvien" WHERE ma_dang_vien = $1', [id]);
+        const userRes = await db.query('SELECT ho_ten, email, ten_dang_nhap, cap_quyen FROM "dangvien" WHERE ma_dang_vien = $1', [id]);
         if (userRes.rows.length === 0) return res.status(404).json({ message: 'Tài khoản không tồn tại' });
         
-        const { ho_ten, email, ten_dang_nhap } = userRes.rows[0];
+        const { ho_ten, email, ten_dang_nhap, cap_quyen } = userRes.rows[0];
 
         if (!ten_dang_nhap) {
             return res.status(400).json({ message: 'Người dùng này chưa có tài khoản' });
@@ -140,7 +142,9 @@ exports.resetPassword = async (req, res) => {
         let emailSent = false;
         if (email) {
             try {
-                await emailService.sendPasswordResetEmail(email, ho_ten, ten_dang_nhap, matKhauTam);
+                await emailService.sendPasswordResetEmail(email, ho_ten, ten_dang_nhap, matKhauTam, {
+                    portal: parseInt(cap_quyen) === 2 ? 'admin' : 'user'
+                });
                 emailSent = true;
             } catch (err) {
                 console.error('[resetPassword] Lỗi gửi email:', err.message);
